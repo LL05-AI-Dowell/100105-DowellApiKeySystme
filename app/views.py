@@ -13,34 +13,6 @@ from .serializers import *
 
 
 
-
-SendAPIKey = '''
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor mail</title>
-</head>
-<body>
-    <div style="font-family: Helvetica,Arial,sans-serif;min-width:100px;overflow:auto;line-height:2">
-        <div style="margin:50px auto;width:70%;padding:20px 0">
-          <div style="border-bottom:1px solid #eee">
-            <a href="#" style="font-size:1.2em;color: #00466a;text-decoration:none;font-weight:600">Dowell UX Living Lab</a>
-          </div>
-          <p style="font-size:1.1em">WELCOME TO DOWELL API SERVICES</p>
-          <p style="font-size:1.1em">Hi {},</p>
-          <p style="font-size:1.1em">API KEY : {} for {} Dowell API services</p>
-          <p style="font-size:1.1em">Please don't share API KEY with anyone, Thank you</p>
-          <p style="font-size:0.9em;">Regards,<br />Dowell UX Living Lab</p>
-        </div>
-      </div>
-</body>
-</html>
-'''
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class generateKey(APIView):
     def post(self, request):
@@ -101,7 +73,11 @@ class generateKey(APIView):
             print("---Got apiKey---",api_key)
         except ApiKey.DoesNotExist:
             return Response("API Key not found.", status=status.HTTP_404_NOT_FOUND)
-        return Response(list(api_key.values()))
+        return Response({
+            "success": True,
+            "message": "List of api keys found",
+            "data": list(api_key.values())
+        },status=status.HTTP_200_OK)
     
 @method_decorator(csrf_exempt, name='dispatch')
 class processapikey(APIView):
