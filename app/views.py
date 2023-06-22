@@ -73,11 +73,17 @@ class generateKey(APIView):
             print("---Got apiKey---",api_key)
         except ApiKey.DoesNotExist:
             return Response("API Key not found.", status=status.HTTP_404_NOT_FOUND)
-        return Response({
-            "success": True,
-            "message": "List of api keys found",
-            "data": list(api_key.values())
-        },status=status.HTTP_200_OK)
+        if (api_key.values()):
+            return Response({
+                "success": True,
+                "message": "List of api keys found",
+                "data": list(api_key.values())
+            },status=status.HTTP_200_OK)
+        else: 
+            return Response({
+                "success": False,
+                "message": "No API key found"
+            },status=status.HTTP_200_OK)
     
 @method_decorator(csrf_exempt, name='dispatch')
 class processapikey(APIView):
