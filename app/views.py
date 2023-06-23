@@ -12,7 +12,6 @@ from .models import ApiKey
 from .serializers import *
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class generateKey(APIView):
     def post(self, request):
