@@ -95,7 +95,7 @@ const CreatedApiKeys = () => {
                         <TableCell>
                           <ApiCell api={i.APIKey} />
                         </TableCell>
-                        <TableCell></TableCell>
+                        <TableCell>{i.credits}</TableCell>
                         <TableCell sx={{ display: "flex" }}>
                           <Typography
                             sx={{
