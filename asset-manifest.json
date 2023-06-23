@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/LL05-AI-Dowell/100105-DowellApiKeySystem/static/css/main.e6c13ad2.css",
+    "main.js": "/LL05-AI-Dowell/100105-DowellApiKeySystem/static/js/main.3302f809.js",
+    "static/js/787.a8c1262b.chunk.js": "/LL05-AI-Dowell/100105-DowellApiKeySystem/static/js/787.a8c1262b.chunk.js",
+    "index.html": "/LL05-AI-Dowell/100105-DowellApiKeySystem/index.html",
+    "main.e6c13ad2.css.map": "/LL05-AI-Dowell/100105-DowellApiKeySystem/static/css/main.e6c13ad2.css.map",
+    "main.3302f809.js.map": "/LL05-AI-Dowell/100105-DowellApiKeySystem/static/js/main.3302f809.js.map",
+    "787.a8c1262b.chunk.js.map": "/LL05-AI-Dowell/100105-DowellApiKeySystem/static/js/787.a8c1262b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.3302f809.js"
+  ]
+}
