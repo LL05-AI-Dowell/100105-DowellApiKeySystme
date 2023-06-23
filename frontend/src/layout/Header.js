@@ -17,11 +17,13 @@ import { AccountCircle } from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Logo from "../dowellLogo.png";
 import { GetRedeemVoucher, RedeemVoucher } from "../util/api";
+import { useUserContext } from "../contexts/UserContext";
 
-const Header = ({data}) => {
+const Header = () => {
   const [open, setOpen] = React.useState(false);
   const [anchor, setAnchor] = useState(null);
   const [voucher, setVoucher] = useState(null);
+  const { currentUser } = useUserContext();
 
   // const data = { name: "kkakaakakakamanish", email: "kkakaakakakamanish@dowellresearch.in" };
 
@@ -32,7 +34,7 @@ const Header = ({data}) => {
     setAnchor(e.currentTarget);
   };
   const handleClickOpen = async () => {
-    const res = await GetRedeemVoucher(data.email)
+    const res = await GetRedeemVoucher(currentUser?.userinfo?.email)
     console.log("the axios data is voucher is", res)
     if (res ?.data ?.length > 0) {
       setVoucher(res.data[0]);
@@ -45,7 +47,11 @@ const Header = ({data}) => {
     setOpen(false);
   };
   const handleRedeemVoucher = async () => {
-    const axiosData = await RedeemVoucher(data)
+    const axiosData = await RedeemVoucher({
+      name: currentUser?.userinfo?.username,
+      email: currentUser?.userinfo?.email,
+    })
+    
     if(axiosData ?.data.length > 0){
       setVoucher(axiosData.data[0])
     }

@@ -27,14 +27,14 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { Link} from "react-router-dom";
 import { FetchAll, GenerateApiKey } from "../util/api";
+import { useUserContext } from "../contexts/UserContext";
 
 const CreateApi = () => {
   const [tableData, setTableData] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [addVoucher, setAddVoucher] = useState("");
-
-  const data = { name: "fraol", email: "fraolbereket@gmail.com" };
+  const { currentUser } = useUserContext();
 
   const url = "https://100105.pythonanywhere.com/api/v1/generate-api-key/";
 
@@ -49,13 +49,13 @@ const CreateApi = () => {
 
   const handleSend = async () => {
     const val = {
-      name: data.name,
-      email: data.email,
+      name: currentUser?.userinfo?.username,
+      email: currentUser?.userinfo?.email,
       api_services: `${selectedData.api_service}`,
       workspace_id: "162573bcsfer",
       userDetails: {
-        name: data.name,
-        email: data.email,
+        name: currentUser?.userinfo?.username,
+        email: currentUser?.userinfo?.email,
       },
       voucher_code: addVoucher,
     };
@@ -74,7 +74,7 @@ const CreateApi = () => {
   }, []);
   return (
     <div>
-      <Header data={data}/>
+      <Header/>
       <Box display="flex" width="100vw">
         <Stack
           direction="column"
