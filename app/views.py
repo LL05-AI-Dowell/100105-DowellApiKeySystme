@@ -127,7 +127,6 @@ class processapikey(APIView):
                 new_error[field_name] = field_errors[0]
             return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class generateVoucher(APIView):
     def post(self,request):
