@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 import Header from "../layout/Header";
 import {
   Box,
@@ -18,9 +18,22 @@ import {
   Typography,
 } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { GetUserApiKey } from "../util/api";
 
 const CreatedApiKeys = () => {
+  const [data, setData] = useState();
+  const [viewKey, setViewKey] = useState(false);
+  const workspace_id = '162573bcsfer'
+
+  useEffect(() => {
+    const GetApi = async () => {
+      const res = await GetUserApiKey(workspace_id);
+      console.log(res?.data.data);
+      setData(res?.data.data);
+    };
+    GetApi();
+  }, []);
   return (
     <div>
       <Header />
@@ -34,8 +47,8 @@ const CreatedApiKeys = () => {
           component={Paper}
         >
           <List>
-            <ListItemButton sx={{borderRight:"5px solid #005734"}}>
-              <HomeOutlinedIcon fontSize="large" sx={{color:"#005734"}}/>
+            <ListItemButton sx={{ borderRight: "5px solid #005734" }}>
+              <HomeOutlinedIcon fontSize="large" sx={{ color: "#005734" }} />
             </ListItemButton>
           </List>
         </Stack>
@@ -48,7 +61,7 @@ const CreatedApiKeys = () => {
               variant="outlined"
               sx={{ mr: 3, color: "#005734", borderColor: "#005734" }}
               component={Link}
-              to='/'
+              to="/"
             >
               Create Api Key
             </Button>
@@ -56,7 +69,7 @@ const CreatedApiKeys = () => {
               variant="outlined"
               sx={{ color: "#005734", borderColor: "#005734" }}
               component={Link}
-              to='/createdapikeys'
+              to="/createdapikeys"
             >
               Created Api Keys
             </Button>
@@ -66,9 +79,8 @@ const CreatedApiKeys = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Api Name</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
-                      Documentaion
+                      Api Service
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Api Key</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Credit</TableCell>
@@ -76,36 +88,27 @@ const CreatedApiKeys = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>scale</TableCell>
-                    <TableCell>scaleee lle </TableCell>
-                    <TableCell>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        sx={{ color: "#005734", borderColor: "#005734" }}
-                      >
-                        Created
-                      </Button>
-                    </TableCell>
-                    <TableCell></TableCell>
-                    <TableCell sx={{display:"flex"}}><Typography sx={{bgcolor:"#FBE7E9",borderRadius:"6px",p:0.5}}>False</Typography></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>scale</TableCell>
-                    <TableCell>scaleee lle </TableCell>
-                    <TableCell>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        sx={{ color: "#005734", borderColor: "#005734" }}
-                      >
-                        Created
-                      </Button>
-                    </TableCell>
-                    <TableCell></TableCell>
-                    <TableCell sx={{display:"flex"}}><Typography sx={{bgcolor:"#FBE7E9",borderRadius:"6px",p:0.5}}>False</Typography></TableCell>
-                  </TableRow>
+                  {data?.length > 0 &&
+                    data.map((i) => (
+                      <TableRow key={i.id}>
+                        <TableCell>{i.api_services}</TableCell>
+                        <TableCell>
+                          <ApiCell api={i.APIKey} />
+                        </TableCell>
+                        <TableCell></TableCell>
+                        <TableCell sx={{ display: "flex" }}>
+                          <Typography
+                            sx={{
+                              bgcolor: "#FBE7E9",
+                              borderRadius: "6px",
+                              p: 0.5,
+                            }}
+                          >
+                            {i.is_paid ? "True" : "False"}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -113,7 +116,31 @@ const CreatedApiKeys = () => {
         </Box>
       </Box>
     </div>
-  )
-}
+  );
+};
 
-export default CreatedApiKeys
+export default CreatedApiKeys;
+
+const ApiCell = ({api }) => {
+  const [showApi, setShowApi] = useState(false);
+
+  const handleClick = () => {
+    setShowApi(!showApi);
+  };
+
+  useEffect(() => {
+    let timer;
+    if (showApi) {
+      timer = setTimeout(() => {
+        setShowApi(false);
+      }, 10000); // Hide password after 10 seconds
+    }
+    return () => clearTimeout(timer);
+  }, [showApi]);
+
+  return (
+    <Box>
+      {showApi ? api : <Button onClick={handleClick}>Show Api</Button>}
+    </Box>
+  );
+};

@@ -25,13 +25,16 @@ import {
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { Link, json } from "react-router-dom";
+import { Link} from "react-router-dom";
+import { FetchAll, GenerateApiKey } from "../util/api";
 
 const CreateApi = () => {
   const [tableData, setTableData] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [addVoucher, setAddVoucher] = useState("");
+
+  const data = { name: "fraol", email: "fraolbereket@gmail.com" };
 
   const url = "https://100105.pythonanywhere.com/api/v1/generate-api-key/";
 
@@ -46,43 +49,32 @@ const CreateApi = () => {
 
   const handleSend = async () => {
     const val = {
-      name: "manish",
-      email: "manish@dowellresearch.in",
+      name: data.name,
+      email: data.email,
       api_services: `${selectedData.api_service}`,
       workspace_id: "162573bcsfer",
       userDetails: {
-        name: "manish",
-        email: "manish@dowellresearch.in",
+        name: data.name,
+        email: data.email,
       },
       voucher_code: addVoucher,
     };
-    console.log(JSON.stringify(val));
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(val),
-    });
-    const resData = await res.json()
-    console.log('thes response is ', resData)
-    // setOpen(null);
+    const axiosRes = await GenerateApiKey(val)
+    console.log('the axios genrated KEY is ', axiosRes)
+    setOpen(null);
   };
 
   useEffect(() => {
     const TableVal = async () => {
-      const res = await fetch(
-        "https://100105.pythonanywhere.com/api/v1/list-of-api/"
-      );
-      const val = await res.json();
-      // console.log("the data is ", val);
-      setTableData(val.data);
+        const val =await FetchAll()
+        // console.log(val)
+        setTableData(val.data)
     };
     TableVal();
   }, []);
   return (
     <div>
-      <Header />
+      <Header data={data}/>
       <Box display="flex" width="100vw">
         <Stack
           direction="column"

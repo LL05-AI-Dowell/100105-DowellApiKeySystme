@@ -16,17 +16,14 @@ import {
 import { AccountCircle } from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Logo from "../dowellLogo.png";
+import { GetRedeemVoucher, RedeemVoucher } from "../util/api";
 
-const Header = () => {
+const Header = ({data}) => {
   const [open, setOpen] = React.useState(false);
   const [anchor, setAnchor] = useState(null);
   const [voucher, setVoucher] = useState(null);
 
-  const url =
-    "https://100105.pythonanywhere.com/api/v1/redeem-voucher/kamanish@dowellresearch.in/";
-  const url2 =
-    "https://100105.pythonanywhere.com/api/v1/redeem-voucher/";
-  const data = { name: "kamanish", email: "kamanish@dowellresearch.in" };
+  // const data = { name: "kkakaakakakamanish", email: "kkakaakakakamanish@dowellresearch.in" };
 
   const handleClose = () => {
     setAnchor(null);
@@ -35,11 +32,10 @@ const Header = () => {
     setAnchor(e.currentTarget);
   };
   const handleClickOpen = async () => {
-    const res = await fetch(url);
-    const resData = await res.json();
-    console.log("the fetched data is ", resData);
-    if (resData.data.length > 0) {
-      setVoucher(resData.data[0]);
+    const res = await GetRedeemVoucher(data.email)
+    console.log("the axios data is voucher is", res)
+    if (res ?.data ?.length > 0) {
+      setVoucher(res.data[0]);
     }
     setOpen(true);
     setAnchor(null);
@@ -49,16 +45,11 @@ const Header = () => {
     setOpen(false);
   };
   const handleRedeemVoucher = async () => {
-    const response = await fetch(url2, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
-    console.log("Response:", result);
+    const axiosData = await RedeemVoucher(data)
+    if(axiosData ?.data.length > 0){
+      setVoucher(axiosData.data[0])
+    }
+    console.log('the axios respos is', axiosData)
   };
   return (
     <Box sx={{ zIndex: "5" }}>
