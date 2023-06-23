@@ -5,10 +5,7 @@ import {
   Button,
   Dialog,
   DialogTitle,
-  DialogContent,
   DialogActions,
-  Drawer,
-  IconButton,
   List,
   ListItemButton,
   Paper,
@@ -117,12 +114,12 @@ const CreateApi = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Api Name</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>API SERVICES</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Documentaion
                     </TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Created</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Api Key</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>STATUS</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>CREATE KEY</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -135,8 +132,8 @@ const CreateApi = () => {
                             {i.document_link}
                           </LinkMUI>
                         </TableCell>
-                        <TableCell>
-                          {i.is_active ? "Created" : "Not Created"}
+                        <TableCell >
+                          {i.is_active ? "RELEASED" : "NOT RELEASED"}
                         </TableCell>
                         <TableCell>
                           <Button

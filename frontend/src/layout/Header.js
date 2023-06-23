@@ -25,7 +25,6 @@ const Header = () => {
   const [voucher, setVoucher] = useState(null);
   const { currentUser } = useUserContext();
 
-  // const data = { name: "kkakaakakakamanish", email: "kkakaakakakamanish@dowellresearch.in" };
 
   const handleClose = () => {
     setAnchor(null);
@@ -36,7 +35,7 @@ const Header = () => {
   const handleClickOpen = async () => {
     const res = await GetRedeemVoucher(currentUser?.userinfo?.email)
     console.log("the axios data is voucher is", res)
-    if (res ?.data ?.length > 0) {
+    if (res?.data?.length > 0) {
       setVoucher(res.data[0]);
     }
     setOpen(true);
@@ -52,7 +51,7 @@ const Header = () => {
       email: currentUser?.userinfo?.email,
     })
     
-    if(axiosData ?.data.length > 0){
+    if(axiosData?.data.length > 0){
       setVoucher(axiosData.data[0])
     }
     console.log('the axios respos is', axiosData)
@@ -61,7 +60,7 @@ const Header = () => {
     <Box sx={{ zIndex: "5" }}>
       <AppBar position="static" sx={{ bgcolor: "#00573412" }}>
         <Toolbar color="#00573412">
-          <img src={Logo} width="70" style={{ marginRight: "30px" }} />
+          <img src={Logo} width="70" style={{ marginRight: "30px" }} alt="" />
           <Typography
             variant="h4"
             fontWeight="bold"
@@ -107,7 +106,7 @@ const Header = () => {
           <Typography variant="h4" mr={2} fontWeight="bold">
             Download <br /> Redeem Code
           </Typography>
-          <img src={Logo} width="80" />
+          <img src={Logo} width="80" alt=""/>
         </DialogContent>
         <DialogActions sx={{ bgcolor: "#dce8e4", display: "block", p: 2 }}>
           <Box
