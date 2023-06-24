@@ -5,9 +5,7 @@ The Process API Key service allows you to decrement the credits associated with 
 
 ### API Endpoint
 
-```
-POST https://100105.pythonanywhere.com/api/v1/process-api-key/
-```
+_POST_ `https://100105.pythonanywhere.com/api/v1/process-api-key/`
 
 ### Request Parameters
 
