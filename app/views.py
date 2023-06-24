@@ -99,7 +99,10 @@ class processapikey(APIView):
                 api_key = ApiKey.objects.get(APIKey=user_api_key, api_services= user_api_services)
                 print("---Got api key---",api_key)
             except ApiKey.DoesNotExist:
-                return Response("API Key not found.", status=status.HTTP_404_NOT_FOUND)
+                return Response({
+                    "success": False,
+                    "message": "API key does not exist or the combination is invalid"
+                }, status=status.HTTP_404_NOT_FOUND)
             if(api_key.is_active):
                 if(api_key.credits > 0):
                     api_key.credits -= 1
