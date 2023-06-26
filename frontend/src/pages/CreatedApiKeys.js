@@ -15,14 +15,17 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { useUserContext } from "../contexts/UserContext";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { Link } from "react-router-dom";
 import { GetUserApiKey } from "../util/api";
 
+
 const CreatedApiKeys = () => {
   const [data, setData] = useState();
   const [viewKey, setViewKey] = useState(false);
-  const workspace_id = '162573bcsfer'
+  const { currentUser } = useUserContext();
+  const workspace_id = currentUser?.userinfo?.client_admin_id
 
   useEffect(() => {
     const GetApi = async () => {

@@ -27,8 +27,10 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { Link } from "react-router-dom";
 import { FetchAll, GenerateApiKey } from "../util/api";
 import { useUserContext } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const CreateApi = () => {
+  const navigate = useNavigate();
   const [tableData, setTableData] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
@@ -55,7 +57,7 @@ const CreateApi = () => {
       name: currentUser?.userinfo?.username,
       email: currentUser?.userinfo?.email,
       api_services: `${selectedData.api_service}`,
-      workspace_id: "162573bcsfer",
+      workspace_id: currentUser?.userinfo?.client_admin_id,
       userDetails: {
         name: currentUser?.userinfo?.username,
         email: currentUser?.userinfo?.email,
@@ -67,12 +69,12 @@ const CreateApi = () => {
     setGenKey(axiosRes);
     setSnackBar(true);
     setOpen(null);
+    navigate("/", { replace: true });
   };
 
   useEffect(() => {
     const TableVal = async () => {
       const val = await FetchAll();
-      // console.log(val)
       setTableData(val.data);
     };
     TableVal();

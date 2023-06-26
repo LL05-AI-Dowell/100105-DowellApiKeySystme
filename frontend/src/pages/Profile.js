@@ -27,6 +27,7 @@ const Profile = () => {
             width="200px"
             height="200px"
             style={{ marginRight: "20px", marginTop: "30px" }}
+            alt=""
           />
         </Box>
         <TableContainer
