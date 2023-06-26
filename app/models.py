@@ -31,11 +31,13 @@ class ApiKey(models.Model):
     is_active = models.BooleanField(default=True)
     credits = models.IntegerField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
-    workspace_id = models.CharField(max_length=255,null=True, unique= True)
+    workspace_id = models.CharField(max_length=255,null=True)
     userDetails = models.JSONField(null=True, blank=False)
 
     def __str__(self):
         return str(self.APIKey)
+    class Meta:
+        unique_together = ("workspace_id", "api_services")
 
 class Voucher(models.Model):
     voucher_name = models.CharField(max_length=255,unique=True)
