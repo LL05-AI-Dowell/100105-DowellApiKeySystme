@@ -115,7 +115,7 @@ class processapikey(APIView):
                     }, status=status.HTTP_200_OK)
                 else:
                     return Response({
-                        "success":True,
+                        "success":False,
                         "message":"Limit exceeded",
                     }, status=status.HTTP_401_UNAUTHORIZED)
             return Response({
