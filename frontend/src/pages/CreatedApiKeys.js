@@ -43,6 +43,7 @@ const CreatedApiKeys = () => {
           mt={1}
           pt={4}
           component={Paper}
+          sx={{display:{xs:'none',sm:'block'}}}
         >
           <List>
             <ListItemButton sx={{ borderRight: "5px solid #005734" }}>
@@ -50,7 +51,7 @@ const CreatedApiKeys = () => {
             </ListItemButton>
           </List>
         </Stack>
-        <Box width="90vw">
+        <Box sx={{width:{xs:"100%",sm:"90%"}}}>
           <Stack
             direction="row"
             sx={{ display: "flex", justifyContent: "center", mt: 4 }}
@@ -73,7 +74,7 @@ const CreatedApiKeys = () => {
             </Button>
           </Stack>
           <Box display="flex" justifyContent="center">
-            <TableContainer component={Paper} sx={{ m: 4, width: "80%" }}>
+            <TableContainer component={Paper} sx={{ mt: 4, width:{xs:"100%", md:"80%", l:"60%"} }}>
               <Table>
                 <TableHead>
                   <TableRow>

@@ -11,20 +11,40 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Link,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { AccountCircle } from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
 import Logo from "../dowellLogo.png";
 import { GetRedeemVoucher, RedeemVoucher } from "../util/api";
 import { useUserContext } from "../contexts/UserContext";
+import { dowellLoginUrl } from "../utils";
+
+import { useNavigate, Link } from "react-router-dom";
 
 const Header = () => {
   const [open, setOpen] = React.useState(false);
   const [anchor, setAnchor] = useState(null);
   const [voucher, setVoucher] = useState(null);
+  const [redeemed, setRedeemed] = useState(null)
+  const [snackBar, setSnackBar] = useState(false);
   const { currentUser } = useUserContext();
+  const { setAppLoading, currentLocalSession, setCurrentLocalSession, setCurrentUser } = useUserContext();
 
+  const navigate = useNavigate();
+
+  const goToProfile = () => {
+    navigate("/profile");
+  };
+
+  const logOut = () => {
+    // setCurrentUser(null)
+    // setCurrentLocalSession(null)
+    // setAppLoading(true)
+    // sessionStorage.setItem("session_id", '');
+    // window.location.replace(dowellLoginUrl);
+  };
 
   const handleClose = () => {
     setAnchor(null);
@@ -33,8 +53,8 @@ const Header = () => {
     setAnchor(e.currentTarget);
   };
   const handleClickOpen = async () => {
-    const res = await GetRedeemVoucher(currentUser?.userinfo?.email)
-    console.log("the axios data is voucher is", res)
+    const res = await GetRedeemVoucher(currentUser?.userinfo?.email);
+    console.log("the axios data is voucher is", res);
     if (res?.data?.length > 0) {
       setVoucher(res.data[0]);
     }
@@ -49,18 +69,22 @@ const Header = () => {
     const axiosData = await RedeemVoucher({
       name: currentUser?.userinfo?.username,
       email: currentUser?.userinfo?.email,
-    })
-    
-    if(axiosData?.data.length > 0){
-      setVoucher(axiosData.data[0])
+    });
+
+    if (axiosData?.data.length > 0) {
+      setVoucher(axiosData.data[0]);
     }
-    console.log('the axios respos is', axiosData)
+    setRedeemed(axiosData)
+    setSnackBar(true);
+    console.log("the axios respos is", axiosData);
   };
   return (
     <Box sx={{ zIndex: "5" }}>
       <AppBar position="static" sx={{ bgcolor: "#00573412" }}>
         <Toolbar color="#00573412">
-          <img src={Logo} width="70" style={{ marginRight: "30px" }} alt="" />
+          <Link to='/'>
+            <img src={Logo} width="70" style={{ marginRight: "30px" }} alt="" />
+          </Link>
           <Typography
             variant="h4"
             fontWeight="bold"
@@ -87,9 +111,9 @@ const Header = () => {
               open={Boolean(anchor)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
+              <MenuItem onClick={goToProfile}>Profile</MenuItem>
               <MenuItem onClick={handleClickOpen}>Redeem Voucher</MenuItem>
-              <MenuItem onClick={handleClose}>Logout</MenuItem>
+              <MenuItem onClick={logOut}>Logout</MenuItem>
             </Menu>
           </Box>
         </Toolbar>
@@ -106,7 +130,7 @@ const Header = () => {
           <Typography variant="h4" mr={2} fontWeight="bold">
             Download <br /> Redeem Code
           </Typography>
-          <img src={Logo} width="80" alt=""/>
+          <img src={Logo} width="80" alt="" />
         </DialogContent>
         <DialogActions sx={{ bgcolor: "#dce8e4", display: "block", p: 2 }}>
           <Box
@@ -120,16 +144,34 @@ const Header = () => {
               justifyContent: "center",
             }}
           >
-            {voucher == null ? <CircularProgress /> : voucher.voucher_code}
+            {voucher == null ? "No Voucher" : voucher.voucher_code}
           </Box>
           <Typography>
             If you haven't redeemed,{" "}
-            <Link color="#005734" onClick={handleRedeemVoucher} component={Button}>
+            <Link
+              color="#005734"
+              onClick={handleRedeemVoucher}
+              component={Button}
+            >
               Click here to redeem
             </Link>
           </Typography>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{horizontal:'right', vertical:'top'}}
+        open={snackBar}
+        autoHideDuration={5000}
+        onClose={() => setSnackBar(false)}
+      >
+        {redeemed == null ? (
+          <Alert severity="error">You already have redeemed voucher!</Alert>
+        ) : (
+          <Alert severity="success" sx={{ width: "100%" }}>
+            You created voucher!
+          </Alert>
+        )}
+      </Snackbar>
     </Box>
   );
 };

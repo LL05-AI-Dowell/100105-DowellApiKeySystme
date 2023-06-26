@@ -19,10 +19,12 @@ import {
   Typography,
   TextField,
   Link as LinkMUI,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FetchAll, GenerateApiKey } from "../util/api";
 import { useUserContext } from "../contexts/UserContext";
 
@@ -33,10 +35,14 @@ const CreateApi = () => {
   const [addVoucher, setAddVoucher] = useState("");
   const { currentUser } = useUserContext();
 
+  const [genKey, setGenKey] = useState(null);
+  const [snackBar, setSnackBar] = useState(false);
+
   const url = "https://100105.pythonanywhere.com/api/v1/generate-api-key/";
 
   const handleClickOpen = (item) => {
     setSelectedData(item);
+    console.log(item);
     setOpen(true);
   };
 
@@ -56,22 +62,24 @@ const CreateApi = () => {
       },
       voucher_code: addVoucher,
     };
-    const axiosRes = await GenerateApiKey(val)
-    console.log('the axios genrated KEY is ', axiosRes)
+    const axiosRes = await GenerateApiKey(val);
+    console.log("the axios genrated KEY is ", axiosRes);
+    setGenKey(axiosRes);
+    setSnackBar(true);
     setOpen(null);
   };
 
   useEffect(() => {
     const TableVal = async () => {
-        const val =await FetchAll()
-        // console.log(val)
-        setTableData(val.data)
+      const val = await FetchAll();
+      // console.log(val)
+      setTableData(val.data);
     };
     TableVal();
   }, []);
   return (
     <div>
-      <Header/>
+      <Header />
       <Box display="flex" width="100vw">
         <Stack
           direction="column"
@@ -80,6 +88,7 @@ const CreateApi = () => {
           mt={1}
           pt={4}
           component={Paper}
+          sx={{ display: { xs: "none", sm: "block" } }}
         >
           <List>
             <ListItemButton sx={{ borderRight: "5px solid #005734" }}>
@@ -87,7 +96,7 @@ const CreateApi = () => {
             </ListItemButton>
           </List>
         </Stack>
-        <Box width="90vw">
+        <Box sx={{ width: { xs: "100%", sm: "90%" } }}>
           <Stack
             direction="row"
             sx={{ display: "flex", justifyContent: "center", mt: 4 }}
@@ -110,16 +119,23 @@ const CreateApi = () => {
             </Button>
           </Stack>
           <Box display="flex" justifyContent="center">
-            <TableContainer component={Paper} sx={{ m: 4, width: "80%" }}>
+            <TableContainer
+              component={Paper}
+              sx={{ mt: 4, width: { xs: "100%", md: "80%", l: "60%" } }}
+            >
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>API SERVICES</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      API SERVICES
+                    </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       Documentaion
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>STATUS</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>CREATE KEY</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      CREATE KEY
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -132,7 +148,7 @@ const CreateApi = () => {
                             {i.document_link}
                           </LinkMUI>
                         </TableCell>
-                        <TableCell >
+                        <TableCell>
                           {i.is_active ? "RELEASED" : "NOT RELEASED"}
                         </TableCell>
                         <TableCell>
@@ -157,7 +173,9 @@ const CreateApi = () => {
               sx={{ width: "500px", bgcolor: "#dce8e4", fontWeight: "bold" }}
               textAlign="center"
             >
-              {selectedData && <Typography> {selectedData.name}</Typography>}
+              {selectedData && (
+                <Typography> {selectedData.api_service}</Typography>
+              )}
             </DialogTitle>
 
             <DialogActions sx={{ display: "block", bgcolor: "#dce8e4" }}>
@@ -189,6 +207,20 @@ const CreateApi = () => {
               </Button>
             </DialogActions>
           </Dialog>
+          <Snackbar
+            anchorOrigin={{ horizontal: "right", vertical: "top" }}
+            open={snackBar}
+            autoHideDuration={5000}
+            onClose={() => setSnackBar(false)}
+          >
+            {genKey == null ? (
+              <Alert severity="error">You already have created Key</Alert>
+            ) : (
+              <Alert severity="success" sx={{ width: "100%" }}>
+                You created your key!
+              </Alert>
+            )}
+          </Snackbar>
         </Box>
       </Box>
     </div>
