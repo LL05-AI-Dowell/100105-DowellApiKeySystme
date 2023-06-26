@@ -306,6 +306,11 @@ class documentdetails(APIView):
                 "api_service":"DoWell Subscribe NewsLetter",
                 "document_link": "https://github.com/DoWellUXLab/DoWell-Subscribe-NewsLetter",
                 "is_active": True
+            },
+            {
+                "api_service":"DoWell Login",
+                "document_link": "https://github.com/DoWellUXLab/DoWell-Login.git",
+                "is_active": True
             }
         ]
 

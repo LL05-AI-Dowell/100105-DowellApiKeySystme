@@ -20,7 +20,8 @@ class ApiKey(models.Model):
         ('DoWell Central tendencies of Big data distributions', 'DoWell Central tendencies of Big data distributions'),
         ('DoWell Subscribe NewsLetter', 'DoWell Subscribe Newsletter'),
         ('DoWell Topic Generation','DoWell Topic Generation'),
-        ('DoWell Coordinates','DoWell Coordinates')
+        ('DoWell Coordinates','DoWell Coordinates'),
+        ('DoWell Login','DoWell Login'),
 
     )
     APIKey = models.CharField(max_length=255, unique=True)
