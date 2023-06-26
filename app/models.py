@@ -27,11 +27,11 @@ class ApiKey(models.Model):
     APIKey = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
-    api_services = models.CharField(max_length=255, choices=API_SERVICES_CHOICES, unique=True)
+    api_services = models.CharField(max_length=255, choices=API_SERVICES_CHOICES)
     is_active = models.BooleanField(default=True)
     credits = models.IntegerField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
-    workspace_id = models.CharField(max_length=255,null=True)
+    workspace_id = models.CharField(max_length=255,null=True, unique= True)
     userDetails = models.JSONField(null=True, blank=False)
 
     def __str__(self):
