@@ -233,7 +233,7 @@ class documentdetails(APIView):
                 "is_active": False
             },
             {
-                "api_service": "Statistical distributions from bigdata ",
+                "api_service": "Statistical distributions from bigdata",
                 "document_link": "https://github.com/DoWellUXLab/DoWell-Statistical-distributions-from-bigdata",
                 "is_active": True
             },
@@ -253,7 +253,7 @@ class documentdetails(APIView):
                 "is_active": True
             },
             {
-                "api_service": "Sampling from big data",
+                "api_service": "DoWell Sampling from big data",
                 "document_link": "",
                 "is_active": False
             },
@@ -263,7 +263,7 @@ class documentdetails(APIView):
                 "is_active": True
             },
             {
-                "api_service": "Shuffling of Big data",
+                "api_service": "DoWell Shuffling of Big data",
                 "document_link": "https://github.com/DoWellUXLab/DoWell-Shuffling-of-Big-data",
                 "is_active": True
             },
@@ -278,17 +278,17 @@ class documentdetails(APIView):
                 "is_active": True
             },
             {
-                "api_service": "Secure repositories",
+                "api_service": "DoWell Secure repositories",
                 "document_link": "",
                 "is_active": False
             },
             {
-                "api_service": "Geometrical layout of Big Data",
+                "api_service": "DoWell Geometrical layout of Big Data",
                 "document_link": "https://github.com/DoWellUXLab/DoWell-Geometrical-layout-of-Big-Data",
                 "is_active": True
             },
             {
-                "api_service": "Central tendencies of Big data distributions",
+                "api_service": "DoWell Central tendencies of Big data distributions",
                 "document_link": "https://github.com/DoWellUXLab/DoWell-Central-tendencies-of-Big-data-distributions",
                 "is_active": True
             },
