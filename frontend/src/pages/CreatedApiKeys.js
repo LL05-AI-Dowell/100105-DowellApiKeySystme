@@ -26,10 +26,15 @@ const CreatedApiKeys = () => {
   const [viewKey, setViewKey] = useState(false);
   const { currentUser } = useUserContext();
   const workspace_id = currentUser?.userinfo?.client_admin_id
+  const value = sessionStorage.getItem('key2');
 
   useEffect(() => {
     const GetApi = async () => {
-      const res = await GetUserApiKey(workspace_id);
+      const key = workspace_id == null ? value.slice(1, -1) : workspace_id;
+      // console.log('worksps id ', workspace_id)
+      // console.log('key 2 ', value)
+      // console.log("the key is ", key)
+      const res = await GetUserApiKey(key);
       console.log(res?.data.data);
       setData(res?.data.data);
     };
@@ -38,10 +43,9 @@ const CreatedApiKeys = () => {
   return (
     <div>
       <Header />
-      <Box display="flex" width="100vw">
+      <Box display="flex" width="100vw" height="100vh">
         <Stack
           direction="column"
-          height="89vh"
           width="60px"
           mt={1}
           pt={4}
@@ -82,6 +86,9 @@ const CreatedApiKeys = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: "bold" }}>
+                      NO
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
                       Api Service
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Api Key</TableCell>
@@ -91,8 +98,9 @@ const CreatedApiKeys = () => {
                 </TableHead>
                 <TableBody>
                   {data?.length > 0 &&
-                    data.map((i) => (
+                    data.map((i, index) => (
                       <TableRow key={i.id}>
+                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{i.api_services}</TableCell>
                         <TableCell>
                           <ApiCell api={i.APIKey} />

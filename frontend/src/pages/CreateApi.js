@@ -29,6 +29,8 @@ import { FetchAll, GenerateApiKey } from "../util/api";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
 
+import Logo from "../dowellLogo.png";
+
 const CreateApi = () => {
   const navigate = useNavigate();
   const [tableData, setTableData] = useState("");
@@ -61,6 +63,14 @@ const CreateApi = () => {
       userDetails: {
         name: currentUser?.userinfo?.username,
         email: currentUser?.userinfo?.email,
+        phone: currentUser?.userinfo?.phone,
+        profile_img: currentUser?.userinfo?.profile_img,
+        userID: currentUser?.userinfo?.userID,
+        first_name: currentUser?.userinfo?.first_name,
+        last_name: currentUser?.userinfo?.last_name,
+        user_country: currentUser?.userinfo?.user_country,
+        client_admin_id: currentUser?.userinfo?.client_admin_id,
+        login_eventID: currentUser?.userinfo?.login_eventID,
       },
       voucher_code: addVoucher,
     };
@@ -82,10 +92,9 @@ const CreateApi = () => {
   return (
     <div>
       <Header />
-      <Box display="flex" width="100vw">
+      <Box display="flex" width="100vw" height="100vh" >
         <Stack
           direction="column"
-          height="89vh"
           width="60px"
           mt={1}
           pt={4}
@@ -128,6 +137,7 @@ const CreateApi = () => {
               <Table>
                 <TableHead>
                   <TableRow>
+                    <TableCell sx={{ fontWeight: "bold" }}>NO</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       API SERVICES
                     </TableCell>
@@ -142,8 +152,9 @@ const CreateApi = () => {
                 </TableHead>
                 <TableBody>
                   {tableData.length !== 0 &&
-                    tableData.map((i) => (
+                    tableData.map((i, index) => (
                       <TableRow key={i.api_service}>
+                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{i.api_service}</TableCell>
                         <TableCell>
                           <LinkMUI href={i.document_link}>
@@ -172,40 +183,54 @@ const CreateApi = () => {
           </Box>
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle
-              sx={{ width: "500px", bgcolor: "#dce8e4", fontWeight: "bold" }}
+              sx={{
+                bgcolor: "#dce8e4",
+                fontWeight: "bold",
+                display: "flex",
+              }}
               textAlign="center"
             >
+              <img src={Logo} width="80" />
               {selectedData && (
-                <Typography> {selectedData.api_service}</Typography>
+                <Typography variant="h5" ml={6} mt={3}>
+                  {" "}
+                  {selectedData.api_service}
+                </Typography>
               )}
             </DialogTitle>
 
             <DialogActions sx={{ display: "block", bgcolor: "#dce8e4" }}>
-              <Box display="flex" pl={2} pr={2}>
-                <Typography sx={{ width: "150px", pt: 2, color: "#005734" }}>
-                  Add Voucher
-                </Typography>{" "}
+              <Box display="flex" pl={8} pr={8}>
                 <TextField
                   fullWidth
                   sx={{ bgcolor: "white" }}
                   value={addVoucher}
                   onChange={(e) => setAddVoucher(e.target.value)}
+                  placeholder="Add Voucher"
                 />
               </Box>
+              <Box pl={8} pr={8}>
+                <Typography variant="span" sx={{ fontSize: "13px" }}>
+                  If you don't know what voucher is go to right top and click on
+                  the Icon, Then click on "Redeem Voucher". Then Copy the
+                  voucher
+                </Typography>
+              </Box>
+
               <Button
                 onClick={handleSend}
                 variant="outlined"
                 fullWidth
                 sx={{
                   width: "300px",
-                  ml: "100px",
-                  mt: 3,
+                  ml: "145px",
+                  mt: 2,
                   mb: 3,
                   color: "#005734",
                   borderColor: "#005734",
                 }}
               >
-                Submit
+                Create
               </Button>
             </DialogActions>
           </Dialog>

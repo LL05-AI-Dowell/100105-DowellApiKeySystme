@@ -59,10 +59,10 @@ const Profile = () => {
                 <TableCell>Country</TableCell>
                 <TableCell>{currentUser?.userinfo?.user_country}</TableCell>
               </TableRow>
-              <TableRow sx={{ borderBottom: "none" }}>
+              {/* <TableRow sx={{ borderBottom: "none" }}>
                 <TableCell>Payment Status</TableCell>
                 <TableCell>{currentUser?.userinfo?.payment_status}</TableCell>
-              </TableRow>
+              </TableRow> */}
               <TableRow sx={{ borderBottom: "none" }}>
                 <TableCell>User ID</TableCell>
                 <TableCell>{currentUser?.userinfo?.userID}</TableCell>

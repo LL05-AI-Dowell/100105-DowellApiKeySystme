@@ -30,6 +30,8 @@ export default function useDowellLogin() {
       } else {
         getUserInfoFromLogin(session_id).then(res => {
             setCurrentUser(res.data);
+            const val = JSON.stringify(res.data.userinfo.client_admin_id)
+            sessionStorage.setItem('key2', val);
         }).catch(err => {
             console.log(err);
             console.log('Failed to get user data from login');
