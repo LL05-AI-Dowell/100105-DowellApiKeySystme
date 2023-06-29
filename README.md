@@ -1,7 +1,5 @@
 # 100105-DowellApiKeySystme
 
-Sure! Here's the rewritten version of the logic using Markdown:
-
 **The Voucher System**
 
 - I should be able to create a voucher using the name and the discount amount of the voucher.
