@@ -311,7 +311,22 @@ class documentdetails(APIView):
                 "api_service":"DoWell Login",
                 "document_link": "https://github.com/DoWellUXLab/DoWell-Login.git",
                 "is_active": True
-            }
+            },
+            {
+                "api_service":"DoWell Secure Repository",
+                "document_link": "https://github.com/DoWellUXLab/DoWell-Secure-Repository.git",
+                "is_active": True
+            },
+            {
+                "api_service":"DoWell Classification of Big data",
+                "document_link": "https://github.com/DoWellUXLab/DoWell-Classification-of-Big-data.git",
+                "is_active": True
+            },
+            {
+                "api_service":"DoWell Surveys",
+                "document_link": "https://github.com/DoWellUXLab/DoWell-Surveys.git",
+                "is_active": True
+            },
         ]
 
         return Response({

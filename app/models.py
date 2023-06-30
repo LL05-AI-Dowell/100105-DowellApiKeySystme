@@ -22,6 +22,9 @@ class ApiKey(models.Model):
         ('DoWell Topic Generation','DoWell Topic Generation'),
         ('DoWell Coordinates','DoWell Coordinates'),
         ('DoWell Login','DoWell Login'),
+        ('DoWell Secure Repository','DoWell Secure Repository'),
+        ('DoWell Surveys','DoWell Surveys'),
+        ('DoWell Classification of Big data','DoWell Classification of Big Data'),
 
     )
     APIKey = models.CharField(max_length=255, unique=True)
