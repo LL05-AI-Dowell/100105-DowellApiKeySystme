@@ -92,7 +92,7 @@ const CreateApi = () => {
   return (
     <div>
       <Header />
-      <Box display="flex" width="100vw" height="100vh" >
+      <Box display="flex" width="100vw" minHeight="100vh" >
         <Stack
           direction="column"
           width="60px"
