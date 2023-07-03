@@ -4,11 +4,12 @@ class ApiKey(models.Model):
     
     APIKey = models.CharField(max_length=255, unique=True)
     email = models.CharField(max_length=255)
+    userId = models.CharField(max_length=255,null=True)
     is_active = models.BooleanField(default=False)
     credits = models.IntegerField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
     userDetails = models.JSONField(null=True, blank=False)
-    api_services = models.ForeignKey('Document', on_delete=models.CASCADE, null=True)
+    api_services = models.JSONField(null=True, blank=False)
 
     def __str__(self):
         return str(self.APIKey)
