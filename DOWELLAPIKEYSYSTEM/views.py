@@ -211,7 +211,12 @@ class redeemVoucher(APIView):
                 "data": field
             }, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "success":False,
+                "message":"You cannot redeem this voucher",
+                "error":serializer.errors
+                },status=status.HTTP_200_OK)
+                 
 
     def get(self, request, email):
         try:
@@ -341,3 +346,30 @@ class documentdetails(APIView):
         }, status=status.HTTP_200_OK)
 
 
+@csrf_exempt
+class DocumentDetails(APIView):
+
+    def post(self, request):
+        serializer = DocumentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        data = [
+            # JSON data
+        ]
+
+        for item in data:
+            document = Document.objects.create(
+                api_service=item['api_service'],
+                document_link=item['document_link'],
+                is_active=item['is_active']
+            )
+
+        return Response({
+            "success": True,
+            "message": "List of Documentation",
+            "data": data
+        }, status=status.HTTP_200_OK)

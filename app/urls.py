@@ -8,5 +8,6 @@ urlpatterns = [
     path('generate-voucher/',generateVoucher.as_view()),
     path('redeem-voucher/',redeemVoucher.as_view()),
     path('redeem-voucher/<str:email>/',redeemVoucher.as_view()),
-    path('list-of-api/',documentdetails.as_view()),
+    path('documents/',DocumentDetails.as_view()),
+    path('activate_api/',ActivateService.as_view()),
 ]
