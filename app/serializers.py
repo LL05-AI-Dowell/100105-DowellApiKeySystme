@@ -7,7 +7,7 @@ class ApiKeySerializer(serializers.ModelSerializer):
         fields = '__all__'
 class ProcessAPIKeySerializer(serializers.Serializer):
     user_api_key = serializers.CharField(allow_null=False, allow_blank=False)
-    user_api_services = serializers.CharField(allow_null=False, allow_blank=False)
+    api_service_id = serializers.CharField(allow_null=False, allow_blank=False)
 
 class VoucherSerializer(serializers.ModelSerializer): 
     class Meta:
@@ -23,4 +23,4 @@ class RedeemVoucherSerializer(serializers.ModelSerializer):
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = ['api_service', 'document_link', 'is_active']
+        fields = '__all__'

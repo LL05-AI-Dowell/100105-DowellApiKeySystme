@@ -11,167 +11,86 @@ from app.helper import *
 from .models import ApiKey,Document
 from .serializers import *
 from django.core.serializers import serialize
+from django.forms.models import model_to_dict
 
 
+
+"""
+@Add API services
+@description: To add a new API service
+"""
 @method_decorator(csrf_exempt, name='dispatch')
-class generateKey(APIView):
+class DocumentDetails(APIView):
+
     def post(self, request):
-        username = request.data.get('username')
-        userId = request.data.get('userId')
-        email = request.data.get('email')
-        userDetails = request.data.get('userDetails')
-
-        Api_service =Document.objects.all()
-        Api_service_json=serialize('json', Api_service)
-        print(Api_service_json)
-
-        APIKey = generate_uuid()
-
-        field = {
-            "username": username,
-            "email": email,
-            "userId":userId,
-            "APIKey": APIKey,
-            "userDetails": userDetails,
-            "api_services":Api_service_json
-        }
-
-        serializer = ApiKeySerializer(data=field)
-        if serializer.is_valid():
-            serializer.save()
-            # mail_status = send_email(email, name, APIKey,api_services)
-            mail_status=True
-            if mail_status:
-                return Response({
-                    "success": True,
-                    "message": "The API Key has been sent to your email",
-                    "Api_Key" :APIKey
-                })
-            else: 
-                return Response({
-                    "success": False,
-                    "message": "Contact the admin"
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            default_errors = serializer.errors
-            new_error = {}
-            for field_name, field_errors in default_errors.items():
-                new_error[field_name] = field_errors[0]
-            return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
+        api_service_id = request.data.get('api_service_id')
+        api_service = request.data.get('api_service')
+        document_link = request.data.get('document_link')
+        credits_count = request.data.get('credits_count')
         
-    def get(self, request, userId):
-        try:
-            api_key = ApiKey.objects.filter(userId=userId)
-            print("---Got apiKey---",api_key)
-        except ApiKey.DoesNotExist:
-            return Response("API Key not found.", status=status.HTTP_404_NOT_FOUND)
-        if (api_key.values()):
+        field = {
+            "api_service_id": api_service_id,
+            "api_service": api_service,
+            "document_link": document_link,
+            "credits_count": credits_count
+        }
+        
+        serializer = DocumentSerializer(data=field)
+        if serializer.is_valid():
+            document = serializer.save()
+            
+            existing_users = ApiKey.objects.all()
+            document_dict = model_to_dict(document)
+
+            for user in existing_users:
+                user.api_services.append(document_dict)
+                user.save()
+            
             return Response({
                 "success": True,
-                "message": "List of api keys found",
-                "data": list(api_key.values())
-            },status=status.HTTP_200_OK)
-        else: 
-            return Response({
-                "success": False,
-                "message": "No API key found"
-            },status=status.HTTP_200_OK)
+                "message": "API service details saved successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
         
-    def put(self, request):
-        userId = request.data.get('userId')
-        APIKey = request.data.get('APIKey')
-        voucher_code = request.data.get('voucher_code')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            api_key = ApiKey.objects.get(userId=userId, APIKey=APIKey)
-        except ApiKey.DoesNotExist:
-            return Response("Invalid credentials or API Key not found.", status=status.HTTP_404_NOT_FOUND)
-     
-        if not voucher_code:
-            credits = 0
-        else:     
-            voucher = get_object_or_404(Voucher, voucher_code=voucher_code)
-            print(voucher)
-            if not voucher.is_active:
-                return Response({
-                    "success": False,
-                    "message": "The voucher is not active"
-                }, status=status.HTTP_400_BAD_REQUEST)
-            credits = voucher.voucher_discount
 
-        api_key.is_active = True
-        api_key.credits = credits
-        api_key.save()
+    def get(self, request):
+        documents = Document.objects.all()
+        serializer = DocumentSerializer(documents, many=True)
 
         return Response({
             "success": True,
-            "message": "API key has been updated successfully.",
-            "data": ApiKeySerializer(api_key).data
+            "message": "List of Services",
+            "data": serializer.data
         }, status=status.HTTP_200_OK)
-
-        
     
-    
-@method_decorator(csrf_exempt, name='dispatch')
-class processapikey(APIView):
-    def post(self, request):
-        user_api_key = request.data.get("api_key")
-        user_api_services = request.data.get("api_services")
-        field = {
-            "user_api_key": user_api_key,
-            "user_api_services": user_api_services
-        }
-        serializer = ProcessAPIKeySerializer(data=field)
-        if serializer.is_valid():
-            try:
-                api_key = ApiKey.objects.get(APIKey=user_api_key, api_services= user_api_services)
-                print("---Got api key---",api_key)
-            except ApiKey.DoesNotExist:
-                return Response({
-                    "success": False,
-                    "message": "API key does not exist or the combination is invalid"
-                }, status=status.HTTP_404_NOT_FOUND)
-            if(api_key.is_active):
-                if(api_key.credits > 0):
-                    api_key.credits -= 1
-                    api_key.save()
-                    serializer = ApiKeySerializer(api_key)
-                    return Response({
-                        "success": True,
-                        "message": "The count is decremented",
-                        "count": serializer.data["credits"]
-                    }, status=status.HTTP_200_OK)
-                else:
-                    return Response({
-                        "success":False,
-                        "message":"Limit exceeded",
-                    }, status=status.HTTP_401_UNAUTHORIZED)
-            return Response({
-                "success": True,
-                "message": "API key is inactive"
-            }, status= status.HTTP_403_FORBIDDEN)
-        else:
-            default_errors = serializer.errors
-            new_error = {}
-            for field_name, field_errors in default_errors.items():
-                new_error[field_name] = field_errors[0]
-            return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
-
+"""
+@Generate Vocucher 
+@description: To generate a vocucher
+"""
 @method_decorator(csrf_exempt, name='dispatch')
 class generateVoucher(APIView):
     def post(self, request):
         voucher_name = request.data.get('voucher_name')
         voucher_discount = request.data.get('voucher_discount')
 
-        # Seting the previous voucher to False if available
-        if Voucher.objects.filter(is_active=True).exists():
-            Voucher.objects.filter(is_active=True).update(is_active=False)
+        try:
+            Voucher.objects.get(voucher_name=voucher_name)
+            return Response({
+                "success": False,
+                "message": "Voucher already exists",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except Voucher.DoesNotExist:
+            pass
+
+        Voucher.objects.filter(is_active=True).update(is_active=False)
 
         field = {
             "voucher_name": voucher_name,
             "voucher_code": generate_voucher_code(6),
             "voucher_discount": voucher_discount,
-            "is_active": True  # Set the new voucher to active
+            "is_active": True
         }
 
         serializer = VoucherSerializer(data=field)
@@ -180,32 +99,32 @@ class generateVoucher(APIView):
             serializer.save()
             return Response({
                 "success": True,
-                "message": "successfully created voucher",
+                "message": "Successfully created voucher",
                 "data": field
             }, status=status.HTTP_201_CREATED)
         else:
-            default_errors = serializer.errors
-            new_error = {}
-            for field_name, field_errors in default_errors.items():
-                new_error[field_name] = field_errors[0]
-            return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "success": False,
+                "message": "Voucher was not created successfully",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
 
     def get(self, request):
-        try:
-            vouchers = Voucher.objects.all()
-            return Response({
-                "success": True,
-                "message": "list of voucher",
-                "data": list(vouchers.values())
-            })
+        vouchers = Voucher.objects.all()
+        return Response({
+            "success": True,
+            "message": "list of voucher",
+            "data": list(vouchers.values())
+        })
 
-        except ApiKey.DoesNotExist:
-            return Response("API Key not found.", status=status.HTTP_404_NOT_FOUND)
-
-
+"""
+@Redeem voucher
+@description: To redeem a voucher by user
+"""
 @method_decorator(csrf_exempt, name='dispatch')
 class redeemVoucher(APIView):
-    def post(self, request):
+    def post(self, request,userid):
         name = request.data.get('name')
         email = request.data.get('email')
 
@@ -213,6 +132,7 @@ class redeemVoucher(APIView):
         active_voucher = vouchers.first() if vouchers.exists() else None
 
         field = {
+            "userId": userid,
             "name": name,
             "email": email,
             "voucher_code": active_voucher.voucher_code if active_voucher else None
@@ -234,9 +154,9 @@ class redeemVoucher(APIView):
                 },status=status.HTTP_200_OK)
                  
 
-    def get(self, request, email):
+    def get(self, request, userid):
         try:
-            redeemVouchers = RedeemVoucher.objects.filter(email=email)
+            redeemVouchers = RedeemVoucher.objects.filter(userId=userid)
         except ApiKey.DoesNotExist:
             return Response({
                 "success": True,
@@ -247,24 +167,102 @@ class redeemVoucher(APIView):
             "message": "Here is your voucher",
             "data": list(redeemVouchers.values())
         }, status=status.HTTP_200_OK)
-    
 
-class ActivateService(APIView):
-    def put(self, request):
+"""
+@Generate API key
+@description: To generate API key and activate/deactivate it
+"""
+@method_decorator(csrf_exempt, name='dispatch')
+class generateKey(APIView):
+    def post(self, request,userid):
+        username = request.data.get('username')
         email = request.data.get('email')
-        APIKey = request.data.get('APIKey')
+        userDetails = request.data.get('userDetails')
+
+        # get all the api services detais
+        documents = Document.objects.all()
+        document_list = []
+        
+        for document in documents:
+            document_dict = {
+                'api_service_id': document.api_service_id,
+                'api_service': document.api_service,
+                'document_link': document.document_link,
+                'is_active': document.is_active,
+                'is_released': document.is_released,
+                'credits_count': document.credits_count,
+            }
+            document_list.append(document_dict)
+
+        APIKey = generate_uuid()
+
+        field = {
+            "username": username,
+            "email": email,
+            "userId":userid,
+            "APIKey": APIKey,
+            "userDetails": userDetails,
+            "api_services":document_list
+        }
+
+        serializer = ApiKeySerializer(data=field)
+        if serializer.is_valid():
+            serializer.save()
+            # mail_status = send_email(email, name, APIKey,api_services)
+            mail_status=True
+            if mail_status:
+                return Response({
+                    "success": True,
+                    "message": "The API Key has been sent to your email",
+                    "Api_Key" :APIKey
+                })
+            else: 
+                return Response({
+                    "success": False,
+                    "message": "Contact the admin"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({
+                "success": False,
+                "message": "You already have an API Key",
+                "error": serializer.errors
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def get(self, request, userid):
+        try:
+            api_key = ApiKey.objects.filter(userId=userid)
+            print("---Got apiKey---",api_key)
+        except ApiKey.DoesNotExist:
+            return Response("API Key not found.", status=status.HTTP_404_NOT_FOUND)
+        if (api_key.values()):
+            return Response({
+                "success": True,
+                "message": "List of api keys found",
+                "data": list(api_key.values())
+            },status=status.HTTP_200_OK)
+        else: 
+            return Response({
+                "success": False,
+                "message": "No API key found"
+            },status=status.HTTP_200_OK)
+        
+    def put(self, request,userid):
+        APIKey = request.data.get('api_key')
         voucher_code = request.data.get('voucher_code', None)
 
         try:
-            api_key = ApiKey.objects.get(email=email, APIKey=APIKey)
-        except APIKey.DoesNotExist:
-            return Response("Invalid credentials or API Key not found.", status=status.HTTP_404_NOT_FOUND)
-
+            api_key = ApiKey.objects.get(userId=userid, APIKey=APIKey)
+        except ApiKey.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "No API key found",
+            }, status=status.HTTP_404_NOT_FOUND)
+     
         if not voucher_code:
             credits = 0
-        else:
+        else:     
             voucher = get_object_or_404(Voucher, voucher_code=voucher_code)
-
+            print(voucher)
             if not voucher.is_active:
                 return Response({
                     "success": False,
@@ -272,43 +270,120 @@ class ActivateService(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             credits = voucher.voucher_discount
 
-        if  api_key.is_active == True:
-            if credits > 0 or credits == 0:
-                api_services_data = api_key.api_services
-                api_services = json.loads(api_services_data)
+        if not api_key.is_redeemed : 
+            api_key.is_redeemed = True
+            api_key.is_active = True
+            api_key.credits = credits
+            api_key.save()
 
-                for service in api_services:
-                    service['fields']['is_active'] = True
-
-                api_key.api_services = json.dumps(api_services)
-                api_key.save()
-
-                
-                
-                return Response("API Key and associated services activated successfully.")
-            else:
-                return Response("You don't have enough credit to activate the API Key.")
-            
+            return Response({
+                "success": True,
+                "message": "API key has been updated successfully.",
+                "data": ApiKeySerializer(api_key).data
+            }, status=status.HTTP_200_OK)
         else:
-                return Response("First you need to generate the api key")
-       
-
+            api_key.is_active = not api_key.is_active
+            api_key.save()
+            return Response({
+                "success": True,
+                "message": "API key active status has been updated successfully",
+                "data": ApiKeySerializer(api_key).data
+            }, status=status.HTTP_200_OK)
+        
+"""
+@Activate the API services
+@description :  To activate and deactivate the API services
+"""
 @method_decorator(csrf_exempt, name='dispatch')
-class DocumentDetails(APIView):
+class ActivateService(APIView):
+    def get(self, request, userid, apikey, api_service_id):
+        try:
+            api_key = ApiKey.objects.get(userId=userid, APIKey=apikey)
+        except ApiKey.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "API details not found."
+            }, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request):
-        serializer = DocumentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not api_key.is_active:
+            return Response({
+                "success": False,
+                "message": "First you need activate the API key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
-    def get(self, request):
-        documents = Document.objects.all()
-        serializer = DocumentSerializer(documents, many=True)
+        credits = api_key.credits
+
+        if credits <= 0:
+            return Response({
+                "success": False,
+                "message": "You don't have enough credit to activate the API Key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        api_services = api_key.api_services
+
+        action = "activated"
+        for service in api_services:
+            if service['api_service_id'] == api_service_id:
+                service['is_active'] = not service['is_active']
+                action = "activated" if service['is_active'] else "deactivated"
+
+        api_key.save()
 
         return Response({
             "success": True,
-            "message": "List of Services",
-            "data": serializer.data
+            "message": f"Associated service {action} successfully."
         }, status=status.HTTP_200_OK)
+
+"""
+@Process API Key
+@description: To process the API key by product people
+"""   
+@method_decorator(csrf_exempt, name='dispatch')
+class processapikey(APIView):
+    def post(self, request):
+        user_api_key = request.data.get("api_key")
+        api_service_id = request.data.get("api_service_id")
+        field = {
+            "user_api_key": user_api_key,
+            "api_service_id": api_service_id
+        }
+        serializer = ProcessAPIKeySerializer(data=field)
+        if serializer.is_valid():
+            try:
+                api_key = ApiKey.objects.get(APIKey=user_api_key)
+                print("---Got api key---",api_key)
+            except ApiKey.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "message": "API key does not exist or the combination is invalid"
+                }, status=status.HTTP_404_NOT_FOUND)
+            if(api_key.is_active):
+                if(api_key.credits > 0):
+                    api_services = api_key.api_services
+
+                    action = "activated"
+                    for service in api_services:
+                        if service['api_service_id'] == api_service_id:
+                            api_key.credits = api_key.credits - service['credits_count']
+                            api_key.save()
+                            serializer = ApiKeySerializer(api_key)
+                            return Response({
+                                "success": True,
+                                "message": "The count is decremented",
+                                "count": serializer.data["credits"]
+                            }, status=status.HTTP_200_OK)
+                else:
+                    return Response({
+                        "success":False,
+                        "message":"Limit exceeded",
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({
+                "success": True,
+                "message": "API key is inactive"
+            }, status= status.HTTP_403_FORBIDDEN)
+        else:
+            default_errors = serializer.errors
+            new_error = {}
+            for field_name, field_errors in default_errors.items():
+                new_error[field_name] = field_errors[0]
+            return Response(new_error, status=status.HTTP_400_BAD_REQUEST)

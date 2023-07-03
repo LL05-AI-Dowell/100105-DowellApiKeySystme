@@ -6,5 +6,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',health_check.as_view()),
     path('api/v1/',(include('app.urls'))),
-    path('api/v2/',(include('DOWELLAPIKEYSYSTEM.urls')))
 ]
