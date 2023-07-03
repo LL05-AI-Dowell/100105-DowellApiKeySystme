@@ -20,8 +20,9 @@ class generateKey(APIView):
         userId = request.data.get('userId')
         email = request.data.get('email')
         userDetails = request.data.get('userDetails')
+
         Api_service =Document.objects.all()
-        Api_service_json=json_data = serialize('json', Api_service)
+        Api_service_json=serialize('json', Api_service)
         print(Api_service_json)
 
         APIKey = generate_uuid()
@@ -76,13 +77,13 @@ class generateKey(APIView):
                 "message": "No API key found"
             },status=status.HTTP_200_OK)
         
-    def put(self, request):
-        email = request.data.get('email')
+    def put(self, request,userId):
+        userId = request.data.get('userId')
         APIKey = request.data.get('APIKey')
         voucher_code = request.data.get('voucher_code')
 
         try:
-            api_key = ApiKey.objects.get(email=email, APIKey=APIKey)
+            api_key = ApiKey.objects.get(userId=userId, APIKey=APIKey)
         except ApiKey.DoesNotExist:
             return Response("Invalid credentials or API Key not found.", status=status.HTTP_404_NOT_FOUND)
      
@@ -249,53 +250,64 @@ class redeemVoucher(APIView):
     
 
 class ActivateService(APIView):
-    def put(self, request):
+    def post(self, request):
         email = request.data.get('email')
         APIKey = request.data.get('APIKey')
-        voucher_code = request.data.get('voucher_code', None)
 
         try:
             api_key = ApiKey.objects.get(email=email, APIKey=APIKey)
         except APIKey.DoesNotExist:
             return Response("Invalid credentials or API Key not found.", status=status.HTTP_404_NOT_FOUND)
 
-        if not voucher_code:
-            credits = 0
-        else:
-            voucher = get_object_or_404(Voucher, voucher_code=voucher_code)
-
-            if not voucher.is_active:
-                return Response({
-                    "success": False,
-                    "message": "The voucher is not active"
-                }, status=status.HTTP_400_BAD_REQUEST)
-            credits = voucher.voucher_discount
-
-        if  api_key.is_active == True:
-            if credits > 0 or credits == 0:
+        if  api_key.is_active:
+            if credits >= 0:
                 api_services_data = api_key.api_services
                 api_services = json.loads(api_services_data)
 
                 for service in api_services:
-                    service['fields']['is_active'] = True
+                    service['fields']['is_active'] = not service['fields']['is_active']
 
                 api_key.api_services = json.dumps(api_services)
                 api_key.save()
 
                 
                 
-                return Response("API Key and associated services activated successfully.")
+                return Response({
+                    "success": True,
+                    "message": "API Key and associated services activated successfully."
+                },status=status.HTTP_200_OK)
             else:
-                return Response("You don't have enough credit to activate the API Key.")
+                return Response({
+                    "success": False,
+                    "message":"You don't have enough credit to activate the API Key."
+                })
             
         else:
-                return Response("First you need to generate the api key")
+                return Response({
+                    "success": False,
+                    "message": "First you need to generate the api key"
+                })
 
-        
 
-        api_servicess= api_key.is_active=True
+@method_decorator(csrf_exempt, name='dispatch')
+class DocumentDetails(APIView):
 
+    def post(self, request):
+        serializer = DocumentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get(self, request):
+        documents = Document.objects.all()
+        serializer = DocumentSerializer(documents, many=True)
+
+        return Response({
+            "success": True,
+            "message": "List of Services",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
         
 # @method_decorator(csrf_exempt, name='dispatch')
 # class documentdetails(APIView):
@@ -424,22 +436,3 @@ class ActivateService(APIView):
 #             "data":data
 #         },status= status.HTTP_200_OK)
 
-@method_decorator(csrf_exempt, name='dispatch')
-class DocumentDetails(APIView):
-
-    def post(self, request):
-        serializer = DocumentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request):
-        documents = Document.objects.all()
-        serializer = DocumentSerializer(documents, many=True)
-
-        return Response({
-            "success": True,
-            "message": "List of Services",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
