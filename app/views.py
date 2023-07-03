@@ -77,7 +77,7 @@ class generateKey(APIView):
                 "message": "No API key found"
             },status=status.HTTP_200_OK)
         
-    def put(self, request,userId):
+    def put(self, request):
         userId = request.data.get('userId')
         APIKey = request.data.get('APIKey')
         voucher_code = request.data.get('voucher_code')
@@ -250,44 +250,48 @@ class redeemVoucher(APIView):
     
 
 class ActivateService(APIView):
-    def post(self, request):
+    def put(self, request):
         email = request.data.get('email')
         APIKey = request.data.get('APIKey')
+        voucher_code = request.data.get('voucher_code', None)
 
         try:
             api_key = ApiKey.objects.get(email=email, APIKey=APIKey)
         except APIKey.DoesNotExist:
             return Response("Invalid credentials or API Key not found.", status=status.HTTP_404_NOT_FOUND)
 
-        if  api_key.is_active:
-            if credits >= 0:
+        if not voucher_code:
+            credits = 0
+        else:
+            voucher = get_object_or_404(Voucher, voucher_code=voucher_code)
+
+            if not voucher.is_active:
+                return Response({
+                    "success": False,
+                    "message": "The voucher is not active"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            credits = voucher.voucher_discount
+
+        if  api_key.is_active == True:
+            if credits > 0 or credits == 0:
                 api_services_data = api_key.api_services
                 api_services = json.loads(api_services_data)
 
                 for service in api_services:
-                    service['fields']['is_active'] = not service['fields']['is_active']
+                    service['fields']['is_active'] = True
 
                 api_key.api_services = json.dumps(api_services)
                 api_key.save()
 
                 
                 
-                return Response({
-                    "success": True,
-                    "message": "API Key and associated services activated successfully."
-                },status=status.HTTP_200_OK)
+                return Response("API Key and associated services activated successfully.")
             else:
-                return Response({
-                    "success": False,
-                    "message":"You don't have enough credit to activate the API Key."
-                })
+                return Response("You don't have enough credit to activate the API Key.")
             
         else:
-                return Response({
-                    "success": False,
-                    "message": "First you need to generate the api key"
-                })
-
+                return Response("First you need to generate the api key")
+       
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DocumentDetails(APIView):
@@ -308,131 +312,3 @@ class DocumentDetails(APIView):
             "message": "List of Services",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
-        
-# @method_decorator(csrf_exempt, name='dispatch')
-# class documentdetails(APIView):
-#     def get(self, request):
-#         data = [
-#             {
-#                 "api_service": "Living Lab scale",
-#                 "document_link": "https://github.com/DoWellUXLab/Living-Lab-scale",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "Living Lab Chat",
-#                 "document_link": "",
-#                 "is_active": False
-#             },
-#             {
-#                 "api_service": "DoWell Open Source License Compatibility check",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Open-Source-License-Compatibility-check",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "UX Live",
-#                 "document_link": "",
-#                 "is_active": False
-#             },
-#             {
-#                 "api_service": "Statistical distributions from bigdata",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Statistical-distributions-from-bigdata",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "Dowell Payments",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Payments",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "Dowell QR Code Generator",
-#                 "document_link": "https://github.com/DoWellUXLab/Dowell-QR-Code-Generator",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "Dowell Email",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Email",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "DoWell Sampling from big data",
-#                 "document_link": "",
-#                 "is_active": False
-#             },
-#             {
-#                 "api_service": "DoWell Permutations",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Permutation",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "DoWell Shuffling of Big data",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Shuffling-of-Big-data",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "Dowell Wifi QR Code",
-#                 "document_link": "",
-#                 "is_active": False
-#             },
-#             {
-#                 "api_service": "Living lab Maps",
-#                 "document_link": "https://github.com/DoWellUXLab/Living-Lab-Maps",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "DoWell Secure repositories",
-#                 "document_link": "",
-#                 "is_active": False
-#             },
-#             {
-#                 "api_service": "DoWell Geometrical layout of Big Data",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Geometrical-layout-of-Big-Data",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "DoWell Central tendencies of Big data distributions",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Central-tendencies-of-Big-data-distributions",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service": "DoWell Coordinates",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Coordinates",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service":"DoWell Topic Generation",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Topic-Generation",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service":"DoWell Subscribe NewsLetter",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Subscribe-NewsLetter",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service":"DoWell Login",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Login.git",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service":"DoWell Secure Repository",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Secure-Repository.git",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service":"DoWell Classification of Big data",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Classification-of-Big-data.git",
-#                 "is_active": True
-#             },
-#             {
-#                 "api_service":"DoWell Surveys",
-#                 "document_link": "https://github.com/DoWellUXLab/DoWell-Surveys.git",
-#                 "is_active": True
-#             },
-#         ]
-
-#         return Response({
-#             "success": True,
-#             "message": "List of Documentation",
-#             "data":data
-#         },status= status.HTTP_200_OK)
-

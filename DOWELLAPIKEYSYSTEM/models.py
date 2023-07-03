@@ -59,8 +59,14 @@ class RedeemVoucher(models.Model):
     def __str__(self):
         return str(self.name)
     
+class Document(models.Model):
+    api_service = models.CharField(max_length=255)
+    document_link = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
+    is_released = models.BooleanField(default=True)
+    credits_count = models.IntegerField(blank=True, null=True)
 
-
-
+    def __str__(self):
+        return str(self.api_service)
 
 
