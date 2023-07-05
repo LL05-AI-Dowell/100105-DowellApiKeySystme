@@ -1,41 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { Box, CircularProgress } from "@mui/material";
-
-import Nav from "../layout/Nav";
+import React , { useState, useEffect } from "react";
 import Sidebar from "../layout/Sidebar";
-import DashboardCard from "../components/dashboardCard";
-import DashboardCards from "../components/dashboardCards";
+import Nav from "../layout/Nav";
+import DocumentationCards from "../components/documentationCards";
+import { Box, Grid, CircularProgress } from "@mui/material";
 
 import { useUserContext } from "../contexts/UserContext";
 import { GenerateApiKey_v2, GetApiKey_v2 } from "../util/api";
 
-const data = [
-  {
-    name: "Email",
-    api: "lakjdfopiqeurouqieru",
-    activated: true,
-  },
-  {
-    name: "Weather",
-    api: "lakjdfopiqeurouqieru",
-    activated: false,
-  },
-  {
-    name: "Scale api",
-    api: "lakjdfopiqeurouqieru",
-    activated: false,
-  },
-];
 
-const Dashboard = () => {
+const Documentation = () => {
   const { currentUser } = useUserContext();
   const [apiKey, setApiKey] = useState(null);
-  const person = {
-    username: "jhon123",
-    email: "jhon123123@gmail.com",
-    userDetails: "jhon is devv1231",
-    userId: "jhon1234567123",
-  };
+
   useEffect(() => {
     const ApiData = async () => {
       console.log("the val data is ", currentUser);
@@ -70,23 +46,25 @@ const Dashboard = () => {
       ApiData();
     }
   }, [currentUser]);
+
   return (
     <div>
       <Nav />
-      <Box sx={{ display: "flex", bgcolor: "#edf2f3", minHeight:'90vh' }}>
-        <Sidebar page="dashboard" />
-        <Box sx={{width:{xs:'90%', md:"80%"}}} pt={4}>
-          {apiKey !== null ? (
-            <DashboardCards data={apiKey} />
+      <Box sx={{ display: "flex", bgcolor:"#edf2f3" }}>
+        <Sidebar page="documentation"/>
+        <Box  width="80%"  pt={4} ml={4}>
+        {apiKey !== null ? (
+           <DocumentationCards data={apiKey[0]}/>
           ) : (
             <Box display={'flex'} justifyContent={'center'} mt={4}>
               <CircularProgress color="success" />
             </Box>
           )}
+           
         </Box>
       </Box>
     </div>
   );
 };
 
-export default Dashboard;
+export default Documentation;

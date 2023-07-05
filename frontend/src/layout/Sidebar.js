@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Sidebar.css";
+import styles from "./Sidebar.css";
 import {
   Box,
   List,
@@ -18,20 +18,19 @@ import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 import { useNavigate } from "react-router-dom";
 
-const Sidebar = () => {
-  const [item, setItem] = useState("dashboard");
+const Sidebar = (props) => {
+  const [item, setItem] = useState(props.page);
   const navigate = useNavigate();
-  console.log(item)
 
   return (
     <Box
       width="230px"
+
       bgcolor="#edf2f3"
-      minHeight="90vh"
       sx={{
         display: { xs: "none", md: "block" },
-        position: "fixed",
-        bottom: 0,
+        minHeight: { md: "90vh", lg: "92vh" },
+        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
       }}
     >
       <List>
@@ -39,8 +38,15 @@ const Sidebar = () => {
           <ListItemButton
             onClick={() => {
               setItem("dashboard");
+              navigate("/");
             }}
-            className={item === "dashboard" ? "clickedItem" : ""}
+          
+            sx={{
+              bgcolor: `${item === "dashboard" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "dashboard" ? "7px solid #005734" : "none"
+              }`,
+            }}
           >
             <ListItemIcon>
               <HomeIcon />
@@ -52,8 +58,15 @@ const Sidebar = () => {
           <ListItemButton
             onClick={() => {
               setItem("documentation");
+              navigate("/documentation");
             }}
             className={item === "documentation" ? "clickedItem" : ""}
+            sx={{
+              bgcolor: `${item === "documentation" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "documentation" ? "7px solid #005734" : "none"
+              }`,
+            }}
           >
             <ListItemIcon>
               <SubjectIcon />
@@ -67,6 +80,12 @@ const Sidebar = () => {
               setItem("feedback");
             }}
             className={item === "feedback" ? "clickedItem" : ""}
+            sx={{
+              bgcolor: `${item === "feedback" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "feedback" ? "7px solid #005734" : "none"
+              }`,
+            }}
           >
             <ListItemIcon>
               <MessageIcon />
@@ -80,6 +99,12 @@ const Sidebar = () => {
               setItem("settings");
             }}
             className={item === "settings" ? "clickedItem" : ""}
+            sx={{
+              bgcolor: `${item === "settings" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "settings" ? "7px solid #005734" : "none"
+              }`,
+            }}
           >
             <ListItemIcon>
               <SettingsIcon />
@@ -90,8 +115,16 @@ const Sidebar = () => {
       </List>
 
       <Box
-        sx={{ p: 2, mt: 46, display: "flex", justifyContent: "center" }}
+        sx={{
+          p: 2,
+          ml:4,
+          mt: { md: 46, lg: 47, xl: 47 },
+          display: "flex",
+          justifyContent: "center",
+          bottom: 0,
+        }}
         component="footer"
+        position={'fixed'}
       >
         <Button sx={{ color: "#005734" }} startIcon={<PowerSettingsNewIcon />}>
           Logout

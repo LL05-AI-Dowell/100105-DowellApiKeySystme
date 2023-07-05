@@ -37,6 +37,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import CircularProgress from "@mui/material/CircularProgress";
 import Logo from "../dowellLogo.png";
 import { GetRedeemVoucher, RedeemVoucher } from "../util/api";
+import { GetRedeemVoucher_v2, RedeemVoucher_v2 } from "../util/api";
 import { useUserContext } from "../contexts/UserContext";
 import { dowellLoginUrl } from "../utils";
 
@@ -51,21 +52,21 @@ const Nav = () => {
   const { currentUser } = useUserContext();
 
   const [drawer, setDrawer] = useState(false);
-
+// console.log("the current user data is ", currentUser)
   const navigate = useNavigate();
 
   const goToProfile = () => {
     navigate("/profile");
   };
 
-  const handleClose = () => {
+  const handleCloseMenu = () => {
     setAnchor(null);
   };
   const handleMenu = (e) => {
     setAnchor(e.currentTarget);
   };
-  const handleClickOpen = async () => {
-    const res = await GetRedeemVoucher(currentUser?.userinfo?.email);
+  const handleVoucherOpen = async () => {
+    const res = await GetRedeemVoucher_v2(currentUser?.userinfo?.userID);
     console.log("the axios data is voucher is", res);
     if (res?.data?.length > 0) {
       setVoucher(res.data[0]);
@@ -78,11 +79,12 @@ const Nav = () => {
     setOpen(false);
   };
   const handleRedeemVoucher = async () => {
-    const axiosData = await RedeemVoucher({
+    const axiosData = await RedeemVoucher_v2({
       name: currentUser?.userinfo?.username,
       email: currentUser?.userinfo?.email,
+      id: currentUser?.userinfo?.userID
     });
-
+    console.log("the redeemed answer is ", axiosData)
     if (axiosData?.data.length > 0) {
       setVoucher(axiosData.data[0]);
     }
@@ -142,7 +144,7 @@ const Nav = () => {
                 horizontal: "right",
               }}
               open={Boolean(anchor)}
-              onClose={handleClose}
+              onClose={handleCloseMenu}
             >
               <MenuItem>Settings</MenuItem>
               <MenuItem onClick={goToProfile}>
@@ -153,17 +155,17 @@ const Nav = () => {
                 <SettingsIcon />
                 &nbsp; Your Settings
               </MenuItem>
-              <MenuItem onClick={handleClickOpen}>
+              <MenuItem onClick={handleVoucherOpen}>
                 <ConfirmationNumberIcon />
                 &nbsp; Redeem Voucher
               </MenuItem>
               <MenuItem>Support</MenuItem>
 
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleCloseMenu}>
                 <MailIcon />
                 &nbsp; Email Us
               </MenuItem>
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={handleCloseMenu}>
                 <PowerSettingsNewIcon />
                 &nbsp; Logout
               </MenuItem>
