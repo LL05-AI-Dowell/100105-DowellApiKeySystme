@@ -21,8 +21,8 @@ function App() {
   )
 
   return (
-    <Routes path='/' element={<ConstructionPage />} >
-      <Route index element={<ConstructionPage />} />
+    <Routes path='/' element={<CreateApi />} >
+      <Route index element={<CreateApi />} />
       <Route path='/profile' element={<Profile />} />
       <Route path='/createdapikeys' element={<CreatedApiKeys />} />
     </Routes>
