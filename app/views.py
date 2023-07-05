@@ -179,7 +179,6 @@ class generateKey(APIView):
         email = request.data.get('email')
         userDetails = request.data.get('userDetails')
 
-        # get all the api services detais
         documents = Document.objects.all()
         document_list = []
         
@@ -260,6 +259,7 @@ class generateKey(APIView):
      
         if not voucher_code:
             credits = 0
+            total_credits = 0
         else:     
             voucher = get_object_or_404(Voucher, voucher_code=voucher_code)
             print(voucher)
@@ -269,11 +269,13 @@ class generateKey(APIView):
                     "message": "The voucher is not active"
                 }, status=status.HTTP_400_BAD_REQUEST)
             credits = voucher.voucher_discount
+            total_credits = voucher.voucher_discount
 
         if not api_key.is_redeemed : 
             api_key.is_redeemed = True
             api_key.is_active = True
             api_key.credits = credits
+            api_key.total_credits = total_credits
             api_key.save()
 
             return Response({
