@@ -31,6 +31,8 @@ export default function useDowellLogin() {
         getUserInfoFromLogin(session_id).then(res => {
             setCurrentUser(res.data);
             const val = JSON.stringify(res.data.userinfo.client_admin_id)
+            const info = JSON.stringify(res.data.userinfo)
+            sessionStorage.setItem('userinfo', info)
             sessionStorage.setItem('key2', val);
         }).catch(err => {
             console.log(err);

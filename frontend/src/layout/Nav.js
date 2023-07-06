@@ -52,7 +52,7 @@ const Nav = () => {
   const { currentUser } = useUserContext();
 
   const [drawer, setDrawer] = useState(false);
-// console.log("the current user data is ", currentUser)
+  // console.log("the current user data is ", currentUser)
   const navigate = useNavigate();
 
   const goToProfile = () => {
@@ -82,9 +82,9 @@ const Nav = () => {
     const axiosData = await RedeemVoucher_v2({
       name: currentUser?.userinfo?.username,
       email: currentUser?.userinfo?.email,
-      id: currentUser?.userinfo?.userID
+      id: currentUser?.userinfo?.userID,
     });
-    console.log("the redeemed answer is ", axiosData)
+    console.log("the redeemed answer is ", axiosData);
     if (axiosData?.data.length > 0) {
       setVoucher(axiosData.data[0]);
     }
@@ -176,7 +176,11 @@ const Nav = () => {
       <Drawer anchor="left" open={drawer} onClose={() => setDrawer(false)}>
         <List>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                navigate("/");setDrawer(false)
+              }}
+            >
               <ListItemIcon>
                 <HomeIcon />
               </ListItemIcon>
@@ -184,7 +188,11 @@ const Nav = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                navigate("/documentation");setDrawer(false)
+              }}
+            >
               <ListItemIcon>
                 <SubjectIcon />
               </ListItemIcon>

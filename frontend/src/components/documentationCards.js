@@ -35,6 +35,7 @@ const DocumentationCards = ({ data }) => {
       });
       if (res?.success == true) {
         setSnackBar("success");
+        // window.location.reload();
       } else {
         setSnackBar("error");
       }
@@ -67,49 +68,52 @@ const DocumentationCards = ({ data }) => {
             >
               <Box>
                 <Typography
-                  variant="body1"
-                  fontWeight={"bold"}
-                  mt={1}
-                  mb={0}
-                  sx={{ color: "#005734" }}
-                >
-                  {api.api_service_id}
-                </Typography>
-                <Typography
                   variant="h5"
                   fontWeight={"bold"}
-                  mt={0}
+                  mt={1}
                   sx={{ color: "#005734" }}
                 >
                   {api.api_service}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  fontWeight={"bold"}
+                  mb={1}
+                  mt={0}
+                  sx={{ color: "#005734" }}
+                >
+                  {api.api_service_id}
                 </Typography>
               </Box>
 
               <img src={Logo} width="50px" />
             </Box>
             <Box width="95%" mt={2}>
-              <Box>
-                <Typography>Credits : {api.credits_count}</Typography>
+              <Box display={'flex'}>
+                <Typography mt={1} mr={2}>Documentation Link : </Typography>
+                <Button
+                  sx={{
+                    wordBreak: "break-word",
+                    border: "1px #005734 solid",
+                    borderRadius: "5px",
+                    
+                    mt: 1,
+                   
+                    color: "#005734",
+                  }}
+                  href={api.document_link}
+                  target="_blank"
+                  size="small"
+                >
+                  Click
+                </Button>
               </Box>
-              <Typography>Documentation Link: </Typography>
-              <Button
-                sx={{
-                  wordBreak: "break-word",
-                  border: "1px #005734 solid",
-                  borderRadius: "5px",
-                  p: 1,
-                  mt: 1,
-                  mb: 2,
-                  color: "#005734",
-                }}
-                href={api.document_link}
-                target="_blank"
-              >
-                {api.document_link}
-              </Button>
+              <Box  mb={2}>
+                <Typography>Credits use : {api.credits_count}</Typography>
+              </Box>
             </Box>
 
-            <Box width="95%" sx={{ display: "flex", justifyContent: "end" }}>
+            <Box width="95%" sx={{ display: "flex", justifyContent: "center" }}>
               <Button
                 // disabled={api.is_active}
                 sx={{ border: "1px #005734 solid", color: "#005734", mb: 2 }}
@@ -129,7 +133,7 @@ const DocumentationCards = ({ data }) => {
       >
         <Alert severity={snackBar} sx={{ width: "100%" }}>
           {snackBar == "success"
-            ? "Activated Successfully"
+            ? "Done"
             : snackBar == "info"
             ? "It is not released yet"
             : "Error Occured"}

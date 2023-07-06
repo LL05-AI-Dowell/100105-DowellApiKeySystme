@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
   Box,
   Grid,
@@ -13,6 +14,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+
 import Logo from "../dowellLogo.png";
 
 import { ActivateApiKey_v2 } from "../util/api";
@@ -42,6 +44,12 @@ const DashboardCards = ({ data }) => {
     setGenKey(res);
     setDialog(false);
     window.location.reload();
+  };
+  const copiedKey = data[0].APIKey;
+  const handleCopy = () => {
+    const copiedKey = data[0].APIKey;
+
+    console.log("copied data is ", copiedKey);
   };
 
   return (
@@ -101,14 +109,16 @@ const DashboardCards = ({ data }) => {
             </Typography>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "center" }} mb={3}>
-            <Button
-              variant="contained"
-              size="small"
-              sx={{ mr: 1 }}
-              color="success"
-            >
-              Copy to Clipboard
-            </Button>
+            <CopyToClipboard text={copiedKey} onCopy={handleCopy}>
+              <Button
+                variant="contained"
+                size="small"
+                sx={{ mr: 1 }}
+                color="success"
+              >
+                Copy to Clipboard
+              </Button>
+            </CopyToClipboard>
             <Button
               variant="contained"
               size="small"
@@ -145,12 +155,33 @@ const DashboardCards = ({ data }) => {
               Usage
             </Typography>
           </Box>
-          <Box p={2}>
-            <Typography mb={2}>
-              You have remaining &nbsp; &nbsp; {data[0].credits} &nbsp;/ 100
+          <Box p={2} pt={4}>
+            <Typography mt={2} mb={2}>
               Credits
             </Typography>
-            <LinearProgress variant="determinate" color="success" value={data[0].credits} />
+            <Box>
+              <LinearProgress
+                determinate
+                variant="determinate"
+                value={
+                  data[0].total_credits == null
+                    ? 0
+                    : data[0].total_credits - data[0].credits
+                }
+                color="success"
+                size="sm"
+                thickness={32}
+                sx={{ height: "10px", borderRadius: "3px" }}
+              />
+            </Box>
+            <Typography mb={2} textAlign={"center"}>
+              {data[0].credits == null
+                ? "0"
+                : data[0].total_credits - data[0].credits}{" "}
+              &nbsp;used /{" "}
+              {data[0].total_credits == null ? "0" : data[0].total_credits}{" "}
+              Credits Available
+            </Typography>
           </Box>
         </Grid>
       </Grid>
@@ -165,7 +196,7 @@ const DashboardCards = ({ data }) => {
               sx={{ m: { xs: 1, md: 2 } }}
             >
               <Typography ml={2}>{i.api_service}</Typography>
-              <Typography mr={24}>
+              <Typography sx={{mr:{xs:2,md:24}}}>
                 Credits : &nbsp; {i.credits_count}
               </Typography>
             </Box>
