@@ -59,7 +59,7 @@ const DashboardCards = ({ data }) => {
           {data[0].is_paid ? "This is Paid Version!" : "Upgrade your plan!"}
         </Typography>
         <Typography>
-          You are currently on a {data[0].is_paid ? "Paid" : "free"} plan
+          You are currently on a {data[0].is_paid ? "Paid" : "free"} plan, Click here to Upgrade
         </Typography>
       </Box>
       <Grid
