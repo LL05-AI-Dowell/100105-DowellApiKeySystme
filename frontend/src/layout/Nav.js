@@ -19,6 +19,7 @@ import {
   ListItemButton,
   ListItemText,
   ListItemIcon,
+  Divider,
 } from "@mui/material";
 
 ////icons
@@ -93,6 +94,11 @@ const Nav = () => {
     console.log("the axios respos is", axiosData);
   };
 
+  const handleLogout = () => {
+    // Set the new URL for logout
+    window.location.href = "https://100014.pythonanywhere.com/en-gb/sign-out";
+  };
+
   return (
     <Box sx={{ zIndex: "5" }}>
       <AppBar position="static" sx={{ bgcolor: "#dce7e6" }}>
@@ -165,7 +171,7 @@ const Nav = () => {
                 <MailIcon />
                 &nbsp; Email Us
               </MenuItem>
-              <MenuItem onClick={handleCloseMenu}>
+              <MenuItem onClick={handleLogout}>
                 <PowerSettingsNewIcon />
                 &nbsp; Logout
               </MenuItem>
@@ -176,9 +182,15 @@ const Nav = () => {
       <Drawer anchor="left" open={drawer} onClose={() => setDrawer(false)}>
         <List>
           <ListItem disablePadding>
+            <img src={Logo} width="50px" />
+            <Typography sx={{color:"#005734"}}>Dowell Api Services</Typography>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
-                navigate("/");setDrawer(false)
+                navigate("/");
+                setDrawer(false);
               }}
             >
               <ListItemIcon>
@@ -190,7 +202,8 @@ const Nav = () => {
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
-                navigate("/documentation");setDrawer(false)
+                navigate("/documentation");
+                setDrawer(false);
               }}
             >
               <ListItemIcon>

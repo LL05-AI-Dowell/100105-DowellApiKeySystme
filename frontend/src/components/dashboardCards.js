@@ -101,9 +101,10 @@ const DashboardCards = ({ data }) => {
             <Typography
               bgcolor="#e6e8e9"
               pl={1}
-              pt={1}
+              pt={2}
               pb={1}
               sx={{ height: "35px", borderRadius: "5px" }}
+              textAlign={"center"}
             >
               {data[0].APIKey}
             </Typography>
@@ -155,12 +156,47 @@ const DashboardCards = ({ data }) => {
               Usage
             </Typography>
           </Box>
-          <Box p={2} pt={4}>
-            <Typography mt={2} mb={2}>
+          <Box p={2} pt={1}>
+            <Typography
+              fontWeight={"bold"}
+              mt={2}
+              mb={2}
+              variant="h5"
+              sx={{ color: "#005734" }}
+            >
               Credits
             </Typography>
-            <Box>
-              <LinearProgress
+            <Box mb={2} mt={4}>
+              <Box
+                width={"95%"}
+                height={20}
+                borderRadius={2}
+                overflow={"hidden"}
+                m={1}
+                mb={2}
+                sx={{
+                  bgcolor: "#afcdb1",
+                }}
+              >
+                <Box
+                  width={`${
+                    data[0].total_credits == null
+                      ? 0
+                      : ((data[0].total_credits - data[0].credits) * 100) /
+                        data[0].total_credits
+                  }%`}
+                  height={20}
+                  sx={{ bgcolor: "#2e7d32" }}
+                >
+                  <Typography textAlign={"center"} sx={{ color: "white" }}>{`${
+                    data[0].total_credits == null
+                      ? 0
+                      : ((data[0].total_credits - data[0].credits) * 100) /
+                        data[0].total_credits
+                  }%`}</Typography>
+                </Box>
+              </Box>
+              {/* <LinearProgress
                 determinate
                 variant="determinate"
                 value={
@@ -171,8 +207,8 @@ const DashboardCards = ({ data }) => {
                 color="success"
                 size="sm"
                 thickness={32}
-                sx={{ height: "10px", borderRadius: "3px" }}
-              />
+                sx={{ height: "15px", borderRadius: "3px" }}
+              /> */}
             </Box>
             <Typography mb={2} textAlign={"center"}>
               {data[0].credits == null
@@ -196,7 +232,7 @@ const DashboardCards = ({ data }) => {
               sx={{ m: { xs: 1, md: 2 } }}
             >
               <Typography ml={2}>{i.api_service}</Typography>
-              <Typography sx={{mr:{xs:2,md:24}}}>
+              <Typography sx={{ mr: { xs: 2, md: 24 } }}>
                 Credits : &nbsp; {i.credits_count}
               </Typography>
             </Box>

@@ -22,10 +22,14 @@ const Sidebar = (props) => {
   const [item, setItem] = useState(props.page);
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    // Set the new URL for logout
+    window.location.href = "https://100014.pythonanywhere.com/en-gb/sign-out";
+  };
+
   return (
     <Box
       width="230px"
-
       bgcolor="#edf2f3"
       sx={{
         display: { xs: "none", md: "block" },
@@ -40,16 +44,18 @@ const Sidebar = (props) => {
               setItem("dashboard");
               navigate("/");
             }}
-          
             sx={{
               bgcolor: `${item === "dashboard" ? "#dce7e6" : "#edf2f3"}`,
+              color: `${item === "dashboard" ? "#005734" : "black"}`,
               borderRight: `${
                 item === "dashboard" ? "7px solid #005734" : "none"
               }`,
             }}
           >
             <ListItemIcon>
-              <HomeIcon />
+              <HomeIcon
+                sx={{ color: `${item === "dashboard" ? "#005734" : "black"}` }}
+              />
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItemButton>
@@ -62,6 +68,7 @@ const Sidebar = (props) => {
             }}
             className={item === "documentation" ? "clickedItem" : ""}
             sx={{
+              color: `${item === "documentation" ? "#005734" : "black"}`,
               bgcolor: `${item === "documentation" ? "#dce7e6" : "#edf2f3"}`,
               borderRight: `${
                 item === "documentation" ? "7px solid #005734" : "none"
@@ -69,7 +76,11 @@ const Sidebar = (props) => {
             }}
           >
             <ListItemIcon>
-              <SubjectIcon />
+              <SubjectIcon
+                sx={{
+                  color: `${item === "documentation" ? "#005734" : "black"}`,
+                }}
+              />
             </ListItemIcon>
             <ListItemText primary="Documentation" />
           </ListItemButton>
@@ -117,16 +128,20 @@ const Sidebar = (props) => {
       <Box
         sx={{
           p: 2,
-          ml:4,
+          ml: 4,
           mt: { md: 46, lg: 47, xl: 47 },
           display: "flex",
           justifyContent: "center",
           bottom: 0,
         }}
         component="footer"
-        position={'fixed'}
+        position={"fixed"}
       >
-        <Button sx={{ color: "#005734" }} startIcon={<PowerSettingsNewIcon />}>
+        <Button
+          onClick={handleLogout}
+          sx={{ color: "#005734" }}
+          startIcon={<PowerSettingsNewIcon />}
+        >
           Logout
         </Button>
       </Box>
