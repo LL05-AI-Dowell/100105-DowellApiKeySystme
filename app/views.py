@@ -389,18 +389,18 @@ class processAPIKey(APIView):
                                 }, status=status.HTTP_401_UNAUTHORIZED)
                         else:
                             return Response({
-                                "success": True,
+                                "success": False,
                                 "message": "API service is not active"
                             }, status=status.HTTP_403_FORBIDDEN)
 
                 if not service_found:
                     return Response({
-                        "success": True,
+                        "success": False,
                         "message": "API service ID is invalid"
                     }, status=status.HTTP_403_FORBIDDEN)
             else:
                 return Response({
-                    "success": True,
+                    "success": False,
                     "message": "API key is inactive"
                 }, status=status.HTTP_403_FORBIDDEN)
         else:
