@@ -341,7 +341,7 @@ class ActivateService(APIView):
 @description: To process the API key by product people
 """   
 @method_decorator(csrf_exempt, name='dispatch')
-class processapikey(APIView):
+class processAPIKey(APIView):
     def post(self, request):
         user_api_key = request.data.get("api_key")
         api_service_id = request.data.get("api_service_id")
@@ -353,36 +353,56 @@ class processapikey(APIView):
         if serializer.is_valid():
             try:
                 api_key = ApiKey.objects.get(APIKey=user_api_key)
-                print("---Got api key---",api_key)
+                print("---Got api key---", api_key)
             except ApiKey.DoesNotExist:
                 return Response({
                     "success": False,
                     "message": "API key does not exist or the combination is invalid"
                 }, status=status.HTTP_404_NOT_FOUND)
-            if(api_key.is_active):
-                if(api_key.credits > 0):
-                    api_services = api_key.api_services
 
-                    action = "activated"
-                    for service in api_services:
-                        if service['api_service_id'] == api_service_id:
-                            api_key.credits = api_key.credits - service['credits_count']
-                            api_key.save()
-                            serializer = ApiKeySerializer(api_key)
+            if api_key.is_active:
+                api_service = api_key.api_service
+                service_found = False
+
+                for service in api_service:
+                    if service['api_service_id'] == api_service_id:
+                        service_found = True
+
+                        if service['is_active']:
+                            if api_key.credits > 0:
+                                api_services = api_key.api_services
+
+                                for service in api_services:
+                                    if service['api_service_id'] == api_service_id:
+                                        api_key.credits -= service['credits_count']
+                                        api_key.save()
+                                        serializer = ApiKeySerializer(api_key)
+                                        return Response({
+                                            "success": True,
+                                            "message": "The count is decremented",
+                                            "count": serializer.data["credits"]
+                                        }, status=status.HTTP_200_OK)
+                            else:
+                                return Response({
+                                    "success": False,
+                                    "message": "Limit exceeded",
+                                }, status=status.HTTP_401_UNAUTHORIZED)
+                        else:
                             return Response({
                                 "success": True,
-                                "message": "The count is decremented",
-                                "count": serializer.data["credits"]
-                            }, status=status.HTTP_200_OK)
-                else:
+                                "message": "API service is not active"
+                            }, status=status.HTTP_403_FORBIDDEN)
+
+                if not service_found:
                     return Response({
-                        "success":False,
-                        "message":"Limit exceeded",
-                    }, status=status.HTTP_401_UNAUTHORIZED)
-            return Response({
-                "success": True,
-                "message": "API key is inactive"
-            }, status= status.HTTP_403_FORBIDDEN)
+                        "success": True,
+                        "message": "API service ID is invalid"
+                    }, status=status.HTTP_403_FORBIDDEN)
+            else:
+                return Response({
+                    "success": True,
+                    "message": "API key is inactive"
+                }, status=status.HTTP_403_FORBIDDEN)
         else:
             default_errors = serializer.errors
             new_error = {}
