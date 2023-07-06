@@ -65,8 +65,38 @@ class DocumentDetails(APIView):
             "data": serializer.data
         }, status=status.HTTP_200_OK)
     
+
+    def put(self , request):
+        
+        api_service_id = request.data.get('api_service_id')
+        existing_users = ApiKey.objects.all()
+      
+        try:
+            document=Document.objects.get(api_service_id=api_service_id)
+            document.is_released=True
+            document.save()
+            for user in existing_users:
+                user_api_service=user.api_services
+                for api_service in user_api_service:
+                    if api_service.get('api_service_id') == api_service_id:
+                        api_service['is_released'] = True
+                user.save()
+                # api_services=user.api_services.get(api_service_id=api_service_id)
+                # api_services['is_released'] =True
+                # api_services.save()
+            
+                return Response({
+                    "success": True,
+                    "message": "The api service has been released",
+                }, status=status.HTTP_200_OK)
+            
+        except Document.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "Ths api service_id does not exist",
+            }, status=status.HTTP_404_NOT_FOUND)
 """
-@Generate Vocucher 
+@Generate Vocucher :
 @description: To generate a vocucher
 """
 @method_decorator(csrf_exempt, name='dispatch')
@@ -77,10 +107,7 @@ class generateVoucher(APIView):
 
         try:
             Voucher.objects.get(voucher_name=voucher_name)
-            return Response({
-                "success": False,
-                "message": "Voucher already exists",
-            }, status=status.HTTP_400_BAD_REQUEST)
+            
         except Voucher.DoesNotExist:
             pass
 

@@ -7,5 +7,5 @@ urlpatterns = [
     path('redeem-voucher/<str:userid>/',redeemVoucher.as_view()),
     path('generate-api-key/<str:userid>/',generateKey.as_view()),
     path('activate-api-services/<str:userid>/<str:apikey>/<str:api_service_id>/',ActivateService.as_view()),
-    path('process-api-key/',processapikey.as_view()),
+    path('process--key/',processapikey.as_view()),
 ]
