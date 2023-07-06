@@ -52,7 +52,7 @@ export const GetUserApiKey = async (params) => {
 };
 
 //////new apis
-const BASE_URL_V2 = "https://100090.pythonanywhere.com/api/v1";
+const BASE_URL_V2 = "https://100105.pythonanywhere.com/api/v1";
 
 const api_v2 = axios.create({
   baseURL: BASE_URL_V2,
@@ -122,7 +122,7 @@ export const ActivateApiKey_v2 = async (params) => {
     // });
 
     const response = await fetch(
-      `https://100090.pythonanywhere.com/api/v1/generate-api-key/${params.id}/`,
+      `https://100105.pythonanywhere.com/api/v1/generate-api-key/${params.id}/`,
       {
         method: "PUT",
         headers: {
@@ -145,7 +145,7 @@ export const ActivateApiKey_v2 = async (params) => {
 export const ActivateService = async (params) => {
   try {
     const response = await fetch(
-      `https://100090.pythonanywhere.com/api/v1/activate-api-services/${params.id}/${params.api_key}/${params.service_id}/`
+      `https://100105.pythonanywhere.com/api/v1/activate-api-services/${params.id}/${params.api_key}/${params.service_id}/`
     );
 
     const result = await response.json();

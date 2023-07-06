@@ -63,8 +63,8 @@ const DocumentationCards = ({ data }) => {
             <Box
               display={"flex"}
               justifyContent={"space-between"}
-              pl={4}
-              pr={4}
+
+              sx={{pl:{xs:1, md:4}, pr:{xs:1, md:4}}}
             >
               <Box>
                 <Typography
