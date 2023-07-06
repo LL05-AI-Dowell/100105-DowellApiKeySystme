@@ -361,7 +361,7 @@ class processAPIKey(APIView):
                 }, status=status.HTTP_404_NOT_FOUND)
 
             if api_key.is_active:
-                api_service = api_key.api_service
+                api_service = api_key.api_services
                 service_found = False
 
                 for service in api_service:
