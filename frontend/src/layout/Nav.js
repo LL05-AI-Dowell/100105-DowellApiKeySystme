@@ -230,13 +230,15 @@ const Nav = () => {
           </ListItem>
         </List>
       </Drawer>
-      <Dialog open={open} onClose={handleCloseDialog} sx={{ p: 4 }}>
+      <Dialog open={open} onClose={handleCloseDialog} sx={{ p: {xs:1, md:4} }}>
         <DialogContent
           sx={{
             display: "flex",
             justifyContent: "center",
             bgcolor: "#dce8e4",
-            width: "500px",
+            width: {xs:"94%", md:"500px"},
+            p:{xs:1, md:2},
+      
           }}
         >
           <Typography variant="h4" mr={2} fontWeight="bold">

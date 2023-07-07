@@ -10,13 +10,14 @@ import {
   TableRow,
 } from "@mui/material";
 import { useUserContext } from "../contexts/UserContext";
+import Nav from "../layout/Nav";
 
 const Profile = () => {
   const { currentUser } = useUserContext();
   console.log(currentUser);
   return (
     <div>
-      <Header />
+      <Nav />
       <Box
         sx={{ display: { xs: "block", md: "flex" }, justifyContent: "center" }}
       >

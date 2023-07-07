@@ -20,7 +20,7 @@ const Dashboard = () => {
       //console.log("the val data is ", currentUser);
       const get = await GetApiKey_v2({ id: storedObj?.userID });
       console.log("the response from the get is ", get.data.data);
-      if (get?.data?.success == false) {
+      if (get?.data?.success === false) {
         const res = await GenerateApiKey_v2({
           username: storedObj?.username,
           email: storedObj?.email,
@@ -32,8 +32,9 @@ const Dashboard = () => {
           },
           userId: storedObj?.userID,
         });
-        // console.log("the generated api key is ", res.data);
-        setApiKey(res.data.data);
+        console.log("the generated api key is ", res.data);
+        const get = await GetApiKey_v2({ id: storedObj?.userID });
+        setApiKey(get.data.data);
       } else {
         setApiKey(get.data.data);
       }

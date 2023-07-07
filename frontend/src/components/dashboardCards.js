@@ -56,10 +56,10 @@ const DashboardCards = ({ data }) => {
     <Box>
       <Box component={Paper} p={2} sx={{ m: { xs: 1, md: 2 } }}>
         <Typography variant="h6" fontWeight={"bold"}>
-          {data[0].is_paid ? "This is Paid Version!" : "Upgrade your plan!"}
+          {data.length > 0 && data[0].is_paid ? "This is Paid Version!" : "Upgrade your plan!"}
         </Typography>
         <Typography>
-          You are currently on a {data[0].is_paid ? "Paid" : "free"} plan, Click here to Upgrade
+          You are currently on a {data.length > 0 && data[0].is_paid ? "Paid" : "free"} plan, Click here to Upgrade
         </Typography>
       </Box>
       <Grid
@@ -95,7 +95,7 @@ const DashboardCards = ({ data }) => {
             variant="h5"
             sx={{ color: "#005734" }}
           >
-            {data[0].is_active ? "Active" : "Not Active"}
+            {data.length > 0 && data[0].is_active ? "Active" : "Not Active"}
           </Typography>
           <Box p={3}>
             <Typography
@@ -106,7 +106,7 @@ const DashboardCards = ({ data }) => {
               sx={{ height: "35px", borderRadius: "5px" }}
               textAlign={"center"}
             >
-              {data[0].APIKey}
+              {data.length > 0 && data[0]?.APIKey}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "center" }} mb={3}>
@@ -132,7 +132,7 @@ const DashboardCards = ({ data }) => {
                 },
               }}
             >
-              {data[0].is_active ? "Deactivate" : "Activate Key"}
+              {data.length > 0 && data[0].is_active ? "Deactivate" : "Activate Key"}
             </Button>
           </Box>
         </Grid>
@@ -179,19 +179,19 @@ const DashboardCards = ({ data }) => {
                 }}
               >
                 <Box
-                  width={`${
+                  width={`${data.length > 0 &&
                     data[0].total_credits == null
                       ? 0
-                      : ((data[0].total_credits - data[0].credits) * 100) /
+                      : ((data[0].credits ) * 100) /
                         data[0].total_credits
                   }%`}
                   height={20}
                   sx={{ bgcolor: "#2e7d32" }}
                 >
-                  <Typography textAlign={"center"} sx={{ color: "white" }}>{`${
+                  <Typography textAlign={"center"} sx={{ color: "white" }}>{`${data.length > 0 &&
                     data[0].total_credits == null
                       ? 0
-                      : ((data[0].total_credits - data[0].credits) * 100) /
+                      : ((data[0].credits) * 100) /
                         data[0].total_credits
                   }%`}</Typography>
                 </Box>
@@ -211,12 +211,7 @@ const DashboardCards = ({ data }) => {
               /> */}
             </Box>
             <Typography mb={2} textAlign={"center"}>
-              {data[0].credits == null
-                ? "0"
-                : data[0].total_credits - data[0].credits}{" "}
-              &nbsp;used /{" "}
-              {data[0].total_credits == null ? "0" : data[0].total_credits}{" "}
-              Credits Available
+              Credit Balance : &nbsp;  {data.length > 0 &&  data[0].credits == null ? "0" : data[0].credits}{" "}
             </Typography>
           </Box>
         </Grid>
