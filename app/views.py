@@ -65,36 +65,38 @@ class DocumentDetails(APIView):
             "data": serializer.data
         }, status=status.HTTP_200_OK)
     
-
-    def put(self , request):
-        
+    def put(self, request):
         api_service_id = request.data.get('api_service_id')
-        existing_users = ApiKey.objects.all()
-      
+        update_fields = request.data.get('fields')
+
         try:
-            document=Document.objects.get(api_service_id=api_service_id)
-            document.is_released=True
+            document = Document.objects.get(api_service_id=api_service_id)
+
+            for field, value in update_fields.items():
+                setattr(document, field, value)
+
             document.save()
+
+            existing_users = ApiKey.objects.all()
             for user in existing_users:
-                user_api_service=user.api_services
+                user_api_service = user.api_services
                 for api_service in user_api_service:
                     if api_service.get('api_service_id') == api_service_id:
-                        api_service['is_released'] = True
-                user.save()
-                # api_services=user.api_services.get(api_service_id=api_service_id)
-                # api_services['is_released'] =True
-                # api_services.save()
-            
-                return Response({
-                    "success": True,
-                    "message": "The api service has been released",
-                }, status=status.HTTP_200_OK)
-            
+                        for field, value in update_fields.items():
+                            api_service[field] = value
+                    user.save()
+
+            return Response({
+                "success": True,
+                "message": "The fields have been updated",
+            }, status=status.HTTP_200_OK)
+
         except Document.DoesNotExist:
             return Response({
                 "success": False,
-                "message": "Ths api service_id does not exist",
+                "message": "The api service_id does not exist",
             }, status=status.HTTP_404_NOT_FOUND)
+
 """
 @Generate Vocucher :
 @description: To generate a vocucher
@@ -368,7 +370,7 @@ class ActivateService(APIView):
 @description: To process the API key by product people
 """   
 @method_decorator(csrf_exempt, name='dispatch')
-class processapikey(APIView):
+class processAPIKey(APIView):
     def post(self, request):
         user_api_key = request.data.get("api_key")
         api_service_id = request.data.get("api_service_id")
@@ -380,39 +382,85 @@ class processapikey(APIView):
         if serializer.is_valid():
             try:
                 api_key = ApiKey.objects.get(APIKey=user_api_key)
-                print("---Got api key---",api_key)
+                print("---Got api key---", api_key)
             except ApiKey.DoesNotExist:
                 return Response({
                     "success": False,
                     "message": "API key does not exist or the combination is invalid"
                 }, status=status.HTTP_404_NOT_FOUND)
-            if(api_key.is_active):
-                if(api_key.credits > 0):
-                    api_services = api_key.api_services
 
-                    action = "activated"
-                    for service in api_services:
-                        if service['api_service_id'] == api_service_id:
-                            api_key.credits = api_key.credits - service['credits_count']
-                            api_key.save()
-                            serializer = ApiKeySerializer(api_key)
+            if api_key.is_active:
+                api_service = api_key.api_services
+                service_found = False
+
+                for service in api_service:
+                    if service['api_service_id'] == api_service_id:
+                        service_found = True
+
+                        if service['is_active']:
+                            if api_key.credits > 0:
+                                api_services = api_key.api_services
+
+                                for service in api_services:
+                                    if service['api_service_id'] == api_service_id:
+                                        api_key.credits -= service['credits_count']
+                                        api_key.save()
+                                        serializer = ApiKeySerializer(api_key)
+                                        return Response({
+                                            "success": True,
+                                            "message": "The count is decremented",
+                                            "count": serializer.data["credits"]
+                                        }, status=status.HTTP_200_OK)
+                            else:
+                                return Response({
+                                    "success": False,
+                                    "message": "Limit exceeded",
+                                }, status=status.HTTP_401_UNAUTHORIZED)
+                        else:
                             return Response({
-                                "success": True,
-                                "message": "The count is decremented",
-                                "count": serializer.data["credits"]
-                            }, status=status.HTTP_200_OK)
-                else:
+                                "success": False,
+                                "message": "API service is not active"
+                            }, status=status.HTTP_403_FORBIDDEN)
+
+                if not service_found:
                     return Response({
-                        "success":False,
-                        "message":"Limit exceeded",
-                    }, status=status.HTTP_401_UNAUTHORIZED)
-            return Response({
-                "success": True,
-                "message": "API key is inactive"
-            }, status= status.HTTP_403_FORBIDDEN)
+                        "success": False,
+                        "message": "API service ID is invalid"
+                    }, status=status.HTTP_403_FORBIDDEN)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "API key is inactive"
+                }, status=status.HTTP_403_FORBIDDEN)
         else:
             default_errors = serializer.errors
             new_error = {}
             for field_name, field_errors in default_errors.items():
                 new_error[field_name] = field_errors[0]
             return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Apikey_Upgrade(APIView):
+    def put(self, request):
+        api=request.data.get('api_key')
+        total_credit=100
+        
+
+        try:
+            api_key=ApiKey.objects.get(APIKey=api)
+            print(api_key)
+            api_key.total_credits=total_credit
+            api_key.save()
+            return Response({
+                "Success":True,
+                "Message":"Successfully updated the total credits to 100"
+            },status=status.HTTP_200_OK)
+        
+
+        except ApiKey.DoesNotExist:
+            return Response({
+                "Success":False,
+                "Message":"No api key Found"
+            },status=status.HTTP_404_NOT_FOUND)
+        
