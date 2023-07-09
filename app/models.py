@@ -44,7 +44,7 @@ class Document(models.Model):
     api_service = models.CharField(max_length=255)
     document_link = models.CharField(max_length=255)
     is_active = models.BooleanField(default=False)
-    is_released = models.BooleanField(default=False)
+    is_released = models.BooleanField(default=True)
     credits_count = models.IntegerField(null=False)
 
     def __str__(self):
