@@ -65,8 +65,40 @@ class DocumentDetails(APIView):
             "data": serializer.data
         }, status=status.HTTP_200_OK)
     
+    def put(self, request):
+        api_service_id = request.data.get('api_service_id')
+        update_fields = request.data.get('fields')
+
+        try:
+            document = Document.objects.get(api_service_id=api_service_id)
+
+            for field, value in update_fields.items():
+                setattr(document, field, value)
+
+            document.save()
+
+            existing_users = ApiKey.objects.all()
+            for user in existing_users:
+                user_api_service = user.api_services
+                for api_service in user_api_service:
+                    if api_service.get('api_service_id') == api_service_id:
+                        for field, value in update_fields.items():
+                            api_service[field] = value
+                    user.save()
+
+            return Response({
+                "success": True,
+                "message": "The fields have been updated",
+            }, status=status.HTTP_200_OK)
+
+        except Document.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "The api service_id does not exist",
+            }, status=status.HTTP_404_NOT_FOUND)
+
 """
-@Generate Vocucher 
+@Generate Vocucher :
 @description: To generate a vocucher
 """
 @method_decorator(csrf_exempt, name='dispatch')
@@ -77,10 +109,7 @@ class generateVoucher(APIView):
 
         try:
             Voucher.objects.get(voucher_name=voucher_name)
-            return Response({
-                "success": False,
-                "message": "Voucher already exists",
-            }, status=status.HTTP_400_BAD_REQUEST)
+            
         except Voucher.DoesNotExist:
             pass
 
@@ -409,3 +438,29 @@ class processAPIKey(APIView):
             for field_name, field_errors in default_errors.items():
                 new_error[field_name] = field_errors[0]
             return Response(new_error, status=status.HTTP_400_BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Apikey_Upgrade(APIView):
+    def put(self, request):
+        api=request.data.get('api_key')
+        total_credit=100
+        
+
+        try:
+            api_key=ApiKey.objects.get(APIKey=api)
+            print(api_key)
+            api_key.total_credits=total_credit
+            api_key.save()
+            return Response({
+                "Success":True,
+                "Message":"Successfully updated the total credits to 100"
+            },status=status.HTTP_200_OK)
+        
+
+        except ApiKey.DoesNotExist:
+            return Response({
+                "Success":False,
+                "Message":"No api key Found"
+            },status=status.HTTP_404_NOT_FOUND)
+        

@@ -8,4 +8,5 @@ urlpatterns = [
     path('generate-api-key/<str:userid>/',generateKey.as_view()),
     path('activate-api-services/<str:userid>/<str:apikey>/<str:api_service_id>/',ActivateService.as_view()),
     path('process-api-key/',processAPIKey.as_view()),
+    path('upgrade/',Apikey_Upgrade.as_view()),
 ]
