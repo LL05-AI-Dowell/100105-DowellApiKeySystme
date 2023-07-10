@@ -444,13 +444,15 @@ class processAPIKey(APIView):
 class Apikey_Upgrade(APIView):
     def put(self, request):
         api=request.data.get('api_key')
-        credits=100
+        bought_credits=100
         
 
         try:
             api_key=ApiKey.objects.get(APIKey=api)
-            print(api_key)
-            api_key.credits=credits
+            # print(api_key)
+            api_key.credits += bought_credits
+            api_key.total_credits=api_key.credits
+
             api_key.save()
             return Response({
                 "Success":True,
