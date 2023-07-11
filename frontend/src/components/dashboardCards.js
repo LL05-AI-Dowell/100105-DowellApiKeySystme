@@ -18,12 +18,15 @@ import {
 import Logo from "../dowellLogo.png";
 
 import { ActivateApiKey_v2 } from "../util/api";
+import { ActivateService, UpgradeKey } from "../util/api";
 
 const DashboardCards = ({ data }) => {
   const [document, setDocument] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [addVoucher, setAddVoucher] = useState("");
   const [snackBar, setSnackBar] = useState(false);
+  const [serviceSnackBar, setServiceSnackBar] = useState(false);
+  const [upgradeSnackBar, setUpgradeSnackBar] = useState(false);
   const [genKey, setGenKey] = useState(null);
 
   const openDialog = () => {
@@ -52,20 +55,69 @@ const DashboardCards = ({ data }) => {
     console.log("copied data is ", copiedKey);
   };
 
+  const handleService = async (e) => {
+    console.log("the picked service is ", e);
+    console.log(
+      "user Id ",
+      data[0].userId,
+      " api key ",
+      data[0].APIKey,
+      " service id ",
+      e.api_service_id
+    );
+    if (e.is_released == false) {
+      setServiceSnackBar("info");
+    } else {
+      const res = await ActivateService({
+        id: data[0].userId,
+        api_key: data[0].APIKey,
+        service_id: e.api_service_id,
+      });
+      if (res?.success == true) {
+        setServiceSnackBar("success");
+        // window.location.reload();
+      } else {
+        setServiceSnackBar("error");
+      }
+    }
+  };
+  const handleUpgrade = async () => {
+    const val = data[0].APIKey;
+    const res = await UpgradeKey({val:val});
+    console.log(res)
+    if (res?.Success == true) {
+      setUpgradeSnackBar("success");
+      window.location.reload();
+    } else {
+      setUpgradeSnackBar("error");
+    }
+  };
+
   return (
     <Box>
       <Box component={Paper} p={2} sx={{ m: { xs: 1, md: 2 } }}>
         <Typography variant="h6" fontWeight={"bold"}>
-          {data.length > 0 && data[0].is_paid ? "This is Paid Version!" : "Upgrade your plan!"}
+          {data.length > 0 && data[0].is_paid
+            ? "This is Paid Version!"
+            : "Upgrade your plan!"}
         </Typography>
         <Typography>
-          You are currently on a {data.length > 0 && data[0].is_paid ? "Paid" : "free"} plan, Click here to Upgrade
+          You are currently on a{" "}
+          {data.length > 0 && data[0].is_paid ? "Paid" : "free"} plan,{" "}
+          {data.length > 0 && data[0].is_paid ? (
+            ""
+          ) : (
+            <Button onClick={() => handleUpgrade()}>
+              Click here to Upgrade
+            </Button>
+          )}
         </Typography>
       </Box>
       <Grid
         container
         spacing={0}
         key={data[0].userId}
+        justifyContent="center"
         sx={{ m: { xs: 1, md: 2 } }}
       >
         <Grid
@@ -132,7 +184,9 @@ const DashboardCards = ({ data }) => {
                 },
               }}
             >
-              {data.length > 0 && data[0].is_active ? "Deactivate" : "Activate Key"}
+              {data.length > 0 && data[0].is_active
+                ? "Deactivate"
+                : "Activate Key"}
             </Button>
           </Box>
         </Grid>
@@ -179,20 +233,20 @@ const DashboardCards = ({ data }) => {
                 }}
               >
                 <Box
-                  width={`${data.length > 0 &&
-                    data[0].total_credits == null
+                  width={`${
+                    data.length > 0 && data[0].total_credits == null
                       ? 0
-                      : ((data[0].credits ) * 100) /
-                        data[0].total_credits
+                      : (data[0].credits * 100) / data[0].total_credits
                   }%`}
                   height={20}
                   sx={{ bgcolor: "#2e7d32" }}
                 >
-                  <Typography textAlign={"center"} sx={{ color: "white" }}>{`${data.length > 0 &&
-                    data[0].total_credits == null
+                  <Typography textAlign={"center"} sx={{ color: "white" }}>{`${
+                    data.length > 0 && data[0].total_credits == null
                       ? 0
-                      : ((data[0].credits) * 100) /
-                        data[0].total_credits
+                      : data[0].total_credits == 0
+                      ? 0
+                      : (data[0].credits * 100) / data[0].total_credits
                   }%`}</Typography>
                 </Box>
               </Box>
@@ -211,7 +265,10 @@ const DashboardCards = ({ data }) => {
               /> */}
             </Box>
             <Typography mb={2} textAlign={"center"}>
-              Credit Balance : &nbsp;  {data.length > 0 &&  data[0].credits == null ? "0" : data[0].credits}{" "}
+              Credit Balance : &nbsp;{" "}
+              {data.length > 0 && data[0].credits == null
+                ? "0"
+                : data[0].credits}{" "}
             </Typography>
           </Box>
         </Grid>
@@ -226,10 +283,18 @@ const DashboardCards = ({ data }) => {
               p={2}
               sx={{ m: { xs: 1, md: 2 } }}
             >
-              <Typography ml={2}>{i.api_service}</Typography>
-              <Typography sx={{ mr: { xs: 2, md: 24 } }}>
-                Credits : &nbsp; {i.credits_count}
-              </Typography>
+              <Box sx={{ display: { xs: "block", md: "flex" } }}>
+                <Typography ml={2}>{i.api_service_id}</Typography>
+                <Typography ml={2}>{i.api_service}</Typography>
+              </Box>
+
+              <Button
+                // disabled={api.is_active}
+                sx={{ border: "1px #005734 solid", color: "#005734", mb: 2 }}
+                onClick={() => handleService(i)}
+              >
+                {i.is_active ? "Remove Service" : "Activate Service"}
+              </Button>
             </Box>
           ) : (
             ""
@@ -261,29 +326,37 @@ const DashboardCards = ({ data }) => {
         </DialogTitle>
 
         <DialogActions sx={{ display: "block", bgcolor: "#dce8e4" }}>
-          <Box display="flex" pl={8} pr={8}>
-            <TextField
-              fullWidth
-              sx={{ bgcolor: "white" }}
-              value={addVoucher}
-              onChange={(e) => setAddVoucher(e.target.value)}
-              placeholder="Add Voucher"
-            />
-          </Box>
-          <Box pl={8} pr={8}>
-            <Typography variant="span" sx={{ fontSize: "13px" }}>
-              If you don't know what voucher is go to right top and click on the
-              Icon, Then click on "Redeem Voucher". Then Copy the voucher
-            </Typography>
-          </Box>
+          {data[0].is_active ? (
+            ""
+          ) : (
+            <Box>
+              <Box display="flex" pl={8} pr={8}>
+                <TextField
+                  fullWidth
+                  sx={{ bgcolor: "white" }}
+                  value={addVoucher}
+                  onChange={(e) => setAddVoucher(e.target.value)}
+                  placeholder="Add Voucher"
+                />
+              </Box>
+              <Box pl={8} pr={8}>
+                <Typography variant="span" sx={{ fontSize: "13px" }}>
+                  If you don't know what voucher is go to right top and click on
+                  the Icon, Then click on "Redeem Voucher". Then Copy the
+                  voucher
+                </Typography>
+              </Box>
+            </Box>
+          )}
 
           <Button
             onClick={handleActivateApi}
             variant="outlined"
             fullWidth
             sx={{
-              width: "300px",
-              ml: "145px",
+              width: { xs: "100px", md: "300px" },
+              ml: { xs: "100px", md: "145px" },
+              mr: { xs: "100px", md: "145px" },
               mt: 2,
               mb: 3,
               color: "#005734",
@@ -295,6 +368,34 @@ const DashboardCards = ({ data }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{ horizontal: "right", vertical: "top" }}
+        open={upgradeSnackBar}
+        autoHideDuration={5000}
+        onClose={() => setUpgradeSnackBar("")}
+      >
+        <Alert severity={upgradeSnackBar} sx={{ width: "100%" }}>
+          {upgradeSnackBar == "success"
+            ? "Upgraded"
+            : upgradeSnackBar == "info"
+            ? "It is not released yet"
+            : "Error Occured"}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        anchorOrigin={{ horizontal: "right", vertical: "top" }}
+        open={serviceSnackBar}
+        autoHideDuration={5000}
+        onClose={() => setServiceSnackBar("")}
+      >
+        <Alert severity={serviceSnackBar} sx={{ width: "100%" }}>
+          {serviceSnackBar == "success"
+            ? "Done"
+            : serviceSnackBar == "info"
+            ? "It is not released yet"
+            : "Error Occured"}
+        </Alert>
+      </Snackbar>
       <Snackbar
         anchorOrigin={{ horizontal: "right", vertical: "top" }}
         open={snackBar}

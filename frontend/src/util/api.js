@@ -50,8 +50,13 @@ export const GetUserApiKey = async (params) => {
   const response = await api.get(`/generate-api-key/${params}`);
   return response;
 };
-
-//////new apis
+///////////////////////////
+///////////////////////////
+///////////////////////////
+///////////////////////////
+///////////////////////////
+///////////////////////////
+///////////////////////////new apis
 const BASE_URL_V2 = "https://100105.pythonanywhere.com/api/v1";
 
 const api_v2 = axios.create({
@@ -152,5 +157,37 @@ export const ActivateService = async (params) => {
     return result;
   } catch (error) {
     return error;
+  }
+};
+
+export const UpgradeKey = async (params) => {
+  try {
+    // const val = { api_key: params.val };
+    // const data = JSON.stringify(val);
+    // console.log(data);
+    // const response = await api_v2.post(`/upgrade/`, data, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
+    // return response;
+    // console.log(params);
+    const response = await fetch(
+      `https://100105.pythonanywhere.com/api/v1/upgrade/`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          api_key: params.val,
+        }),
+      }
+    );
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    return null;
   }
 };
