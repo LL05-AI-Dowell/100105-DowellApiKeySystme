@@ -210,7 +210,8 @@ class generateKey(APIView):
 
         documents = Document.objects.all()
         document_list = []
-        
+        components = Component.objects.all()
+        component_list = []
         for document in documents:
             document_dict = {
                 'api_service_id': document.api_service_id,
@@ -222,6 +223,17 @@ class generateKey(APIView):
             }
             document_list.append(document_dict)
 
+        for component in components:
+            component_dict = {
+                'component_id': component.id,
+                'api_service': component.apiservices,
+                'total_count': component.total_count,
+                'credit_count': component.credit_count,
+                'is_released': component.is_released,
+                'credit_count': component.credit_count,
+            }
+            component_list.append(component_dict)
+
         APIKey = generate_uuid()
 
         field = {
@@ -230,7 +242,8 @@ class generateKey(APIView):
             "userId":userid,
             "APIKey": APIKey,
             "userDetails": userDetails,
-            "api_services":document_list
+            "api_services":document_list,
+            "component":component_list
         }
 
         serializer = ApiKeySerializer(data=field)
@@ -445,24 +458,165 @@ class Apikey_Upgrade(APIView):
     def put(self, request):
         api=request.data.get('api_key')
         bought_credits=100
-        
-
         try:
             api_key=ApiKey.objects.get(APIKey=api)
-            # print(api_key)
-            api_key.credits += bought_credits
-            api_key.total_credits=api_key.credits
-
-            api_key.save()
-            return Response({
-                "Success":True,
-                "Message":"Successfully updated the total credits to 100"
-            },status=status.HTTP_200_OK)
-        
+            print(api_key)
+            if api_key.is_active==True:
+                api_key.credits += bought_credits
+                api_key.total_credits=api_key.credits
+                api_key.save()
+                return Response({
+                    "Success":True,
+                    "Message":"Successfully updated the total credits to 100"
+                },status=status.HTTP_200_OK)
+            else:
+                return Response({
+                "Success":False,
+                "Message":"Your Api key is not activated yet, Please activaet it First"
+            })
 
         except ApiKey.DoesNotExist:
             return Response({
                 "Success":False,
                 "Message":"No api key Found"
             },status=status.HTTP_404_NOT_FOUND)
+    
+def serialize_document(obj):
+        if isinstance(obj, Document):
+            return {
+                'api_service_id': obj.api_service_id,
+                'Credits': obj.credits_count,
+                'is_active': obj.is_active,
+                'is_released':obj.is_released
+            }
         
+
+import json
+@method_decorator(csrf_exempt, name='dispatch')
+class Componentview(APIView): 
+    def post(self, request):
+        name=request.data.get('name')
+        service_id_list=request.data.get('apiservice_ids')
+        credit_count=request.data.get('credit_count')
+        field = {
+            "name": name,
+            "service_id_list": service_id_list,
+            "credit_count":credit_count
+        }
+        serializer = componentSerializer(data=field)
+        if serializer.is_valid():
+            apiservice_ids = request.data.get('apiservice_ids', [])
+            api_services = []
+            api_services_credit_count = 0
+            for apiservice_id in apiservice_ids:
+                try:
+                    api_service = Document.objects.get(api_service_id=apiservice_id)
+                    api_services.append(api_service)
+                    api_services_credit_count += api_service.credits_count
+                except Document.DoesNotExist:
+                    return Response({'error': 'API service not found.'}, status=400)
+                api_services_json = json.dumps([serialize_document(api_service) for api_service in api_services])
+
+            # component_credit_count = request.data.get('credit_count')
+            total_credit_count =credit_count + api_services_credit_count
+            serializer.save(total_count=total_credit_count, apiservices=api_services_json)
+            return Response({
+                "Success":True,
+                "Message":"Component Creted Successfully"
+            },status=status.HTTP_200_OK)
+        else:
+            print('not valid')
+            return Response(serializer.errors, status=400)
+        
+    def put(self, request):
+        componentid=request.data.get("componentid")
+        try:
+            component = Component.objects.get(id=componentid)
+        except Component.DoesNotExist:
+            return Response({'error': 'Component not found.'}, status=404)
+        component.is_active = not component.is_active
+        apiservices = json.loads(component.apiservices)
+        print(apiservices)
+        for service in apiservices:
+            service['is_active'] = component.is_active
+
+        component.apiservices = json.dumps(apiservices)
+        component.save()
+
+        return Response({'success': 'Component activated/deactivated.'}, status=200)
+
+    def get(self, request):
+        components = Component.objects.all()
+        serializer = componentSerializer(components, many=True)
+        return Response(serializer.data, status=200)
+def serialize_component(obj):
+        if isinstance(obj, Component):
+            return {
+                'id': obj.id,
+                'Credits': obj.credit_count,
+                'is_active': obj.is_active,
+                'is_released':obj.is_released
+            }
+@method_decorator(csrf_exempt, name='dispatch')
+class libraryview(APIView): 
+    def post(self, request):
+        name=request.data.get('name')
+        component_id_list=request.data.get('components_ids')
+        print(component_id_list)
+        credit_count=request.data.get('credit_count')
+        field = {
+            "name": name,
+            "service_id_list": component_id_list,
+            "credit_count":credit_count
+        }
+        serializer = librarySerializer(data=field)
+        if serializer.is_valid():
+            
+            print(component_id_list)
+            component_services = []
+            component_service_count = 0
+            for component_id in component_id_list:               
+                try:
+                    components = Component.objects.get(id=component_id)
+                    print(components)
+                    component_services.append(components)
+                    component_service_count += components.total_count
+                except Component.DoesNotExist:
+                    return Response({'error': 'API service not found.'}, status=400)
+                component_json = json.dumps([serialize_component(components) for components in component_services])
+
+            library_credit_count = request.data.get('credit_count')
+            total_credit_count =library_credit_count + component_service_count
+            print(total_credit_count)
+            serializer.save(total_count=total_credit_count, components=component_json)
+            return Response({
+                "Success":True,
+                "Message":"Component Creted Successfully"
+            },status=status.HTTP_200_OK)
+        
+        else:
+            print('not valid')
+            return Response(serializer.errors, status=400)
+        
+    def put(self, request):
+        library_id=request.data.get("library_id")
+        try:
+            library = Library.objects.get(id=library_id)
+        except Library.DoesNotExist:
+            return Response({'error': 'Library not found.'}, status=404)
+        library.is_active = not library.is_active
+        component_service = json.loads(library.components)
+        print(component_service)
+        for component in component_service:
+            component['is_active'] = library.is_active 
+
+        library.components = json.dumps(component_service)
+        print(Library.components)
+        library.save()
+
+        return Response({'success': 'Component activated/deactivated.'}, status=200)
+
+    def get(self, request):
+        Librarydata = Library.objects.all()
+        serializer = librarySerializer(Librarydata, many=True)
+        return Response(serializer.data, status=200)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ApiKey, Voucher , RedeemVoucher,Document
+from .models import ApiKey, Voucher , RedeemVoucher,Document,Component,Library
 
 class ApiKeySerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,3 +24,17 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = '__all__'
+
+        
+class componentSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Component
+        fields = '__all__'
+       
+class librarySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Library
+        fields = '__all__'
+       

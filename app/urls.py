@@ -9,4 +9,7 @@ urlpatterns = [
     path('activate-api-services/<str:userid>/<str:apikey>/<str:api_service_id>/',ActivateService.as_view()),
     path('process-api-key/',processAPIKey.as_view()),
     path('upgrade/',Apikey_Upgrade.as_view()),
+    path('component/',Componentview.as_view()),
+    path('library/',libraryview.as_view()),
+
 ]

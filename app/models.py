@@ -13,6 +13,9 @@ class ApiKey(models.Model):
     userDetails = models.JSONField(null=True, blank=False)
     api_services = models.JSONField(null=True, blank=False)
     is_redeemed = models.BooleanField(default=False)
+    component =models.JSONField(null=True, blank=False)
+    Library=models.JSONField(null=True, blank=False)
+    
 
     def __str__(self):
         return str(self.APIKey)
@@ -49,3 +52,25 @@ class Document(models.Model):
 
     def __str__(self):
         return str(self.api_service)
+    
+
+class Component(models.Model):
+    name=models.CharField(max_length=225,unique=True)
+    apiservices=models.JSONField(null=True,blank=True)
+    credit_count=models.IntegerField(blank=True, null=True)
+    total_count=models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    is_released = models.BooleanField(default=True)
+    def __str__(self):
+        return str(self.name)
+    
+class Library(models.Model):
+    name=models.CharField(max_length=225,unique=True)
+    components=models.JSONField(null=True,blank=True)
+    credit_count=models.CharField(max_length=225,blank=True)
+    total_count=models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    is_released = models.BooleanField(default=True)
+    def __str__(self):
+        return str(self.name)
+    
