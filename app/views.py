@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import json
 from app.helper import *
-from .models import ApiKey,Document
+from .models import ApiKey,Document,Component,Library,Flutterflow
 from .serializers import *
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
@@ -212,6 +212,10 @@ class generateKey(APIView):
         document_list = []
         components = Component.objects.all()
         component_list = []
+        libraries = Library.objects.all()
+        library_list = []
+        products = Product.objects.all()
+        product_list = []
         for document in documents:
             document_dict = {
                 'api_service_id': document.api_service_id,
@@ -226,15 +230,38 @@ class generateKey(APIView):
         for component in components:
             component_dict = {
                 'component_id': component.id,
-                'api_service': component.apiservices,
+                
                 'total_count': component.total_count,
                 'credit_count': component.credit_count,
                 'is_released': component.is_released,
+                'is_active': component.is_active,
                 'credit_count': component.credit_count,
             }
             component_list.append(component_dict)
+        
+        for library in libraries:
+            library_dict = {
+                'library_id': library.library_id,
+                'name': library.name,
+                'credit_count': library.credit_count,
+                'total_count': library.total_count,
+                'is_active': library.is_active,
+                'is_released': library.is_released,
+            }
+            library_list.append(library_dict)
+
+        for product in products:
+            product_dict = {
+                'name': product.name,
+                'credit_count': product.credit_count,
+                'total_count': product.total_count,
+                'is_active': product.is_active,
+                'is_released': product.is_released,
+            }
+            product_list.append(product_dict)
 
         APIKey = generate_uuid()
+        print(product_list)
 
         field = {
             "username": username,
@@ -243,7 +270,9 @@ class generateKey(APIView):
             "APIKey": APIKey,
             "userDetails": userDetails,
             "api_services":document_list,
-            "component":component_list
+            "Component":component_list,
+            "Product":product_list,
+            "Library":library_list
         }
 
         serializer = ApiKeySerializer(data=field)
@@ -570,9 +599,7 @@ class libraryview(APIView):
             "credit_count":credit_count
         }
         serializer = librarySerializer(data=field)
-        if serializer.is_valid():
-            
-            print(component_id_list)
+        if serializer.is_valid():           
             component_services = []
             component_service_count = 0
             for component_id in component_id_list:               
@@ -581,9 +608,10 @@ class libraryview(APIView):
                     print(components)
                     component_services.append(components)
                     component_service_count += components.total_count
+                    components.save()
                 except Component.DoesNotExist:
                     return Response({'error': 'API service not found.'}, status=400)
-                component_json = json.dumps([serialize_component(components) for components in component_services])
+            component_json = json.dumps([serialize_component(components) for components in component_services])
 
             library_credit_count = request.data.get('credit_count')
             total_credit_count =library_credit_count + component_service_count
@@ -614,9 +642,70 @@ class libraryview(APIView):
         print(Library.components)
         library.save()
 
-        return Response({'success': 'Component activated/deactivated.'}, status=200)
+        return Response({
+                "Success":True,
+                "Message":"Component Updated Successfully"
+            },status=status.HTTP_200_OK)
+        
 
     def get(self, request):
         Librarydata = Library.objects.all()
         serializer = librarySerializer(Librarydata, many=True)
         return Response(serializer.data, status=200)
+    
+
+class Flutterflowview(APIView):
+    def post(self, request):
+        id = request.data.get('id')
+        library_id_list = request.data.get('library_id_list')
+
+        Library_credit_count=0
+        Library_list = []
+        Library_credit_count = 0
+
+        for library_id in library_id_list:
+            try:
+                library_service = Library.objects.get(id=library_id)
+                Library_list.append({
+                    'id': library_service.id,
+                    'name': library_service.name,
+                    'credit': library_service.total_count
+                })
+                Library_credit_count += library_service.total_count
+                library_service.save()
+                print(Library_list)
+            except Document.DoesNotExist:
+                return Response({'error': 'API service not found.'}, status=400)
+        print(Library_list)
+        libraryservice_json=json.dumps(Library_list)
+        total_count=Library_credit_count
+        field = {
+            "librariesdb":libraryservice_json,
+            "id":id,
+            "total_count":total_count,
+            "libraries":libraryservice_json
+        }
+        
+        serializer = Flutterflow_serializer(data=field)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "Success":True,
+                "Message":"Succesfully created new product"
+            },status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=400)
+        
+    def get(self, request):
+        Flutterflowdata = Flutterflow.objects.all()
+        serializer = Flutterflow_serializer(Flutterflowdata, many=True)
+        return Response(serializer.data, status=200)
+    
+            
+
+        
+
+        
+        
+           
+        

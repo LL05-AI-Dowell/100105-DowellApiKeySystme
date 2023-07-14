@@ -11,5 +11,6 @@ urlpatterns = [
     path('upgrade/',Apikey_Upgrade.as_view()),
     path('component/',Componentview.as_view()),
     path('library/',libraryview.as_view()),
+    path('flutterflow/',Flutterflowview.as_view()),
 
 ]

@@ -13,8 +13,9 @@ class ApiKey(models.Model):
     userDetails = models.JSONField(null=True, blank=False)
     api_services = models.JSONField(null=True, blank=False)
     is_redeemed = models.BooleanField(default=False)
-    component =models.JSONField(null=True, blank=False)
+    Component =models.JSONField(null=True, blank=False)
     Library=models.JSONField(null=True, blank=False)
+    Product=models.JSONField(null=True, blank=False)
     
 
     def __str__(self):
@@ -65,6 +66,7 @@ class Component(models.Model):
         return str(self.name)
     
 class Library(models.Model):
+    library_id=models.CharField(max_length=225,blank=True)
     name=models.CharField(max_length=225,unique=True)
     components=models.JSONField(null=True,blank=True)
     credit_count=models.CharField(max_length=225,blank=True)
@@ -74,3 +76,12 @@ class Library(models.Model):
     def __str__(self):
         return str(self.name)
     
+
+class Flutterflow(models.Model):
+    id=models.IntegerField(blank=True, null=False,primary_key=True)
+    libraries=models.JSONField(null=True,blank=True) 
+    total_credit_count=models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField(default=False)
+    is_released = models.BooleanField(default=True)
+    def __str__(self):
+        return str(self.name)

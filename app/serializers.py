@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ApiKey, Voucher , RedeemVoucher,Document,Component,Library
+from .models import ApiKey, Voucher , RedeemVoucher,Document,Component,Library,Flutterflow
 
 class ApiKeySerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,4 +37,10 @@ class librarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Library
         fields = '__all__'
-       
+
+
+class Flutterflow_serializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Flutterflow
+        fields = '__all__'
