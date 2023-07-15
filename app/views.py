@@ -214,7 +214,7 @@ class generateKey(APIView):
         component_list = []
         libraries = Library.objects.all()
         library_list = []
-        products = Product.objects.all()
+        P_Flutterflow = Flutterflow.objects.all()
         product_list = []
         for document in documents:
             document_dict = {
@@ -250,13 +250,13 @@ class generateKey(APIView):
             }
             library_list.append(library_dict)
 
-        for product in products:
+        for flutterflow in P_Flutterflow:
             product_dict = {
-                'name': product.name,
-                'credit_count': product.credit_count,
-                'total_count': product.total_count,
-                'is_active': product.is_active,
-                'is_released': product.is_released,
+                'name': flutterflow.name,
+                
+                'total_count': flutterflow.total_credit_count,
+                'is_active': flutterflow.is_active,
+                'is_released': flutterflow.is_released,
             }
             product_list.append(product_dict)
 

@@ -78,6 +78,7 @@ class Library(models.Model):
     
 
 class Flutterflow(models.Model):
+    name=models.CharField(max_length=225,unique=True,default="test")
     id=models.IntegerField(blank=True, null=False,primary_key=True)
     libraries=models.JSONField(null=True,blank=True) 
     total_credit_count=models.IntegerField(blank=True, null=True)
