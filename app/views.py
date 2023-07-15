@@ -656,6 +656,7 @@ class libraryview(APIView):
 
 class Flutterflowview(APIView):
     def post(self, request):
+        name = request.data.get('name')
         id = request.data.get('id')
         library_id_list = request.data.get('library_id_list')
 
@@ -677,12 +678,14 @@ class Flutterflowview(APIView):
             except Document.DoesNotExist:
                 return Response({'error': 'API service not found.'}, status=400)
         print(Library_list)
+        print(Library_credit_count)
         libraryservice_json=json.dumps(Library_list)
         total_count=Library_credit_count
         field = {
+            "name":name,
             "librariesdb":libraryservice_json,
             "id":id,
-            "total_count":total_count,
+            "total_credit_count":total_count,
             "libraries":libraryservice_json
         }
         
