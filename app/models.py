@@ -70,7 +70,7 @@ class Library(models.Model):
     name=models.CharField(max_length=225,unique=True)
     components=models.JSONField(null=True,blank=True)
     credit_count=models.CharField(max_length=225,blank=True)
-    total_count=models.IntegerField(blank=True, null=True)
+    total_credit_count=models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_released = models.BooleanField(default=True)
     def __str__(self):

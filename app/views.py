@@ -524,31 +524,32 @@ import json
 @method_decorator(csrf_exempt, name='dispatch')
 class Componentview(APIView): 
     def post(self, request):
-        name=request.data.get('name')
+        component_name=request.data.get('name')
         service_id_list=request.data.get('apiservice_ids')
-        credit_count=request.data.get('credit_count')
+        api_services = []
+        api_services_credit_count = 0
+        for apiservice_id in service_id_list:
+            try:
+                api_service = Document.objects.get(api_service_id=apiservice_id)
+                api_services.append({
+                    'api_service_id':api_service.api_service_id,
+                    "credit_count":api_service.credits_count,
+                    "is_active":api_service.is_active,
+                    "is_released":api_service.is_released
+                })
+                api_services_credit_count += api_service.credits_count
+                api_service.save()
+            except Document.DoesNotExist:
+                return Response({'error': 'API service not found.'}, status=400)
+        api_services_json = json.dumps(api_services)
         field = {
-            "name": name,
-            "service_id_list": service_id_list,
-            "credit_count":credit_count
+        "name": component_name,
+        "total_count":api_services_credit_count,
+        "apiservices":api_services_json
         }
-        serializer = componentSerializer(data=field)
+        serializer=componentSerializer(data=field)
         if serializer.is_valid():
-            apiservice_ids = request.data.get('apiservice_ids', [])
-            api_services = []
-            api_services_credit_count = 0
-            for apiservice_id in apiservice_ids:
-                try:
-                    api_service = Document.objects.get(api_service_id=apiservice_id)
-                    api_services.append(api_service)
-                    api_services_credit_count += api_service.credits_count
-                except Document.DoesNotExist:
-                    return Response({'error': 'API service not found.'}, status=400)
-                api_services_json = json.dumps([serialize_document(api_service) for api_service in api_services])
-
-            # component_credit_count = request.data.get('credit_count')
-            total_credit_count =credit_count + api_services_credit_count
-            serializer.save(total_count=total_credit_count, apiservices=api_services_json)
+            serializer.save()
             return Response({
                 "Success":True,
                 "Message":"Component Creted Successfully"
@@ -589,34 +590,42 @@ def serialize_component(obj):
 @method_decorator(csrf_exempt, name='dispatch')
 class libraryview(APIView): 
     def post(self, request):
-        name=request.data.get('name')
+        library_name=request.data.get('name')
+        library_id=request.data.get('library_id')
         component_id_list=request.data.get('components_ids')
         print(component_id_list)
-        credit_count=request.data.get('credit_count')
+        credit_count=request.data.get('credit_count')   
+        component_services_list = []
+        component_service_count = 0
+        for component_id in component_id_list:               
+            try:
+                components = Component.objects.get(id=component_id)
+                print(components)
+                component_services_list.append({
+                    'id':components.id,
+                    'name':components.name,
+                    'credits':components.total_count,
+                    'is_active':components.is_active,
+                    'is_released':components.is_released
+                })
+                component_service_count += components.total_count
+                components.save()
+            except Component.DoesNotExist:
+                return Response({'error': 'Components with the given ids could not be found'}, status=400)
+        component_json = json.dumps(component_services_list)
         field = {
-            "name": name,
-            "service_id_list": component_id_list,
-            "credit_count":credit_count
-        }
-        serializer = librarySerializer(data=field)
-        if serializer.is_valid():           
-            component_services = []
-            component_service_count = 0
-            for component_id in component_id_list:               
-                try:
-                    components = Component.objects.get(id=component_id)
-                    print(components)
-                    component_services.append(components)
-                    component_service_count += components.total_count
-                    components.save()
-                except Component.DoesNotExist:
-                    return Response({'error': 'API service not found.'}, status=400)
-            component_json = json.dumps([serialize_component(components) for components in component_services])
+        "name": library_name,
+        "total_credit_count":component_service_count,
+        "library_id":library_id,
+        "components":component_json
+        }   
 
-            library_credit_count = request.data.get('credit_count')
-            total_credit_count =library_credit_count + component_service_count
-            print(total_credit_count)
-            serializer.save(total_count=total_credit_count, components=component_json)
+        # library_credit_count = request.data.get('credit_count')
+        # total_credit_count =library_credit_count + component_service_count
+        # print(total_credit_count)
+        serializer=librarySerializer(data=field)
+        if serializer.is_valid():   
+            serializer.save()
             return Response({
                 "Success":True,
                 "Message":"Component Creted Successfully"
@@ -625,7 +634,7 @@ class libraryview(APIView):
         else:
             print('not valid')
             return Response(serializer.errors, status=400)
-        
+    
     def put(self, request):
         library_id=request.data.get("library_id")
         try:
@@ -659,7 +668,6 @@ class Flutterflowview(APIView):
         name = request.data.get('name')
         id = request.data.get('id')
         library_id_list = request.data.get('library_id_list')
-
         Library_credit_count=0
         Library_list = []
         Library_credit_count = 0
