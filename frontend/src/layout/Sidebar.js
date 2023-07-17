@@ -89,9 +89,11 @@ const Sidebar = (props) => {
           <ListItemButton
             onClick={() => {
               setItem("feedback");
+              navigate("/feedback");
             }}
             className={item === "feedback" ? "clickedItem" : ""}
             sx={{
+              color: `${item === "feedback" ? "#005734" : "black"}`,
               bgcolor: `${item === "feedback" ? "#dce7e6" : "#edf2f3"}`,
               borderRight: `${
                 item === "feedback" ? "7px solid #005734" : "none"
@@ -99,7 +101,11 @@ const Sidebar = (props) => {
             }}
           >
             <ListItemIcon>
-              <MessageIcon />
+              <MessageIcon
+                sx={{
+                  color: `${item === "feedback" ? "#005734" : "black"}`,
+                }}
+              />
             </ListItemIcon>
             <ListItemText primary="Give Feedback" />
           </ListItemButton>

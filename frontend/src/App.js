@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import ConstructionPage from "./pages/ConstructionPage";
 import Dashboard from "./pages/Dashboard";
 import Documentation from "./pages/Documentation";
+import FeedbackPage from "./pages/FeedbackPage";
 
 
 import useDowellLogin from "./hooks/useDowellLogin";
@@ -32,6 +33,7 @@ function App() {
       <Route path='/documentation' element={<Documentation />} />
       <Route path='/profile' element={<Profile />} />
       <Route path='/createdapikeys' element={<CreatedApiKeys />} />
+      <Route path='/feedback' element={<FeedbackPage />} />
     </Routes>
   );
 }

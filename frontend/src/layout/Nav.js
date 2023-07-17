@@ -183,7 +183,9 @@ const Nav = () => {
         <List>
           <ListItem disablePadding>
             <img src={Logo} width="50px" />
-            <Typography sx={{color:"#005734"}}>Dowell Api Services</Typography>
+            <Typography sx={{ color: "#005734" }}>
+              Dowell Api Services
+            </Typography>
           </ListItem>
           <Divider />
           <ListItem disablePadding>
@@ -213,7 +215,12 @@ const Nav = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                navigate("/feedback");
+                setDrawer(false);
+              }}
+            >
               <ListItemIcon>
                 <MessageIcon />
               </ListItemIcon>
@@ -230,15 +237,18 @@ const Nav = () => {
           </ListItem>
         </List>
       </Drawer>
-      <Dialog open={open} onClose={handleCloseDialog} sx={{ p: {xs:1, md:4} }}>
+      <Dialog
+        open={open}
+        onClose={handleCloseDialog}
+        sx={{ p: { xs: 1, md: 4 } }}
+      >
         <DialogContent
           sx={{
             display: "flex",
             justifyContent: "center",
             bgcolor: "#dce8e4",
-            width: {xs:"94%", md:"500px"},
-            p:{xs:1, md:2},
-      
+            width: { xs: "94%", md: "500px" },
+            p: { xs: 1, md: 2 },
           }}
         >
           <Typography variant="h4" mr={2} fontWeight="bold">
