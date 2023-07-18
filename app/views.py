@@ -701,32 +701,7 @@ class libraryview(APIView):
         
         else:
             print('not valid')
-            return Response(serializer.errors, status=400)
-    
-    def put(self, request):
-        library_id=request.data.get("library_id")
-        try:
-            library = Library.objects.get(library_id=library_id)
-            library.is_active = not library.is_active
-            library.save()
-            apiservices = library.api_service
-            print(apiservices)
-            for service in apiservices:
-                service['is_active'] = library.is_active
-                library.save()
-                existing_users = ApiKey.objects.all()
-                for user in existing_users:
-                    component_service = user.Component
-                    for component_service in component_service:
-                        for service in apiservices:
-                                service['is_active'] = library.is_active
-                                service.save()
-                return Response({
-                        "Success":True,
-                        "Message":"Librray has been Updated Successfully"
-                     },status=status.HTTP_200_OK)
-        except Library.DoesNotExist:
-            return Response({'error': 'library not found.'}, status=404)     
+            return Response(serializer.errors, status=400)    
 
     def get(self, request):
         Librarydata = Library.objects.all()
@@ -814,23 +789,7 @@ class Flutterflowview(APIView):
                 "Message":"Succesfully created new flutter Component"
             },status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=400)
-    def put(self, request):
-        Flutterflow_component_id=request.data.get("id")
-        try:
-            flutterflow = Flutterflow_component.objects.get(id=Flutterflow_component_id)
-            flutterflow.is_active = not flutterflow.is_active
-            apiservices = flutterflow.api_service
-            print(apiservices)
-            for service in apiservices:
-                service['is_active'] = not service['is_active']
-                flutterflow.save()
-                return Response({
-                        "Success":True,
-                        "Message":"flutter component has been Updated Successfully"
-                     },status=status.HTTP_200_OK)
-        except Flutterflow_component.DoesNotExist:
-            return Response({'error': 'flutter component not found.'}, status=404)     
+            return Response(serializer.errors, status=400)     
         
     def get(self, request):
         Flutterflowdata = Flutterflow_component.objects.all()
