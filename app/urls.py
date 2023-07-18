@@ -12,5 +12,6 @@ urlpatterns = [
     path('component/',Componentview.as_view()),
     path('library/',libraryview.as_view()),
     path('flutterflow/',Flutterflowview.as_view()),
+    path('product/',Productview.as_view()),
 
 ]
