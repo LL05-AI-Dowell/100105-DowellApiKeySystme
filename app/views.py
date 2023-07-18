@@ -216,8 +216,10 @@ class generateKey(APIView):
         component_list = []
         libraries = Library.objects.all()
         library_list = []
-        P_Flutterflow = Flutterflow.objects.all()
-        product_list = []
+        Flutterflow_components = Flutterflow_component.objects.all()
+        flutter_component_list = []
+
+
         for document in documents:
             document_dict = {
                 'api_service_id': document.api_service_id,
@@ -231,13 +233,12 @@ class generateKey(APIView):
 
         for component in components:
             component_dict = {
-                'component_id': component.id,
-                
-                'total_count': component.total_count,
-                'credit_count': component.credit_count,
-                'is_released': component.is_released,
+                'component_id': component.Component_id,
+                'name': component.name,
+                'component_link':component.component_link,
                 'is_active': component.is_active,
-                'credit_count': component.credit_count,
+                'is_released': component.is_released,
+                'credits_count': component.credits_count,
             }
             component_list.append(component_dict)
         
@@ -245,25 +246,26 @@ class generateKey(APIView):
             library_dict = {
                 'library_id': library.library_id,
                 'name': library.name,
-                'credit_count': library.credit_count,
-                'total_count': library.total_count,
+                'library_link':library.library_link,
                 'is_active': library.is_active,
                 'is_released': library.is_released,
+                'credits_count': library.credits_count,
+                
             }
             library_list.append(library_dict)
 
-        for flutterflow in P_Flutterflow:
-            product_dict = {
+        for flutterflow in Flutterflow_components:
+            flutter_dict = {
+                'component_id': flutterflow.Flutterflow_component_id,
                 'name': flutterflow.name,
-                
-                'total_count': flutterflow.total_credit_count,
+                'credit_count': flutterflow.credits_count,
                 'is_active': flutterflow.is_active,
                 'is_released': flutterflow.is_released,
             }
-            product_list.append(product_dict)
+            flutter_component_list.append(flutter_dict)
 
         APIKey = generate_uuid()
-        print(product_list)
+       
 
         field = {
             "username": username,
@@ -273,7 +275,8 @@ class generateKey(APIView):
             "userDetails": userDetails,
             "api_services":document_list,
             "Component":component_list,
-            "Product":product_list,
+            "flutterflow":flutter_component_list,
+            # "Product":product_list,
             "Library":library_list
         }
 
@@ -401,8 +404,9 @@ class ActivateService(APIView):
             if service['api_service_id'] == api_service_id:
                 service['is_active'] = not service['is_active']
                 action = "activated" if service['is_active'] else "deactivated"
+                api_key.save()
 
-        api_key.save()
+        
 
         return Response({
             "success": True,
@@ -558,7 +562,14 @@ class Componentview(APIView):
         serializer=componentSerializer(data=field)
         print(serializer)
         if serializer.is_valid():
-            serializer.save()
+            components = serializer.save()
+            
+            existing_users = ApiKey.objects.all()
+            component_dict = model_to_dict(components)
+
+            for user in existing_users:
+                user.Component.append(component_dict)
+                user.save()
             return Response({
                 "Success":True,
                 "Message":"Component Created Successfully"
@@ -568,23 +579,81 @@ class Componentview(APIView):
             return Response(serializer.errors, status=400)
         
     def put(self, request):
-        componentid=request.data.get("componentid")
+        component_id = request.data.get('component_id')
+        Api_key = request.data.get('Api_key')
+        update_fields = request.data.get('fields')
+
         try:
-            component = Component.objects.get(id=componentid)
-            component.is_active = not component.is_active
-            apiservices = component.api_service
-            print(apiservices)
-            for service in apiservices:
-                service['is_active'] = not service['is_active']
-                component.save()
-                return Response({'success': 'Component activated/deactivated.'}, status=200)
-        except Component.DoesNotExist:
-            return Response({'error': 'Component not found.'}, status=404)      
+            components = Component.objects.get(component_id=component_id)
+
+            for field, value in update_fields.items():
+                setattr(components, field, value)
+
+            components.save()
+
+            existing_users = ApiKey.objects.get(APIKey=Api_key)
+            for user in existing_users:
+                user_api_service = user.api_services
+                for api_service in user_api_service:
+                    for field, value in update_fields.items():
+                        api_service[field] = value
+                    user.save()
+
+            return Response({
+            "success": True,
+            "message": f"Associated service {action} successfully."
+                }, status=status.HTTP_200_OK)
+
+        except Document.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "The api service_id does not exist",
+            }, status=status.HTTP_404_NOT_FOUND) 
 
     def get(self, request):
         components = Component.objects.all()
         serializer = componentSerializer(components, many=True)
         return Response(serializer.data, status=200)
+"""
+@activate component
+@description: to activate component through apikey and component id
+"""  
+@method_decorator(csrf_exempt, name='dispatch')
+class activate_Component(APIView):
+    def get(self, request):
+        api_key=request.data.get("api_key")
+        component_id=request.data.get("component_id")
+        try:
+            api_key = ApiKey.objects.get(APIKey=api_key)
+        except ApiKey.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "API details not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+        if not api_key.is_active:
+            return Response({
+                "success": False,
+                "message": "First you need activate the API key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        credits = api_key.credits
+        if credits <= 0:
+            return Response({
+                "success": False,
+                "message": "You don't have enough credit to activate the API Key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        components = api_key.Component
+
+        action = "activated"
+        for service in components:
+            if service['component_id'] == component_id:
+                service['is_active'] = not service['is_active']
+                action = "activated" if service['is_active'] else "deactivated"
+                api_key.save()
+        return Response({
+            "success": True,
+            "message": f"Associated service {action} successfully."
+        }, status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class libraryview(APIView): 
@@ -606,8 +675,7 @@ class libraryview(APIView):
                     "is_released":api_service.is_released
                 })
                 api_services_credit_count += api_service.credits_count
-                api_service.save()
-                
+                api_service.save()            
             except Document.DoesNotExist:
                 return Response({'error': 'API service not found.'}, status=400)
         field = {
@@ -617,13 +685,15 @@ class libraryview(APIView):
         "credits_count":api_services_credit_count,
         "api_service":api_services
         }   
-
-        # library_credit_count = request.data.get('credit_count')
-        # total_credit_count =library_credit_count + component_service_count
-        # print(total_credit_count)
         serializer=librarySerializer(data=field)
         if serializer.is_valid():   
-            serializer.save()
+            components=serializer.save()
+            existing_users = ApiKey.objects.all()
+            library_dict = model_to_dict(components)
+
+            for user in existing_users:
+                user.Component.append(library_dict)
+                user.save()
             return Response({
                 "Success":True,
                 "Message":"Library Created Successfully"
@@ -638,11 +708,19 @@ class libraryview(APIView):
         try:
             library = Library.objects.get(library_id=library_id)
             library.is_active = not library.is_active
+            library.save()
             apiservices = library.api_service
             print(apiservices)
             for service in apiservices:
-                service['is_active'] = not service['is_active']
+                service['is_active'] = library.is_active
                 library.save()
+                existing_users = ApiKey.objects.all()
+                for user in existing_users:
+                    component_service = user.Component
+                    for component_service in component_service:
+                        for service in apiservices:
+                                service['is_active'] = library.is_active
+                                service.save()
                 return Response({
                         "Success":True,
                         "Message":"Librray has been Updated Successfully"
@@ -654,7 +732,47 @@ class libraryview(APIView):
         Librarydata = Library.objects.all()
         serializer = librarySerializer(Librarydata, many=True)
         return Response(serializer.data, status=200)
-    
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class activate_library(APIView):
+    def get(self, request):
+        api_key=request.data.get("api_key")
+        library_id=request.data.get("library_id")
+        try:
+            api = ApiKey.objects.get(APIKey=api_key)
+        except ApiKey.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "API details not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if not api.is_active:
+            return Response({
+                "success": False,
+                "message": "First you need activate the API key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        credits = api.credits
+
+        if credits <= 0:
+            return Response({
+                "success": False,
+                "message": "You don't have enough credit to activate the API Key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        libraries = api.Library
+        print(libraries)
+        action = "activated"
+        for service in libraries:
+            if service['library_id'] == library_id:
+                service['is_active'] = not service['is_active']
+                action = "activated" if service['is_active'] else "deactivated"
+            api.save()
+        return Response({
+            "success": True,
+            "message": f"Associated service {action} successfully."
+        }, status=status.HTTP_200_OK)
 
 class Flutterflowview(APIView):
     def post(self, request):
@@ -719,7 +837,57 @@ class Flutterflowview(APIView):
         serializer = Flutterflow_serializer(Flutterflowdata, many=True)
         return Response(serializer.data, status=200)
     
-            
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class activate_flutter(APIView):
+    def get(self, request):
+        api_key=request.data.get("api_key")
+        component_id=request.data.get("flutter_component_id")
+        print(component_id)
+        try:
+            api = ApiKey.objects.get(APIKey=api_key)
+        except ApiKey.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "API details not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if not api.is_active:
+            return Response({
+                "success": False,
+                "message": "First you need activate the API key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        credits = api.credits
+
+        if credits <= 0:
+            return Response({
+                "success": False,
+                "message": "You don't have enough credit to activate the API Key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        flutter_flow_components = api.flutterflow
+        print(flutter_flow_components)
+        action = "activated"
+        for service in flutter_flow_components:
+            print(service)
+            print(service)
+            if service['component_id'] == component_id:
+                print("here")
+                service['is_active'] = not service['is_active']
+                action = "activated" if service['is_active'] else "deactivated"
+                api.save()
+                return Response({
+                    "success": True,
+                    "message": f"Associated service {action} successfully."
+                }, status=status.HTTP_200_OK)
+            else: 
+                return Response({
+                    "success": False,
+                    "message": f"Associated service {action} id dont match."
+                }, status=status.HTTP_404_NOT_FOUND)
+
 from django.apps import apps
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -767,25 +935,7 @@ class Productview(APIView):
         else:
             print('not valid')
             return Response(serializer.errors, status=400)
-
-    def put(self, request):
-        product_id=request.data.get("id")
-        try:
-            product = Product.objects.get(id=product_id)
-            print(product)
-            product.is_active = not product.is_active
-            services = product.services
-            
-            print(services)
-            for service in services:
-                service['is_active'] = not service['is_active']
-                product.save()
-                return Response({
-                        "Success":True,
-                        "Message":"product has been Updated Successfully"
-                     },status=status.HTTP_200_OK)
-        except Flutterflow_component.DoesNotExist:
-            return Response({'error': 'Product not found.'}, status=404)     
+    
         
     def get(self, request):
         product = Product.objects.all()

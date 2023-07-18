@@ -7,7 +7,7 @@ class ApiKey(models.Model):
     email = models.CharField(max_length=255)
     userId = models.CharField(max_length=255,null=True,unique=True)
     is_active = models.BooleanField(default=False)
-    credits = models.IntegerField(blank=True, null=True)
+    credits = models.IntegerField(blank=True, null=True,default=0)
     total_credits = models.IntegerField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
     userDetails = models.JSONField(null=True, blank=False)
@@ -15,7 +15,8 @@ class ApiKey(models.Model):
     is_redeemed = models.BooleanField(default=False)
     Component =models.JSONField(null=True, blank=False)
     Library=models.JSONField(null=True, blank=False)
-    Product=models.JSONField(null=True, blank=False)
+    flutterflow=models.JSONField(null=True, blank=False)
+    Product=models.JSONField(null=True, blank=True)
     
 
     def __str__(self):
@@ -77,19 +78,6 @@ class Library(models.Model):
     credits_count=models.IntegerField(blank=True, null=True)
     def __str__(self):
         return str(self.name)
-    
-
-class Plugin(models.Model):
-    plugin_id=models.CharField(max_length=225,unique=True)
-    name=models.CharField(max_length=225,unique=True)
-    api_service=models.JSONField(null=True,blank=True)
-    plugin_link = models.CharField(null=True,max_length=255)
-    is_active = models.BooleanField(default=False)
-    is_released = models.BooleanField(default=True)
-    credits_count=models.IntegerField(blank=True, null=True)
-    def __str__(self):
-        return str(self.name)
-    
 
 class Flutterflow_component(models.Model):
     Flutterflow_component_id=models.CharField(max_length=225,unique=True)
