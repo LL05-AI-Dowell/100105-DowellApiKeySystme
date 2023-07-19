@@ -69,7 +69,7 @@ class Component(models.Model):
         return str(self.name)
     
 class Library(models.Model):
-    library_id=models.CharField(max_length=225,null=True)
+    libraryid=models.CharField(max_length=225,null=True)
     name=models.CharField(max_length=225,unique=True)
     api_service=models.JSONField(null=True,blank=True)
     library_link = models.CharField(null=True,max_length=255)

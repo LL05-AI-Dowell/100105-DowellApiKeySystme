@@ -244,7 +244,7 @@ class generateKey(APIView):
         
         for library in libraries:
             library_dict = {
-                'library_id': library.library_id,
+                'libraryid': library.libraryid,
                 'name': library.name,
                 'library_link':library.library_link,
                 'is_active': library.is_active,
@@ -258,7 +258,7 @@ class generateKey(APIView):
             flutter_dict = {
                 'component_id': flutterflow.Flutterflow_component_id,
                 'name': flutterflow.name,
-                'credit_count': flutterflow.credits_count,
+                'credits_count': flutterflow.credits_count,
                 'is_active': flutterflow.is_active,
                 'is_released': flutterflow.is_released,
             }
@@ -516,16 +516,6 @@ class Apikey_Upgrade(APIView):
                 "Message":"No api key Found"
             },status=status.HTTP_404_NOT_FOUND)
     
-def serialize_document(obj):
-        if isinstance(obj, Document):
-            return {
-                'api_service_id': obj.api_service_id,
-                'Credits': obj.credits_count,
-                'is_active': obj.is_active,
-                'is_released':obj.is_released
-            }
-        
-
 import json
 @method_decorator(csrf_exempt, name='dispatch')
 class Componentview(APIView): 
@@ -580,35 +570,36 @@ class Componentview(APIView):
         
     def put(self, request):
         component_id = request.data.get('component_id')
-        Api_key = request.data.get('Api_key')
         update_fields = request.data.get('fields')
 
         try:
-            components = Component.objects.get(component_id=component_id)
+            component = Component.objects.get(Component_id=component_id)
 
             for field, value in update_fields.items():
-                setattr(components, field, value)
+                setattr(component, field, value)
 
-            components.save()
+            component.save()
 
-            existing_users = ApiKey.objects.get(APIKey=Api_key)
+            existing_users = ApiKey.objects.all()
             for user in existing_users:
-                user_api_service = user.api_services
-                for api_service in user_api_service:
-                    for field, value in update_fields.items():
-                        api_service[field] = value
-                    user.save()
+                user_api_services = user.Component
+                for api_service in user_api_services:
+                    if api_service.get('component_id') == component_id:
+                        for field, value in update_fields.items():
+                            api_service[field] = value
+                user.save()
 
             return Response({
-            "success": True,
-            "message": f"Associated service {action} successfully."
-                }, status=status.HTTP_200_OK)
+                "success": True,
+                "message": "The fields have been updated",
+            }, status=status.HTTP_200_OK)
 
-        except Document.DoesNotExist:
+        except Component.DoesNotExist:
             return Response({
                 "success": False,
-                "message": "The api service_id does not exist",
-            }, status=status.HTTP_404_NOT_FOUND) 
+                "message": "The component_id does not exist",
+            }, status=status.HTTP_404_NOT_FOUND)
+
 
     def get(self, request):
         components = Component.objects.all()
@@ -654,7 +645,10 @@ class activate_Component(APIView):
             "success": True,
             "message": f"Associated service {action} successfully."
         }, status=status.HTTP_200_OK)
-
+"""
+@activate component
+@description: to activate component through apikey and component id
+"""  
 @method_decorator(csrf_exempt, name='dispatch')
 class libraryview(APIView): 
     def post(self, request):
@@ -680,19 +674,19 @@ class libraryview(APIView):
                 return Response({'error': 'API service not found.'}, status=400)
         field = {
         "name": library_name,
-        "library_id":library_id,
+        "libraryid":library_id,
         "library_link":library_link,
         "credits_count":api_services_credit_count,
         "api_service":api_services
         }   
         serializer=librarySerializer(data=field)
         if serializer.is_valid():   
-            components=serializer.save()
+            libraries=serializer.save()
             existing_users = ApiKey.objects.all()
-            library_dict = model_to_dict(components)
+            library_dict = model_to_dict(libraries)
 
             for user in existing_users:
-                user.Component.append(library_dict)
+                user.Library.append(library_dict)
                 user.save()
             return Response({
                 "Success":True,
@@ -702,6 +696,38 @@ class libraryview(APIView):
         else:
             print('not valid')
             return Response(serializer.errors, status=400)    
+    def put(self, request):
+        Library_id = request.data.get('library_id')
+        update_fields = request.data.get('fields')
+
+        try:
+            library = Library.objects.get(libraryid=Library_id)
+
+            for field, value in update_fields.items():
+                setattr(library, field, value)
+
+            library.save()
+
+            existing_users = ApiKey.objects.all()
+            for user in existing_users:
+                library_services = user.Library
+                for service in library_services:
+                    if service.get('libraryid') == Library_id:
+                        print('here')
+                        for field, value in update_fields.items():
+                            service[field] = value
+                user.save()
+
+            return Response({
+                "success": True,
+                "message": "The fields have been updated",
+            }, status=status.HTTP_200_OK)
+
+        except Component.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "The library id does not exist",
+            }, status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request):
         Librarydata = Library.objects.all()
@@ -789,8 +815,40 @@ class Flutterflowview(APIView):
                 "Message":"Succesfully created new flutter Component"
             },status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=400)     
+            return Response(serializer.errors, status=400) 
         
+    def put(self, request):
+        flutter_id = request.data.get('flutter_id')
+        update_fields = request.data.get('fields')
+        try:
+            flutter_components = Flutterflow_component.objects.get(Flutterflow_component_id=flutter_id)
+            for field, value in update_fields.items():
+                setattr(flutter_components, field, value)
+            flutter_components.save()
+            existing_users = ApiKey.objects.all()
+            for user in existing_users:
+                flutter_components = user.flutterflow
+                for service in flutter_components:
+                    if service.get('component_id') == flutter_id:
+                        print('here')
+                        for field, value in update_fields.items():
+                            service[field] = value
+                        user.save()
+                        return Response({
+                            "success": True,
+                            "message": "The fields have been updated",
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "success": False,
+                            "message": "The component id does not match to existing user/ not updated",
+                        }, status=status.HTTP_200_OK)
+                
+        except Component.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "The library id does not exist",
+            }, status=status.HTTP_404_NOT_FOUND)       
     def get(self, request):
         Flutterflowdata = Flutterflow_component.objects.all()
         serializer = Flutterflow_serializer(Flutterflowdata, many=True)
