@@ -218,6 +218,8 @@ class generateKey(APIView):
         library_list = []
         Flutterflow_components = Flutterflow_component.objects.all()
         flutter_component_list = []
+        products = Product.objects.all()
+        product_list = []
 
 
         for document in documents:
@@ -264,6 +266,26 @@ class generateKey(APIView):
             }
             flutter_component_list.append(flutter_dict)
 
+        for flutterflow in Flutterflow_components:
+            flutter_dict = {
+                'component_id': flutterflow.Flutterflow_component_id,
+                'name': flutterflow.name,
+                'credits_count': flutterflow.credits_count,
+                'is_active': flutterflow.is_active,
+                'is_released': flutterflow.is_released,
+            }
+            flutter_component_list.append(flutter_dict)
+        
+        for product in products:
+            product_dict = {
+                'product_id': product.product_id,
+                'name': product.name,
+                "product_link":product.product_link,
+                'credits_count': product.credits_count,
+                'is_active': product.is_active,
+                'is_released': product.is_released,
+            }
+            product_list.append(product_dict)
         APIKey = generate_uuid()
        
 
@@ -276,7 +298,7 @@ class generateKey(APIView):
             "api_services":document_list,
             "Component":component_list,
             "flutterflow":flutter_component_list,
-            # "Product":product_list,
+            "Product":product_list,
             "Library":library_list
         }
 
@@ -960,4 +982,52 @@ class Productview(APIView):
         return Response(serializer.data, status=200)    
         
            
-        
+
+@method_decorator(csrf_exempt, name='dispatch')
+class activate_product(APIView):
+    def get(self, request):
+        api_key=request.data.get("api_key")
+        product_name=request.data.get("product_name")
+        print(product_name)
+        try:
+            api = ApiKey.objects.get(APIKey=api_key)
+        except ApiKey.DoesNotExist:
+            return Response({
+                "success": False,
+                "message": "API details not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if not api.is_active:
+            return Response({
+                "success": False,
+                "message": "First you need activate the API key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        credits = api.credits
+
+        if credits <= 0:
+            return Response({
+                "success": False,
+                "message": "You don't have enough credit to activate the API Key."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        products = api.Product
+        print(products)
+        action = "activated"
+        for service in products:
+            print(service)
+            print(service)
+            if service['name'] == product_name:
+                print("here")
+                service['is_active'] = not service['is_active']
+                action = "activated" if service['is_active'] else "deactivated"
+                api.save()
+                return Response({
+                    "success": True,
+                    "message": f"Associated service {action} successfully."
+                }, status=status.HTTP_200_OK)
+            else: 
+                return Response({
+                    "success": False,
+                    "message": f"Associated service {action} id dont match."
+                }, status=status.HTTP_404_NOT_FOUND)

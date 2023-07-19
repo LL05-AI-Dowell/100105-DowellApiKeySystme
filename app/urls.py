@@ -16,6 +16,7 @@ urlpatterns = [
     path('activate_component/',activate_Component.as_view()),
     path('activate_library/',activate_library.as_view()),
     path('activate_flutter/',activate_flutter.as_view()),
+    path('activate_product/',activate_product.as_view()),
     
     
 
