@@ -1,53 +1,30 @@
 from rest_framework import serializers
-from .models import ApiKey, Voucher , RedeemVoucher,Document,Component,Library,Flutterflow_component,Product
 
-class ApiKeySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApiKey
-        fields = '__all__'
-class ProcessAPIKeySerializer(serializers.Serializer):
-    user_api_key = serializers.CharField(allow_null=False, allow_blank=False)
-    api_service_id = serializers.CharField(allow_null=False, allow_blank=False)
+class ApiServiceSerializer(serializers.Serializer):
+    MODULE_CHOICES = (
+        ('API', 'API'),
+        ('PYTHON LIBRARY', 'PYTHON LIBARY'),
+        ('R LIBRARY', 'R LIBARY'),
+        ('WORDPRESS PLUGIN', 'WORDPRESS PLUGIN'),
+        ('FLUTTER Component', 'FLUTTER COMPONENT'),
+        ('REACT COMPONENT', 'Flutter COMPONENT'),
+        ('PRODUCT', 'Product')
+    )
+    service_id = serializers.CharField(allow_null=False, allow_blank=False)
+    service_type = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=MODULE_CHOICES)
+    name = serializers.CharField(allow_null=False, allow_blank=False)
+    description = serializers.CharField(allow_null=False, allow_blank=False)
+    link = serializers.CharField(allow_null=False, allow_blank=False)
+    credits = serializers.CharField(allow_null=False, allow_blank=False)
 
-class VoucherSerializer(serializers.ModelSerializer): 
-    class Meta:
-        model = Voucher
-        fields = '__all__'
+class VoucherServiceSerializer(serializers.Serializer):
+    name = serializers.CharField(allow_null=False, allow_blank=False)
+    code = serializers.CharField(allow_null=False, allow_blank=False)
+    discount = serializers.IntegerField()
+    description = serializers.CharField(allow_null=False, allow_blank=False)
 
-class RedeemVoucherSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RedeemVoucher
-        fields = '__all__'
-
-
-class DocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Document
-        fields = '__all__'
-
-        
-class componentSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Component
-        fields = '__all__'
-       
-class librarySerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Library
-        fields = '__all__'
-
-
-class Flutterflow_serializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Flutterflow_component
-        fields = '__all__'
-
-
-
-class Product_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
+class UserAPIKeySerializer(serializers.Serializer):
+    username = serializers.CharField(allow_null=False, allow_blank=False)
+    email = serializers.CharField(allow_null=False, allow_blank=False)
+    userId = serializers.CharField(allow_null=False, allow_blank=False)
+    userDetails = serializers.JSONField()

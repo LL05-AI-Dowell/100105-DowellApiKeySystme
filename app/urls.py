@@ -1,23 +1,10 @@
 from django.urls import path
-from app.views import *
+from .views import *
 
 urlpatterns = [
-    path('add-api-services/',DocumentDetails.as_view()),
-    path('generate-voucher/',generateVoucher.as_view()),
-    path('redeem-voucher/<str:userid>/',redeemVoucher.as_view()),
-    path('generate-api-key/<str:userid>/',generateKey.as_view()),
-    path('activate-api-services/<str:userid>/<str:apikey>/<str:api_service_id>/',ActivateService.as_view()),
-    path('process-api-key/',processAPIKey.as_view()),
-    path('upgrade/',Apikey_Upgrade.as_view()),
-    path('component/',Componentview.as_view()),
-    path('library/',libraryview.as_view()),
-    path('flutterflow/',Flutterflowview.as_view()),
-    path('product/',Productview.as_view()),
-    path('activate_component/',activate_Component.as_view()),
-    path('activate_library/',activate_library.as_view()),
-    path('activate_flutter/',activate_flutter.as_view()),
-    path('activate_product/',activate_product.as_view()),
+    path('service/',services.as_view()),
+    path('voucher/',voucher.as_view()),
+    path('user/',user_api_key.as_view()),
+    path('service-update/',update_user_services.as_view()),
     
-    
-
 ]

@@ -3,155 +3,243 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from utils.constant import *
+from utils.helper import *
 from .serializers import *
-from .models import *
+from .helper import *
 
-"""
-@name : Server status check
-@description : To check the server status
-"""
+"""ADD SERVICES"""
 @method_decorator(csrf_exempt, name='dispatch')
-class server_check(APIView):
-    def get(self, request ):
-        return Response({
-            "If you are seeing this , then the DOWELL API KEY SYSTEM V2 is !down"
-        },status=status.HTTP_200_OK)
-
-"""
-@name : Add API services
-@description : To add api sevices document
-"""   
-@method_decorator(csrf_exempt, name='dispatch')
-class add_api_services(APIView):
+class services(APIView):
     def post(self, request):
-        api_service_id = request.data.get('api_service_id')
-        name_service = request.data.get('name_service')
-        document_link = request.data.get('document_link')
-        credits_count = request.data.get('credits_count')
+        type_request = request.GET.get('type')
 
-        field = {
-            "api_service_id": api_service_id,
-            "name_service": name_service,
-            "document_link": document_link,
-            "credits_count": credits_count
-        }
-
-        serializer = APIServiceSerializer(data=field)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "success": True,
-                "message": "API service details saved successfully",
-                "data": serializer.data
-            }, status=status.HTTP_201_CREATED)
+        if type_request == "add_api_service":
+            return self.add_api_service(request)
+        elif type_request == 'add_module_service':
+            return self.add_module_service(request)
+        elif type_request == 'add_product_service':
+            return self.add_product_service(request)
         else:
-            return Response({
-                "success": False,
-                "message": "API service details not saved successfully",
-                "error": serializer.errors
-            },status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request):
-        api_services = APISERVICES.objects.all()
-        serializer = APIServiceSerializer(api_services, many=True)
-
-        return Response({
-            "success": True,
-            "message": "List of Services",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
-
-"""
-@name : Add Module
-@description : To add api module document
-"""   
-@method_decorator(csrf_exempt, name='dispatch')
-class add_module(APIView):
-    def post(self, request):
-        module_type = request.data.get('module_type')
-        module_id = request.data.get('module_id')
-        name_module = request.data.get('name_module')
-        document_link = request.data.get('document_link')
-        credits_count = request.data.get('credits_count')
-        api_service_ids = request.data.get('api_service_ids')
-
-        field = {
-            "module_type": module_type,
-            "module_id": module_id,
-            "name_module": name_module,
-            "document_link": document_link,
-            "credits_count": credits_count,
-            "api_service_ids": api_service_ids
-        }
-
-        serializer = ModuleSerializer(data=field)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "success": True,
-                "message": "Module details saved successfully",
-                "data": serializer.data
-            }, status=status.HTTP_201_CREATED)
-        else:
-            return Response({
-                "success": False,
-                "message": "Module details not saved successfully",
-                "error": serializer.errors
-            },status=status.HTTP_400_BAD_REQUEST)
-        
-    def get(self, request):
-        module = MODULE.objects.all()
-        serializer = ModuleSerializer(module, many=True)
-
-        return Response({
-            "success": True,
-            "message": "List of Module",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+            return self.handle_error(request)
     
+    def get(self, request):
+        type_request = request.GET.get('type')
+        service_id = request.GET.get('service_id', None)
 
-"""
-@name : Add Product
-@description : To add Product
-"""   
-@method_decorator(csrf_exempt, name='dispatch')
-class add_product(APIView):
-    def post(self, request):
-        product_id = request.data.get('product_id')
-        product_name = request.data.get('product_name')
-        product_link = request.data.get('product_link')
-        credits_count = request.data.get('credits_count')
-        types = request.data.get('types')
-
+        if type_request == "get_all_api_service":
+            return self.get_all_api_service(request)
+        elif type_request == 'get_api_service':
+            return self.get_api_service(request,service_id)
+        
+        elif type_request == 'get_all_module_service':
+            return self.get_all_module_service(request)
+        elif type_request == 'get_module_service':
+            return self.get_module_service(request,service_id)
+        
+        elif type_request == 'get_all_product_service':
+            return self.get_all_product_service(request)
+        elif type_request == 'get_product_service':
+            return self.get_product_service(request,service_id)
+        
+        else:
+            return self.handle_error(request)
+        
+    """ADD API SERVICE"""
+    def add_api_service(self,request):
+        ids = request.data.get('ids')
+        name = request.data.get('name')
+        description = request.data.get('description')
+        link = request.data.get('link')
+        credits = request.data.get('credits')
         field = {
-            "product_id": product_id,
-            "product_name": product_name,
-            "product_link": product_link,
-            "credits_count": credits_count,
-            "types": types
+            "ids": ids,
+            "name": name,
+            "description":description,
+            "link": link,
+            "credits": credits
         }
-
-        serializer = ProductSerializer(data=field)
+        serializer = ApiServiceSerializer(data=field)
         if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "success": True,
-                "message": "Product details saved successfully",
-                "data": serializer.data
-            }, status=status.HTTP_201_CREATED)
+            if save_apiservice(field['ids'],field['name'],field['description'],field['link'],field['credits']):
+                return Response({
+                    "success": True,
+                    "message": "New API Service created successfully",
+                    "data": field
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "success": False,
+                    "message": f"API service details not saved successfully or combination of {ids} exist",
+                },status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({
                 "success": False,
-                "message": "Product details not saved successfully",
+                "message": "Posting wrong data to API",
                 "error": serializer.errors
             },status=status.HTTP_400_BAD_REQUEST)
         
-    def get(self, request):
-        product = PRODUCT.objects.all()
-        serializer = ProductSerializer(product, many=True)
-
+    """ADD MODULE SERVICE"""
+    def add_module_service(self,request):
+        ids = request.data.get('ids')
+        name = request.data.get('name')
+        module_type = request.data.get('module_type')
+        description = request.data.get('description')
+        link = request.data.get('link')
+        credits = request.data.get('credits')
+        api_service_ids = request.data.get('api_service_ids')
+        field = {
+            "ids": ids,
+            "name": name,
+            "description":description,
+            "link": link,
+            "credits": credits,
+            "api_service_ids": api_service_ids,
+            "module_type": module_type,
+        }
+        serializer = ModuleServiceSerializer(data=field)
+        if serializer.is_valid():
+            if save_moduleservice(field['ids'],field['name'],field['description'],field['link'],field['credits'],field['api_service_ids'],field['module_type']):
+                return Response({
+                    "success": True,
+                    "message": "New Product Service created successfully",
+                    "data": field
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "success": False,
+                    "message": f"API service details not saved successfully or {ids} exist",
+                },status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 
+    
+    """ADD PRODUCT SERVICE"""
+    def add_product_service(self,request):
+        ids = request.data.get('ids')
+        name = request.data.get('name')
+        description = request.data.get('description')
+        link = request.data.get('link')
+        credits = request.data.get('credits')
+        service_ids = request.data.get('service_ids')
+        field = {
+            "ids": ids,
+            "name": name,
+            "description":description,
+            "link": link,
+            "credits": credits,
+            "service_ids": service_ids,
+        }
+        serializer = ProductServiceSerializer(data=field)
+        if serializer.is_valid():
+            if save_productservice(field['ids'],field['name'],field['description'],field['link'],field['credits'],field['service_ids']):
+                return Response({
+                    "success": True,
+                    "message": "New Product Service created successfully",
+                    "data": field
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "success": False,
+                    "message": f"API service details not saved successfully or {ids} exist",
+                },status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 
+    
+    """HANDLE ERROR"""
+    def handle_error(self, request): 
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    """GET ALL API SERVICES"""
+    def get_all_api_service(self, request):
+        field = {
+            "is_active": False
+        }
+        update_field = {
+            "status":"Nothing to update"
+        }
         return Response({
             "success": True,
-            "message": "List of Product",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+            "message": "List of API Services",
+            "data": get_api_service(field, update_field)
+        },status=status.HTTP_200_OK)
+    
+    """GET API SERVICES"""
+    def get_api_service(self, request,service_id):
+        field = {
+            "ids": service_id
+        }
+        update_field = {
+            "status":"Nothing to update"
+        }
+        return Response({
+            "success": True,
+            "message": "List of API Services",
+            "data": get_api_service(field, update_field)
+        },status=status.HTTP_200_OK)
+    
+    """GET ALL MODULE SERVICES"""
+    def get_all_module_service(self, request):
+        field = {
+            "is_active": False
+        }
+        update_field = {
+            "status":"Nothing to update"
+        }
+        return Response({
+            "success": True,
+            "message": "List of API Services",
+            "data": get_module_service(field, update_field)
+        },status=status.HTTP_200_OK)
+    
+    """GET MODULE SERVICES"""
+    def get_module_service(self, request,service_id):
+        field = {
+            "ids": service_id
+        }
+        update_field = {
+            "status":"Nothing to update"
+        }
+        return Response({
+            "success": True,
+            "message": "List of API Services",
+            "data": get_module_service(field, update_field)
+        },status=status.HTTP_200_OK)
+    
+    """GET ALL PRODUCT SERVICES"""
+    def get_all_product_service(self, request):
+        field = {
+            "is_active": False
+        }
+        update_field = {
+            "status":"Nothing to update"
+        }
+        return Response({
+            "success": True,
+            "message": "List of API Services",
+            "data": get_product_service(field, update_field)
+        },status=status.HTTP_200_OK)
+    
+    """GET PRODUCT SERVICES"""
+    def get_product_service(self, request,service_id):
+        field = {
+            "ids": service_id
+        }
+        update_field = {
+            "status":"Nothing to update"
+        }
+        return Response({
+            "success": True,
+            "message": "List of API Services",
+            "data": get_product_service(field, update_field)
+        },status=status.HTTP_200_OK)

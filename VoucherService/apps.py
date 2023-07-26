@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ApisystemConfig(AppConfig):
+class VoucherserviceConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apisystem'
+    name = 'VoucherService'

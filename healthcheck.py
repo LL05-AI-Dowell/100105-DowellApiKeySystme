@@ -11,4 +11,3 @@ class health_check(APIView):
         return Response({
             "Dowell API Service is running..."
         },status=status.HTTP_200_OK)
-    
