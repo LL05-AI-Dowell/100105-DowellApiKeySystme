@@ -8,6 +8,4 @@ from django.views.decorators.csrf import csrf_exempt
 @method_decorator(csrf_exempt, name='dispatch')
 class health_check(APIView):
     def get(self, request ):
-        return Response({
-            "Dowell API Service is running..."
-        },status=status.HTTP_200_OK)
+        return Response("if your are seeing this then , server is !down",status=status.HTTP_200_OK)

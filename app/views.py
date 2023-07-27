@@ -152,7 +152,7 @@ class voucher(APIView):
             "success": True,
             "message": "The Active voucher",
             "data": get_active_voucher(field,update_field)
-        })
+        },status=status.HTTP_200_OK)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class user_api_key(APIView):
@@ -231,9 +231,9 @@ class user_api_key(APIView):
             }
         response = activate_key(field, update_field)
         if response["success"]:
-            return Response(response)
+            return Response(response, status=status.HTTP_200_OK)
         else:
-            return Response(response)
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
     
     """DEACTIVATE USER API KEY"""
     def deactivate_key(self, request):
@@ -248,7 +248,7 @@ class user_api_key(APIView):
         return Response({
             "success": True,
             "message": response["message"]
-        })
+        },status=status.HTTP_200_OK)
     
     """ACTIVATE SERVICES BY USER"""
     def activate_service(self, request):
@@ -257,8 +257,11 @@ class user_api_key(APIView):
         field = {
             "api_key": api_key
         }
-        
-        return Response(activate_deactivate_services(service_id,field))
+        response = activate_deactivate_services(service_id,field)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
     
     """HANDLE ERROR"""
     def handle_error(self, request): 
@@ -281,7 +284,7 @@ class update_user_services(APIView):
         
         response = user_service_updation(field, update_field)
         if response["success"]:
-            return Response(response)
+            return Response(response,status=status.HTTP_200_OK)
         else:
-            return Response(response)
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)
         
