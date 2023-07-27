@@ -21,7 +21,7 @@ from healthcheck import *
 urlpatterns = [
     path('', health_check.as_view()),
     path('admin/', admin.site.urls),
-    path('api/v2/', include('Service.urls')),
+    # path('api/v2/', include('Service.urls')),
     path('api/v2/', include('UserService.urls')),
     path('api/v2/', include('VoucherService.urls')),
     path('api/v3/', include('app.urls')),
