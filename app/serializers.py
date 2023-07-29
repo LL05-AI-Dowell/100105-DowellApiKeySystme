@@ -6,9 +6,9 @@ class ApiServiceSerializer(serializers.Serializer):
         ('PYTHON LIBRARY', 'PYTHON LIBARY'),
         ('R LIBRARY', 'R LIBARY'),
         ('WORDPRESS PLUGIN', 'WORDPRESS PLUGIN'),
-        ('FLUTTER Component', 'FLUTTER COMPONENT'),
-        ('REACT COMPONENT', 'Flutter COMPONENT'),
-        ('PRODUCT', 'Product')
+        ('FLUTTER COMPONENT', 'FLUTTER COMPONENT'),
+        ('REACT COMPONENT', 'REACT COMPONENT'),
+        ('PRODUCT', 'PRODUCT')
     )
     service_id = serializers.CharField(allow_null=False, allow_blank=False)
     service_type = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=MODULE_CHOICES)
@@ -28,3 +28,14 @@ class UserAPIKeySerializer(serializers.Serializer):
     email = serializers.CharField(allow_null=False, allow_blank=False)
     userId = serializers.CharField(allow_null=False, allow_blank=False)
     userDetails = serializers.JSONField()
+
+class ModuleSerializer(serializers.Serializer):
+    service_ids = serializers.ListField(child=serializers.CharField(allow_null=False, allow_blank=False))
+    module_id = serializers.CharField(allow_null=False, allow_blank=False)
+
+class ProductSerializer(serializers.Serializer):
+    service_ids = serializers.ListField(child=serializers.CharField(allow_null=False, allow_blank=False))
+    product_id = serializers.CharField(allow_null=False, allow_blank=False)
+
+class UpgradeSerializer(serializers.Serializer):
+    total_credits = serializers.IntegerField()

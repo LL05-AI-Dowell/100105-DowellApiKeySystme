@@ -167,6 +167,14 @@ class user_api_key(APIView):
             return self.deactivate_key(request)
         elif type_request == "activate_service":
             return self.activate_service(request)
+        elif type_request == "upgrade_credits":
+            return self.upgrade_credits(request)
+        else:
+            return self.handle_error(request)
+    def get(self, request):
+        type_request = request.GET.get('type')
+        if type_request == "get_api_key":
+            return self.get_api_key(request)
         else:
             return self.handle_error(request)
         
@@ -202,33 +210,14 @@ class user_api_key(APIView):
     """ACTIVATE USER API KEY"""
     def activate_key(self, request):
         api_key = request.GET.get("api_key")
-        voucher = request.data.get("voucher", None)
 
-        if voucher is None:
-            field = {
-                "api_key": api_key
-            }
-            update_field = {
-                "is_active": True,
-                "is_redeemed": False,
-                "total_credits": 0,
-                "used_credits": 0,
-                "services": get_services()
-            }
-        else:
-            response = get_voucher_discount(voucher)
-            if not response["success"]:
-                return Response(response)
-            field = {
-                "api_key": api_key
-            }
-            update_field = {
-                "is_active": True,
-                "is_redeemed": True,
-                "total_credits": response['data'],
-                "used_credits": response['data'],
-                "services": get_services()
-            }
+        field = {
+            "api_key": api_key
+        }
+        update_field = {
+            "is_active": True,
+            "services": get_services()
+        }
         response = activate_key(field, update_field)
         if response["success"]:
             return Response(response, status=status.HTTP_200_OK)
@@ -263,6 +252,50 @@ class user_api_key(APIView):
         else:
             return Response(response,status=status.HTTP_400_BAD_REQUEST)
     
+    """UPGRADE API KEY CREDITS"""
+    def upgrade_credits(self, request):
+        api_key = request.GET.get("api_key")
+        total_credits = request.data.get("total_credits")
+        data = {
+            "total_credits": total_credits
+        }
+        serializer =  UpgradeSerializer(data= data)
+    
+        if serializer.is_valid():
+            field= {
+                "api_key": api_key
+            }
+            response = upgrade_credits_by_user(total_credits,field)
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            })
+
+    """GET API KEY"""
+    def get_api_key(self, request):
+        user_id = request.GET.get("user_id", None)
+        api_key = request.GET.get("api_key", None)
+        
+        if not user_id == None:
+            field= {
+                "userId": user_id
+            }
+        else:
+            field= {
+                "api_key": api_key
+            }
+        update_field= {
+            "status": "Nothing to update"
+        }
+        response = get_user_api_key(field,update_field)    
+        return Response(response, status=status.HTTP_200_OK)
+    
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({
@@ -288,3 +321,100 @@ class update_user_services(APIView):
         else:
             return Response(response, status= status.HTTP_400_BAD_REQUEST)
         
+@method_decorator(csrf_exempt, name='dispatch')
+class process_services(APIView):
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == "api_service":
+            return self.api_service(request)
+        
+        elif type_request == "module_service":
+            return self.module_service(request)
+        
+        elif type_request == "product_service":
+            return self.product_service(request)
+        else:
+            return self.handle_error(request)
+        
+    """PROCESS SERVICE"""
+    def api_service(self, request):
+        api_key = request.GET.get("api_key")
+        service_id = request.data.get("service_id")
+        field= {
+            "api_key": api_key
+        }
+        update_field= {
+            "status": "Nothing to update"
+        }
+        response = process_api_service_by_user(service_id,field,update_field)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+    
+    """MODULE SERVICE"""
+    def module_service(self, request):
+        api_key = request.GET.get("api_key")
+        service_ids = request.data.get("service_ids")
+        module_id = request.data.get("module_id")
+        data = {
+            "service_ids": service_ids,
+            "module_id": module_id
+        }
+        serializer = ModuleSerializer(data=data)
+        if serializer.is_valid():
+            field= {
+                "api_key": api_key
+            }
+            update_field= {
+                "status": "Nothing to update"
+            }
+            response = process_module_service_by_user(service_ids,module_id,field,update_field)
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            })
+    
+    """PRODUCT SERVICE"""
+    def product_service(self, request):
+        api_key = request.GET.get("api_key")
+        service_ids = request.data.get("service_ids")
+        product_id = request.data.get("product_id")
+
+        data = {
+            "service_ids": service_ids,
+            "product_id": product_id
+        }
+        serializer = ProductSerializer(data=data)
+        if serializer.is_valid():
+            field= {
+                "api_key": api_key
+            }
+            update_field= {
+                "status": "Nothing to update"
+            }
+            response = process_module_service_by_user(service_ids,product_id,field,update_field)
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            })
+    
+    """HANDLE ERROR"""
+    def handle_error(self, request): 
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)

@@ -80,7 +80,6 @@ def save_voucher(name,description,code,discount):
         "is_active": False
     }
     responses = json.loads(dowellconnection(*Voucher_Services,"fetch",fetch_field,update_field))
-    print(responses)
     for item in responses.get('data', []):
         if item['is_active'] == True :
             fields = {
@@ -110,11 +109,9 @@ def save_user_key(api_key, username, email, userId, userDetails ):
         "userId": userId,
         "userDetails": userDetails,
         "is_active": False,
-        "is_redeemed": False,
         "services": [],
         "is_paid": False,
-        "used_credits": None,
-        "total_credits": None,
+        "total_credits": 1000,
         "created_at": datetime.datetime.now().strftime('%Y-%m-%d')
     }
     fetch_field = {
@@ -209,11 +206,11 @@ def get_services():
     services_list = []
 
     service_response = json.loads(dowellconnection(*Services, "fetch", field, update_field))
-    print(service_response)
     for service in service_response.get("data", []):
         service_data = {
             "service_id": service.get("service_id"),
-            "is_active": service.get("is_active")
+            "is_active": service.get("is_active"),
+            "credits": service.get("credits")
         }
         services_list.append(service_data)
 
@@ -222,26 +219,29 @@ def get_services():
 """ADD NEW SERVICES TO USER API KEY"""
 def user_service_updation(field, update_field):
     response = json.loads(dowellconnection(*User_Services, "fetch", field, update_field))
-    if not response["data"] == None :
+    if not response["data"] == None:
         service = get_services()
         response_service_ids = {s["service_id"] for s in response["data"][0]["services"]}
         new_services = [s for s in service if s["service_id"] not in response_service_ids]
 
-        response["data"][0]["services"].extend(new_services)
-        
+        updated_services = response["data"][0]["services"].copy()
+        updated_services.extend(new_services)
+
+
         update_field = {
-            "services": response["data"][0]["services"] 
+            "services": updated_services
         }
-        response = json.loads(dowellconnection(*User_Services,"update",field, update_field))
-        if response["isSuccess"] :
+        response = json.loads(dowellconnection(*User_Services, "update", field, update_field))
+        if response["isSuccess"]:
             return {
                 "success": True,
-                "message": "New services are added to existing users"
+                "message": "New services are added to existing users",
+                "updated_services": updated_services
             }
         else:
             return {
                 "success": False,
-                "message": "SOmething went wrong"
+                "message": "Something went wrong"
             }
     else:
         return {
@@ -252,23 +252,293 @@ def user_service_updation(field, update_field):
 """ACTIVATE/DEACTIVATE USER SERVICE"""
 def activate_deactivate_services(service_id, field):
     response = json.loads(dowellconnection(*User_Services, "find", field, update_field=None))
-    service_list = response["data"]["services"]
-    for service in service_list:
-        if service["service_id"] == service_id:
-            service["is_active"] = not service["is_active"]
-            break
-    update_field = {
-        "services": service_list
-    }
-    response = json.loads(dowellconnection(*User_Services, "update", field, update_field))
-    if response["isSuccess"]:
-        action = "activated" if service["is_active"] else "deactivated"
+    if not response["data"] == None:
+        if response["data"]["is_active"] == True and response["data"]["total_credits"] > 0:
+            service_list = response["data"]["services"]
+            for service in service_list:
+                if service["service_id"] == service_id:
+                    service["is_active"] = not service["is_active"]
+                    break
+            update_field = {
+                "services": service_list
+            }
+            response = json.loads(dowellconnection(*User_Services, "update", field, update_field))
+            if response["isSuccess"]:
+                action = "activated" if service["is_active"] else "deactivated"
+                return {
+                    "success": True,
+                    "message": f"{service_id} is {action}",
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": f"{service_id} failed to activate or deactivate"
+                }
+        else:
+            return {
+                "success": False,
+                "message": "You have not activated the API key or you have less credits"
+            }
+    else:
+        return {
+            "success": False,
+            "message": "API key not found"
+        }
+    
+"""Get USER API KEY"""
+def get_user_api_key(field, update_field):
+    response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
+    if not response["data"] == None:
         return {
             "success": True,
-            "message": f"{service_id} is {action}"
+            "message": "User API KEY details",
+            "data": response["data"]
         }
     else:
         return {
             "success": False,
-            "message": f"{service_id} failed to activate or deactivate"
+            "message": "API KEY details not found",
+        }
+    
+"""PROCEE SERVICE BY USERS"""
+def process_api_service_by_user(service_id, field, update_field):
+    response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
+    data = response.get("data", {})
+    if not data == None:
+        is_active = data.get("is_active")
+        total_credits = data.get("total_credits")
+
+        services = data.get("services")
+
+        if is_active is False:
+            return {
+                "success": False,
+                "message": "API KEY is not activated",
+            }
+        elif total_credits <= 0:
+            return {
+                "success": False,
+                "message": "You have less credits. If you want to buy more credits click the 'Buy Credits' button",
+                "link": "https://uxlivinglab.com/"
+            }
+        else:
+            for service in services:
+                if service.get("service_id") == service_id:
+                    if service.get("is_active") is True:
+                        total_credits = total_credits - service.get("credits")
+                        update_field = {
+                            "total_credits": total_credits
+                        }
+                        response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+                        return {
+                            "success": True,
+                            "message": "Credits was successfully consumed",
+                            "total_credits": total_credits 
+                        }
+                    else:
+                        return {
+                            "success": False,
+                            "message": "Service is not active"
+                        }
+            return {
+                "success": False,
+                "message": "Service not found"
+            }
+    else:
+        return {
+            "success": False,
+            "message": "API key not found"
+        }
+
+"""PROCESS MODULE BY USERS"""    
+def process_module_service_by_user(service_ids, module_id, field, update_field):
+    response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
+    data = response.get("data", {})
+    
+    if data is not None:
+        is_active = data.get("is_active")
+        user_credits = data.get("total_credits")
+        services = data.get("services")
+
+        if is_active is False:
+            return {
+                "success": False,
+                "message": "API KEY is not activated",
+            }
+
+        if user_credits <= 0:
+            return {
+                "success": False,
+                "message": "You have less credits. If you want to buy more credits click the 'Buy Credits' button",
+                "link": "https://uxlivinglab.com/"
+            }
+
+        module_active = False
+        module_credits = 0
+        module_found = False
+
+        for service in services:
+            if service.get("service_id") == module_id:
+                module_active = service.get("is_active")
+                module_credits = service.get("credits", 0)
+                module_found = True
+                break
+
+        if not module_found:
+            return {
+                "success": False,
+                "message": "Module not found"
+            }
+
+        if module_active is True:
+            total_credits = 0
+            service_ids_found = []
+
+            for service in services:
+                if service.get("service_id") in service_ids:
+                    service_ids_found.append(service.get("service_id"))
+                    service["is_active"] = True
+                    total_credits += service.get("credits", 0)
+
+            if set(service_ids) != set(service_ids_found):
+                return {
+                    "success": False,
+                    "message": "One or more service_ids not found in services"
+                }
+
+            total_credits += module_credits
+            user_credits = user_credits - total_credits
+            
+            update_field = {
+                "services": services,
+                "total_credits": user_credits
+            }
+            response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+            return {
+                "success": True,
+                "message": "Consumed credits successfully",
+                "total_credits": user_credits
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Module is not active"
+            }
+    else:
+        return {
+            "success": False,
+            "message": "API key not found"
+        }
+
+"""PROCESS PRODUCT BY USERS"""    
+def process_module_service_by_user(service_ids, product_id, field, update_field):
+    response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
+    data = response.get("data", {})
+    
+    if data is not None:
+        is_active = data.get("is_active")
+        user_credits = data.get("total_credits")
+        services = data.get("services")
+
+        if is_active is False:
+            return {
+                "success": False,
+                "message": "API KEY is not activated",
+            }
+
+        if user_credits <= 0:
+            return {
+                "success": False,
+                "message": "You have less credits. If you want to buy more credits click the 'Buy Credits' button",
+                "link": "https://uxlivinglab.com/"
+            }
+
+        product_active = False
+        product_credits = 0
+        product_found = False
+
+        for service in services:
+            if service.get("service_id") == product_id:
+                product_active = service.get("is_active")
+                product_credits = service.get("credits", 0)
+                product_found = True
+                break
+
+        if not product_found:
+            return {
+                "success": False,
+                "message": "Product not found"
+            }
+
+        if product_active is True:
+            total_credits = 0
+            service_ids_found = []
+
+            for service in services:
+                if service.get("service_id") in service_ids:
+                    service_ids_found.append(service.get("service_id"))
+                    service["is_active"] = True
+                    total_credits += service.get("credits", 0)
+
+            if set(service_ids) != set(service_ids_found):
+                return {
+                    "success": False,
+                    "message": "One or more service_ids not found in services"
+                }
+
+            total_credits += product_credits
+            user_credits = user_credits - total_credits
+            
+            update_field = {
+                "services": services,
+                "total_credits": user_credits
+            }
+            response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+            return {
+                "success": True,
+                "message": "Consumed credits successfully",
+                "total_credits": user_credits
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Product is not active"
+            }
+    else:
+        return {
+            "success": False,
+            "message": "API key not found"
+        }
+
+"""UPGRATE CREDITS BY USER"""
+def upgrade_credits_by_user(total_credits, field):
+    response = json.loads(dowellconnection(*User_Services,"find",field ,update_field=None))
+    data = response.get("data", {})
+    if data is not None:
+        is_active = data.get("is_active")
+        user_credits = data.get("total_credits")
+        username = data.get("username")
+
+        if is_active is False:
+            return {
+                "success": False,
+                "message": "API KEY is not activated",
+            }
+        
+        upadated_credits = user_credits + total_credits
+
+        update_field = {
+            "is_paid": True,
+            "total_credits": upadated_credits 
+        } 
+
+        response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+        return {
+            "success": True,
+            "message": f"Credits for user {username} has been upgraded"
+        }
+    else:
+        return {
+            "success": False,
+            "message": "API key not found"
         }
