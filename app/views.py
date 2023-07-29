@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import *
 from .helper import *
+from utils.decorator import *
 
 @method_decorator(csrf_exempt, name='dispatch')
 class services(APIView):
@@ -27,6 +28,7 @@ class services(APIView):
             return self.handle_error(request)
         
     """ADD SERVICE"""   
+    @protector(password= "dowellX1234uxLivingLab") 
     def add_services(self, request):
         service_id = request.data.get('service_id')
         name = request.data.get('name')
@@ -63,7 +65,7 @@ class services(APIView):
                 "error": serializer.errors
             },status=status.HTTP_400_BAD_REQUEST)
 
-    """GET SERVICE"""    
+    """GET SERVICE"""  
     def get_service(self, request):
         service_id = request.GET.get('service_id')
         field = {
