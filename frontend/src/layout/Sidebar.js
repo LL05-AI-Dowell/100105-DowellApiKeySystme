@@ -15,6 +15,9 @@ import MessageIcon from "@mui/icons-material/Message";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SubjectIcon from "@mui/icons-material/Subject";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import LanIcon from "@mui/icons-material/Lan";
+import ViewInArIcon from "@mui/icons-material/ViewInAr";
+import CategoryIcon from "@mui/icons-material/Category";
 
 import { useNavigate } from "react-router-dom";
 
@@ -82,7 +85,159 @@ const Sidebar = (props) => {
                 }}
               />
             </ListItemIcon>
-            <ListItemText primary="Documentation" />
+            <ListItemText primary="API Service" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("pythonService");
+              navigate("/pythonService");
+            }}
+            className={item === "pythonService" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "pythonService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "pythonService" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "pythonService" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <ViewInArIcon
+                sx={{
+                  color: `${item === "pythonService" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="Python Library" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("moduleService");
+              navigate("/moduleService");
+            }}
+            className={item === "moduleService" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "moduleService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "moduleService" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "moduleService" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <ViewInArIcon
+                sx={{
+                  color: `${item === "moduleService" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="R Library" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("wpPluginService");
+              navigate("/wpPluginService");
+            }}
+            className={item === "wpPluginService" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "wpPluginService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "wpPluginService" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "wpPluginService" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <ViewInArIcon
+                sx={{
+                  color: `${item === "wpPluginService" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="WP Plugins" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("flutterService");
+              navigate("/flutterService");
+            }}
+            className={item === "flutterService" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "flutterService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "flutterService" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "flutterService" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <ViewInArIcon
+                sx={{
+                  color: `${item === "flutterService" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="Flutter Component" />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("reactService");
+              navigate("/reactService");
+            }}
+            className={item === "reactService" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "reactService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "reactService" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "reactService" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <ViewInArIcon
+                sx={{
+                  color: `${item === "reactService" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="React Component" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("productService");
+              navigate("/productService");
+            }}
+            className={item === "productService" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "productService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "productService" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "productService" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <CategoryIcon
+                sx={{
+                  color: `${item === "productService" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="Product Service" />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -114,9 +269,11 @@ const Sidebar = (props) => {
           <ListItemButton
             onClick={() => {
               setItem("settings");
+              // navigate("/settings");
             }}
             className={item === "settings" ? "clickedItem" : ""}
             sx={{
+              color: `${item === "settings" ? "#005734" : "black"}`,
               bgcolor: `${item === "settings" ? "#dce7e6" : "#edf2f3"}`,
               borderRight: `${
                 item === "settings" ? "7px solid #005734" : "none"
@@ -124,7 +281,11 @@ const Sidebar = (props) => {
             }}
           >
             <ListItemIcon>
-              <SettingsIcon />
+              <SettingsIcon
+                sx={{
+                  color: `${item === "settings" ? "#005734" : "black"}`,
+                }}
+              />
             </ListItemIcon>
             <ListItemText primary="Settings" />
           </ListItemButton>

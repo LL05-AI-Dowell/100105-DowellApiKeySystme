@@ -9,6 +9,7 @@ import {
   Link,
   Alert,
   Snackbar,
+  Typography,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CloseIcon from "@mui/icons-material/Close";
@@ -55,8 +56,12 @@ const FeedbackPage = () => {
     const CreateFeedback = async () => {
       const res = await CreateRoom({ session_id: session_id });
       console.log("the feed is ", res);
+      if(res == null){
+        setMessage(null)
+      }else{
       setRoom(res?.room_pk);
       setMessage(res?.messages);
+      }
     };
     CreateFeedback();
   }, []);
@@ -101,14 +106,14 @@ const FeedbackPage = () => {
               overflow="auto"
               pb={1}
             >
-              {message !== null &&
+              {message !== null ?
                 message.map((i) => {
                   return i.side === false ? (
                     <SentFeedback key={i.id} data={i.message} />
                   ) : (
                     <RecievedFeedback key={i.id} data={i.message} />
                   );
-                })}
+                }) :  <Typography>Your Session Id is not active</Typography>}
             </Box>
             <Box display={"flex"} justifyContent={"center"} mt={2}>
               <input

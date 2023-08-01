@@ -1,18 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { UserContextProvider } from './contexts/UserContext';
-import { HashRouter } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { UserContextProvider } from "./contexts/UserContext";
+import { HashRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <HashRouter>
-      <UserContextProvider>
-        <App />
-      </UserContextProvider>
+      <Provider store={store}>
+        <UserContextProvider>
+          <App />
+        </UserContextProvider>
+      </Provider>
     </HashRouter>
   </React.StrictMode>
 );

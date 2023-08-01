@@ -31,6 +31,9 @@ import MailIcon from "@mui/icons-material/Mail";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 
+import ViewInArIcon from "@mui/icons-material/ViewInAr";
+import CategoryIcon from "@mui/icons-material/Category";
+
 import TopicIcon from "@mui/icons-material/Topic";
 import SubjectIcon from "@mui/icons-material/Subject";
 import HomeIcon from "@mui/icons-material/Home";
@@ -131,7 +134,7 @@ const Nav = () => {
               },
             }}
           >
-            Dowell API Services
+            Dowell Services
           </Typography>
           <Box>
             <IconButton size="large" onClick={handleMenu}>
@@ -157,14 +160,14 @@ const Nav = () => {
                 <PersonIcon />
                 &nbsp; Profile
               </MenuItem>
-              <MenuItem onClick={goToProfile}>
+              <MenuItem onClick={handleCloseMenu}>
                 <SettingsIcon />
                 &nbsp; Your Settings
               </MenuItem>
-              <MenuItem onClick={handleVoucherOpen}>
+              {/* <MenuItem onClick={handleVoucherOpen}>
                 <ConfirmationNumberIcon />
                 &nbsp; Redeem Voucher
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem>Support</MenuItem>
 
               <MenuItem onClick={handleCloseMenu}>
@@ -211,7 +214,85 @@ const Nav = () => {
               <ListItemIcon>
                 <SubjectIcon />
               </ListItemIcon>
-              <ListItemText primary="Documentation" />
+              <ListItemText primary="API Service" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate("/pythonService");
+                setDrawer(false);
+              }}
+            >
+              <ListItemIcon>
+                <ViewInArIcon />
+              </ListItemIcon>
+              <ListItemText primary="Python Library" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate("/moduleService");
+                setDrawer(false);
+              }}
+            >
+              <ListItemIcon>
+                <ViewInArIcon />
+              </ListItemIcon>
+              <ListItemText primary="R Library" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate("/wpPluginService");
+                setDrawer(false);
+              }}
+            >
+              <ListItemIcon>
+                <ViewInArIcon />
+              </ListItemIcon>
+              <ListItemText primary="WP Plugins" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate("/flutterService");
+                setDrawer(false);
+              }}
+            >
+              <ListItemIcon>
+                <ViewInArIcon />
+              </ListItemIcon>
+              <ListItemText primary="Flutter Component" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate("/reactService");
+                setDrawer(false);
+              }}
+            >
+              <ListItemIcon>
+                <ViewInArIcon />
+              </ListItemIcon>
+              <ListItemText primary="React Component" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate("/productService");
+                setDrawer(false);
+              }}
+            >
+              <ListItemIcon>
+                <CategoryIcon />
+              </ListItemIcon>
+              <ListItemText primary="Product Service" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
@@ -228,7 +309,12 @@ const Nav = () => {
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                navigate("/settings");
+                setDrawer(false);
+              }}
+            >
               <ListItemIcon>
                 <SettingsIcon />
               </ListItemIcon>

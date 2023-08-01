@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Logo from "../dowellLogo.png";
 import {
   Grid,
-  Stack,
   Paper,
   Box,
   Typography,
@@ -12,60 +11,75 @@ import {
   IconButton,
   Divider,
 } from "@mui/material";
-import { ActivateService } from "../util/api";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
 
-const DocumentationCards = ({ data }) => {
-  const [document, setDocument] = useState([]);
+import { setService, setSError, setSLoading } from "../store/reducers/service";
+import { useSelector, useDispatch } from "react-redux";
+import { ActivateService_v3, GetAllService_v3 } from "../util/api_v3";
+
+const DocumentationCards = ({ card, title }) => {
   const [snackBar, setSnackBar] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const dispatch = useDispatch();
+  const { service_data, sloading, serror } = useSelector(
+    (state) => state.service
+  );
+  const { api_data, loading, error } = useSelector((state) => state.data);
+
+  const navigate = useNavigate();
+
+  ///activate service function
   const handleService = async (e) => {
     console.log("the picked service is ", e);
-    console.log(
-      "user Id ",
-      data.userId,
-      " api key ",
-      data.APIKey,
-      " service id ",
-      e.api_service_id
-    );
+    console.log(" api key ", api_data?.api_key, " service id ", e.service_id);
     if (e.is_released == false) {
       setSnackBar("info");
     } else {
-      const res = await ActivateService({
-        id: data.userId,
-        api_key: data.APIKey,
-        service_id: e.api_service_id,
+      const res = await ActivateService_v3({
+        api_key: api_data?.api_key,
+        service_id: e.service_id,
       });
-      if (res?.success == true) {
+      console.log("the service res is ", res);
+      if (res?.data.success == true) {
         setSnackBar("success");
         // window.location.reload();
+        const get = await GetAllService_v3();
+        console.log("the response for all service is ", get);
+        dispatch(setService(get.data.data));
+        navigate("/")
       } else {
         setSnackBar("error");
       }
     }
   };
-  const filteredService = document.filter((i) =>
-    i?.api_service.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredService = service_data?.filter(
+    (i) =>
+      i?.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      i?.service_type == card
   );
   console.log("the fileted service is ", filteredService);
-  useEffect(() => {
-    setDocument(data.api_services);
-    // console.log(document)
-  }, []);
-  console.log(document);
+
   return (
     <Box>
       <Box mb={3}>
         <Box
-          display={"flex"}
           sx={{
-            justifyContent: { xs: "center", md: "end" },
+            display: { xs: "block", md: "flex" },
+            justifyContent: { xs: "center", md: "space-between" },
             mr: { xs: 0, md: "13%" },
           }}
         >
+          <Typography
+            variant="h5"
+            fontWeight={"bold"}
+            mt={1}
+            sx={{ color: "#005734" }}
+          >
+            {title}
+          </Typography>
           <Paper
             component="form"
             sx={{
@@ -81,14 +95,9 @@ const DocumentationCards = ({ data }) => {
               inputProps={{ "aria-label": "search google maps" }}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <IconButton
-              type="button"
-              sx={{ p: "10px" }}
-              aria-label="search"
-            >
+            <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
               <SearchIcon />
             </IconButton>
-            {/* <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" /> */}
           </Paper>
         </Box>
         {searchTerm !== "" ? (
@@ -118,16 +127,16 @@ const DocumentationCards = ({ data }) => {
                             mt={1}
                             sx={{ color: "#005734" }}
                           >
-                            {api.api_service}
+                            {api.name}
                           </Typography>
                           <Typography
                             variant="body1"
                             fontWeight={"bold"}
-                            mb={1}
                             mt={0}
+                            mb={1}
                             sx={{ color: "#005734" }}
                           >
-                            {api.api_service_id}
+                            {api.service_id}
                           </Typography>
                         </Box>
 
@@ -148,7 +157,7 @@ const DocumentationCards = ({ data }) => {
 
                               color: "#005734",
                             }}
-                            href={api.document_link}
+                            href={api.link}
                             target="_blank"
                             size="small"
                           >
@@ -156,9 +165,7 @@ const DocumentationCards = ({ data }) => {
                           </Button>
                         </Box>
                         <Box mb={2}>
-                          <Typography>
-                            Credits use : {api.credits_count}
-                          </Typography>
+                          <Typography>Credits : {api.credits}</Typography>
                         </Box>
                       </Box>
 
@@ -216,85 +223,91 @@ const DocumentationCards = ({ data }) => {
       </Box>
 
       <Grid container spacing={2}>
-        {document.map((api) => {
-          return (
-            <Grid
-              item
-              xs={12}
-              md={5}
-              component={Paper}
-              m={2}
-              borderRadius={4}
-              key={api.api_service}
-            >
-              <Box
-                display={"flex"}
-                justifyContent={"space-between"}
-                sx={{ pl: { xs: 1, md: 4 }, pr: { xs: 1, md: 4 } }}
+        {service_data?.map((api) => {
+          if (api.service_type == card) {
+            return (
+              <Grid
+                item
+                xs={12}
+                md={5}
+                component={Paper}
+                m={2}
+                borderRadius={4}
+                key={api.api_service}
               >
-                <Box>
-                  <Typography
-                    variant="h5"
-                    fontWeight={"bold"}
-                    mt={1}
-                    sx={{ color: "#005734" }}
-                  >
-                    {api.api_service}
-                  </Typography>
-                  <Typography
-                    variant="body1"
-                    fontWeight={"bold"}
-                    mb={1}
-                    mt={0}
-                    sx={{ color: "#005734" }}
-                  >
-                    {api.api_service_id}
-                  </Typography>
+                <Box
+                  display={"flex"}
+                  justifyContent={"space-between"}
+                  sx={{ pl: { xs: 1, md: 4 }, pr: { xs: 1, md: 4 } }}
+                >
+                  <Box>
+                    <Typography
+                      variant="h5"
+                      fontWeight={"bold"}
+                      mt={1}
+                      sx={{ color: "#005734" }}
+                    >
+                      {api.name}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      fontWeight={"bold"}
+                      mt={0}
+                      mb={1}
+                      sx={{ color: "#005734" }}
+                    >
+                      {api.service_id}
+                    </Typography>
+                  </Box>
+
+                  <img src={Logo} width="50px" />
+                </Box>
+                <Box width="95%" mt={2}>
+                  <Box display={"flex"}>
+                    <Typography mt={1} mr={2}>
+                      Documentation Link :{" "}
+                    </Typography>
+                    <Button
+                      sx={{
+                        wordBreak: "break-word",
+                        border: "1px #005734 solid",
+                        borderRadius: "5px",
+
+                        mt: 1,
+
+                        color: "#005734",
+                      }}
+                      href={api.link}
+                      target="_blank"
+                      size="small"
+                    >
+                      Click
+                    </Button>
+                  </Box>
+                  <Box mb={2}>
+                    <Typography>Credits : {api.credits}</Typography>
+                  </Box>
                 </Box>
 
-                <img src={Logo} width="50px" />
-              </Box>
-              <Box width="95%" mt={2}>
-                <Box display={"flex"}>
-                  <Typography mt={1} mr={2}>
-                    Documentation Link :{" "}
-                  </Typography>
+                <Box
+                  width="95%"
+                  sx={{ display: "flex", justifyContent: "center" }}
+                >
                   <Button
+                    // disabled={api.is_active}
                     sx={{
-                      wordBreak: "break-word",
                       border: "1px #005734 solid",
-                      borderRadius: "5px",
-
-                      mt: 1,
-
                       color: "#005734",
+                      mb: 2,
                     }}
-                    href={api.document_link}
-                    target="_blank"
-                    size="small"
+                    onClick={() => handleService(api)}
                   >
-                    Click
+                    {api.is_active ? "Remove Service" : "Activate Service"}
                   </Button>
                 </Box>
-                <Box mb={2}>
-                  <Typography>Credits use : {api.credits_count}</Typography>
-                </Box>
-              </Box>
-
-              <Box
-                width="95%"
-                sx={{ display: "flex", justifyContent: "center" }}
-              >
-                <Button
-                  // disabled={api.is_active}
-                  sx={{ border: "1px #005734 solid", color: "#005734", mb: 2 }}
-                  onClick={() => handleService(api)}
-                >
-                  {api.is_active ? "Remove Service" : "Activate Service"}
-                </Button>
-              </Box>
-            </Grid>
-          );
+              </Grid>
+            );
+          }
         })}
         <Snackbar
           anchorOrigin={{ horizontal: "right", vertical: "top" }}

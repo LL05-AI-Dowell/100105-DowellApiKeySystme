@@ -7,40 +7,39 @@ import { Box, CircularProgress } from "@mui/material";
 import { useUserContext } from "../contexts/UserContext";
 import { GetAllService_v3 } from "../util/api_v3";
 
-import { useDispatch, useSelector } from 'react-redux';
-import { setService, setSLoading, setSError} from "../store/reducers/service";
+import { useDispatch, useSelector } from "react-redux";
+import { setService, setSLoading, setSError } from "../store/reducers/service";
 
-const Documentation = () => {
+const WpPluginServicePage = () => {
   const { currentUser } = useUserContext();
 
   var storedData = sessionStorage.getItem("userinfo");
   var storedObj = JSON.parse(storedData);
 
   const dispatch = useDispatch();
-  const { service_data, sloading, serror } = useSelector((state) => state.service);
-  
+  const { service_data, sloading, serror } = useSelector(
+    (state) => state.service
+  );
 
   useEffect(() => {
     const ApiData = async () => {
       const get = await GetAllService_v3();
-      console.log("the response for all service is ", get)
-      dispatch(setService(get.data.data))
-      
+      console.log("the response for all service is ", get);
+      dispatch(setService(get.data.data));
     };
 
     if (currentUser) {
       ApiData();
     }
   }, [currentUser]);
-
   return (
     <div>
       <Nav />
       <Box sx={{ display: "flex", bgcolor: "#edf2f3" , minHeight: "100vh"}}>
-        <Sidebar page="documentation" />
+        <Sidebar page="wpPluginService" />
         <Box width="80%" pt={4} ml={4}>
           {service_data !== null ? (
-            <DocumentationCards card="API" title="API Services" />
+            <DocumentationCards card="WORDPRESS PLUGIN" title="WORDPRESS PLUGIN" />
           ) : (
             <Box display={"flex"} justifyContent={"center"} mt={4}>
               <CircularProgress color="success" />
@@ -52,4 +51,4 @@ const Documentation = () => {
   );
 };
 
-export default Documentation;
+export default WpPluginServicePage;

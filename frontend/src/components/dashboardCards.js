@@ -13,44 +13,32 @@ import {
   TextField,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 
 import Logo from "../dowellLogo.png";
 
-import { ActivateApiKey_v2 } from "../util/api";
-import { ActivateService, UpgradeKey } from "../util/api";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  ActivateApiKey_v3,
+  DeactivateApiKey_v3,
+  GetApiKey_v3,ActivateService_v3
+} from "../util/api_v3";
+import { setData, setLoading, setError } from "../store/reducers/data";
 
-const DashboardCards = ({ data }) => {
-  const [document, setDocument] = useState([]);
-  const [dialog, setDialog] = useState(false);
-  const [addVoucher, setAddVoucher] = useState("");
+const DashboardCards = () => {
   const [snackBar, setSnackBar] = useState(false);
   const [serviceSnackBar, setServiceSnackBar] = useState(false);
   const [upgradeSnackBar, setUpgradeSnackBar] = useState(false);
   const [genKey, setGenKey] = useState(null);
 
-  const openDialog = () => {
-    setDialog(true);
-  };
-  const handleCloseDialog = () => {
-    setDialog(null);
-  };
-  const handleActivateApi = async () => {
-    console.log(data[0].userId, data[0].APIKey);
-    const res = await ActivateApiKey_v2({
-      id: data[0].userId,
-      voucher_code: addVoucher,
-      api_key: data[0].APIKey,
-    });
-    console.log("the axios response for activation is ", res);
-    setSnackBar(true);
-    setGenKey(res);
-    setDialog(false);
-    window.location.reload();
-  };
-  const copiedKey = data[0].APIKey;
+  const dispatch = useDispatch();
+  const { api_data, loading, error } = useSelector((state) => state.data);
+  console.log("the data from store is ", api_data);
+
+  const copiedKey = api_data.api_key;
   const handleCopy = () => {
-    const copiedKey = data[0].APIKey;
+    const copiedKey = api_data.api_key;
 
     console.log("copied data is ", copiedKey);
   };
@@ -58,53 +46,81 @@ const DashboardCards = ({ data }) => {
   const handleService = async (e) => {
     console.log("the picked service is ", e);
     console.log(
-      "user Id ",
-      data[0].userId,
       " api key ",
-      data[0].APIKey,
+      api_data.api_key,
       " service id ",
-      e.api_service_id
+      e.service_id
     );
-    if (e.is_released == false) {
-      setServiceSnackBar("info");
-    } else {
-      const res = await ActivateService({
-        id: data[0].userId,
-        api_key: data[0].APIKey,
-        service_id: e.api_service_id,
+
+      const res = await ActivateService_v3({
+        api_key: api_data.api_key,
+        service_id: e.service_id,
       });
-      if (res?.success == true) {
+      console.log("the response is ", res)
+      if (res?.data.success == true) {
         setServiceSnackBar("success");
         // window.location.reload();
+        const get = await GetApiKey_v3({ userId: api_data?.userId });
+        dispatch(setData(get.data.data));
       } else {
         setServiceSnackBar("error");
       }
-    }
-  };
-  const handleUpgrade = async () => {
-    const val = data[0].APIKey;
-    const res = await UpgradeKey({val:val});
-    console.log(res)
-    if (res?.Success == true) {
-      setUpgradeSnackBar("success");
-      window.location.reload();
-    } else {
-      setUpgradeSnackBar("error");
-    }
+    
   };
 
+  //upgrade api function
+  const handleUpgrade = async () => {
+    // const val = api_data.APIKey;
+    // const res = await UpgradeKey({ val: val });
+    // console.log(res);
+    // if (res?.Success == true) {
+    //   setUpgradeSnackBar("success");
+    //   window.location.reload();
+    // } else {
+    //   setUpgradeSnackBar("error");
+    // }
+  };
+
+  /// activate api key
+  const activateApiKey = async () => {
+    const res = await ActivateApiKey_v3(api_data.api_key);
+    console.log("the response for activation is ", res);
+
+    const get = await GetApiKey_v3({ userId: api_data?.userId });
+    console.log("the get from api key data is ", get);
+    dispatch(setData(get.data.data));
+    setGenKey(true)
+    setSnackBar(true)
+  };
+  const deactivateApiKey = async () => {
+    const res = await DeactivateApiKey_v3(api_data.api_key);
+    console.log("the response for deactivation is ", res);
+
+    const get = await GetApiKey_v3({ userId: api_data?.userId });
+    console.log("the get from api key data is ", get);
+    dispatch(setLoading());
+    dispatch(setData(get.data.data));
+    setGenKey(true)
+    setSnackBar(true)
+  };
+
+  if (loading == true) {
+    console.log("loading phase ");
+    return (
+      <Box display={"flex"} justifyContent={"center"} mt={4}>
+        <CircularProgress color="success" />
+      </Box>
+    );
+  }
   return (
     <Box>
       <Box component={Paper} p={2} sx={{ m: { xs: 1, md: 2 } }}>
         <Typography variant="h6" fontWeight={"bold"}>
-          {data.length > 0 && data[0].is_paid
-            ? "This is Paid Version!"
-            : "Upgrade your plan!"}
+          {api_data?.is_paid ? "This is Paid Version!" : "Upgrade your plan!"}
         </Typography>
         <Typography>
-          You are currently on a{" "}
-          {data.length > 0 && data[0].is_paid ? "Paid" : "free"} plan,{" "}
-          {data.length > 0 && data[0].is_paid ? (
+          You are currently on a {api_data?.is_paid ? "Paid" : "free"} plan,{" "}
+          {api_data?.is_paid ? (
             ""
           ) : (
             <Button onClick={() => handleUpgrade()}>
@@ -116,7 +132,7 @@ const DashboardCards = ({ data }) => {
       <Grid
         container
         spacing={0}
-        key={data[0].userId}
+        key={api_data?.userId}
         justifyContent="center"
         sx={{ m: { xs: 1, md: 2 } }}
       >
@@ -147,7 +163,7 @@ const DashboardCards = ({ data }) => {
             variant="h5"
             sx={{ color: "#005734" }}
           >
-            {data.length > 0 && data[0].is_active ? "Active" : "Not Active"}
+            {api_data?.is_active ? "Active" : "Not Active"}
           </Typography>
           <Box p={3}>
             <Typography
@@ -158,7 +174,7 @@ const DashboardCards = ({ data }) => {
               sx={{ height: "35px", borderRadius: "5px" }}
               textAlign={"center"}
             >
-              {data.length > 0 && data[0]?.APIKey}
+              {api_data?.api_key}
             </Typography>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "center" }} mb={3}>
@@ -175,7 +191,8 @@ const DashboardCards = ({ data }) => {
             <Button
               variant="contained"
               size="small"
-              onClick={setDialog}
+              // onClick={setDialog}
+              onClick={api_data?.is_active ? deactivateApiKey : activateApiKey}
               sx={{
                 bgcolor: "#e6e8e9",
                 color: "black",
@@ -184,9 +201,7 @@ const DashboardCards = ({ data }) => {
                 },
               }}
             >
-              {data.length > 0 && data[0].is_active
-                ? "Deactivate"
-                : "Activate Key"}
+              {api_data?.is_active ? "Deactivate" : "Activate Key"}
             </Button>
           </Box>
         </Grid>
@@ -220,61 +235,13 @@ const DashboardCards = ({ data }) => {
             >
               Credits
             </Typography>
-            <Box mb={2} mt={4}>
-              <Box
-                width={"95%"}
-                height={20}
-                borderRadius={2}
-                overflow={"hidden"}
-                m={1}
-                mb={2}
-                sx={{
-                  bgcolor: "#afcdb1",
-                }}
-              >
-                <Box
-                  width={`${
-                    data.length > 0 && data[0].total_credits == null
-                      ? 0
-                      : (data[0].credits * 100) / data[0].total_credits
-                  }%`}
-                  height={20}
-                  sx={{ bgcolor: "#2e7d32" }}
-                >
-                  <Typography textAlign={"center"} sx={{ color: "white" }}>{`${
-                    data.length > 0 && data[0].total_credits == null
-                      ? 0
-                      : data[0].total_credits == 0
-                      ? 0
-                      : (data[0].credits * 100) / data[0].total_credits
-                  }%`}</Typography>
-                </Box>
-              </Box>
-              {/* <LinearProgress
-                determinate
-                variant="determinate"
-                value={
-                  data[0].total_credits == null
-                    ? 0
-                    : data[0].total_credits - data[0].credits
-                }
-                color="success"
-                size="sm"
-                thickness={32}
-                sx={{ height: "15px", borderRadius: "3px" }}
-              /> */}
-            </Box>
-            <Typography mb={2} textAlign={"center"}>
-              Credit Balance : &nbsp;{" "}
-              {data.length > 0 && data[0].credits == null
-                ? "0"
-                : data[0].credits}{" "}
-            </Typography>
+          
+           <Box display={'flex'} justifyContent={'center'}> <Typography variant="h3" sx={{color:"#005734"}}> {api_data?.total_credits}</Typography></Box>
           </Box>
         </Grid>
       </Grid>
       <Box>
-        {data[0].api_services.map((i) =>
+        {api_data.services.length > 0 && api_data.services.map((i) =>
           i.is_active ? (
             <Box
               display={"flex"}
@@ -284,8 +251,8 @@ const DashboardCards = ({ data }) => {
               sx={{ m: { xs: 1, md: 2 } }}
             >
               <Box sx={{ display: { xs: "block", md: "flex" } }}>
-                <Typography ml={2}>{i.api_service_id}</Typography>
-                <Typography ml={2}>{i.api_service}</Typography>
+                <Typography ml={2}>{i.service_id}</Typography>
+                {/* <Typography ml={2}>{i.api_service}</Typography> */}
               </Box>
 
               <Button
@@ -301,73 +268,6 @@ const DashboardCards = ({ data }) => {
           )
         )}
       </Box>
-
-      <Dialog open={dialog} onClose={handleCloseDialog}>
-        <DialogTitle
-          sx={{
-            bgcolor: "#dce8e4",
-            fontWeight: "bold",
-            display: "flex",
-          }}
-          textAlign="center"
-        >
-          <img src={Logo} width="80" />
-
-          <Typography
-            variant="h5"
-            ml={6}
-            mt={3}
-            fontWeight={"bold"}
-            sx={{ color: "#005734" }}
-          >
-            {" "}
-            API Key
-          </Typography>
-        </DialogTitle>
-
-        <DialogActions sx={{ display: "block", bgcolor: "#dce8e4" }}>
-          {data[0].is_active ? (
-            ""
-          ) : (
-            <Box>
-              <Box display="flex" pl={8} pr={8}>
-                <TextField
-                  fullWidth
-                  sx={{ bgcolor: "white" }}
-                  value={addVoucher}
-                  onChange={(e) => setAddVoucher(e.target.value)}
-                  placeholder="Add Voucher"
-                />
-              </Box>
-              <Box pl={8} pr={8}>
-                <Typography variant="span" sx={{ fontSize: "13px" }}>
-                  If you don't know what voucher is go to right top and click on
-                  the Icon, Then click on "Redeem Voucher". Then Copy the
-                  voucher
-                </Typography>
-              </Box>
-            </Box>
-          )}
-
-          <Button
-            onClick={handleActivateApi}
-            variant="outlined"
-            fullWidth
-            sx={{
-              width: { xs: "100px", md: "300px" },
-              ml: { xs: "100px", md: "145px" },
-              mr: { xs: "100px", md: "145px" },
-              mt: 2,
-              mb: 3,
-              color: "#005734",
-              borderColor: "#005734",
-            }}
-          >
-            {" "}
-            {data[0].is_active ? "Deactivate" : "Activate"}
-          </Button>
-        </DialogActions>
-      </Dialog>
       <Snackbar
         anchorOrigin={{ horizontal: "right", vertical: "top" }}
         open={upgradeSnackBar}
@@ -408,9 +308,9 @@ const DashboardCards = ({ data }) => {
           </Alert>
         ) : (
           <Alert severity="success" sx={{ width: "100%" }}>
-            {data[0].is_active
-              ? "You Deactivated your key!"
-              : "You Activated your key!"}
+            {api_data.is_active
+              ? "You Activated your key!"
+              : "You Deactivated your key!"}
           </Alert>
         )}
       </Snackbar>
