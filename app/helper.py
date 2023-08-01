@@ -380,7 +380,7 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
         for service in services:
             if service.get("service_id") == module_id:
                 module_active = service.get("is_active")
-                module_credits = service.get("credits", 0)
+                module_credits = service.get("credits")
                 module_found = True
                 break
 
@@ -398,7 +398,6 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
                 if service.get("service_id") in service_ids:
                     service_ids_found.append(service.get("service_id"))
                     service["is_active"] = True
-                    total_credits += service.get("credits", 0)
 
             if set(service_ids) != set(service_ids_found):
                 return {
@@ -460,7 +459,7 @@ def process_module_service_by_user(service_ids, product_id, field, update_field)
         for service in services:
             if service.get("service_id") == product_id:
                 product_active = service.get("is_active")
-                product_credits = service.get("credits", 0)
+                product_credits = service.get("credits")
                 product_found = True
                 break
 
@@ -478,7 +477,6 @@ def process_module_service_by_user(service_ids, product_id, field, update_field)
                 if service.get("service_id") in service_ids:
                     service_ids_found.append(service.get("service_id"))
                     service["is_active"] = True
-                    total_credits += service.get("credits", 0)
 
             if set(service_ids) != set(service_ids_found):
                 return {
