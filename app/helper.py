@@ -208,7 +208,9 @@ def get_services():
     service_response = json.loads(dowellconnection(*Services, "fetch", field, update_field))
     for service in service_response.get("data", []):
         service_data = {
+            "name": service.get("name"),
             "service_id": service.get("service_id"),
+            "service_type": service.get("service_type"),
             "is_active": service.get("is_active"),
             "credits": service.get("credits")
         }
