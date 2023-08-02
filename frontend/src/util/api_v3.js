@@ -45,7 +45,7 @@ export const DeactivateApiKey_v3 = async (params) => {
 };
 export const GetApiKey_v3 = async(params)=>{
   try {
-    const response = await api_v3.get(`/user/?type=get_api_key&user_id=${params.userId}`);
+    const response = await api_v3.get(`/user/?type=get_api_key&workspace_id=${params.id}`);
     return response;
   } catch (error) {
     console.log("error getting api key", error);

@@ -122,7 +122,7 @@ const DocumentationCards = ({ card, title }) => {
                       >
                         <Box>
                           <Typography
-                            variant="h5"
+                            variant="h6"
                             fontWeight={"bold"}
                             mt={1}
                             sx={{ color: "#005734" }}
@@ -242,7 +242,7 @@ const DocumentationCards = ({ card, title }) => {
                 >
                   <Box>
                     <Typography
-                      variant="h5"
+                      variant="h6"
                       fontWeight={"bold"}
                       mt={1}
                       sx={{ color: "#005734" }}

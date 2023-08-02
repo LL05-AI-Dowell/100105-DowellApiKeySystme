@@ -25,7 +25,9 @@ const Dashboard = () => {
   useEffect(() => {
     const ApiData = async () => {
       // const oldget = await GetApiKey_v2({ id: storedObj?.userID });
-      const get = await GetApiKey_v3({ userId: storedObj?.userID });
+      const id = storedObj?.client_admin_id 
+      console.log("the workspace id is ", id)
+      const get = await GetApiKey_v3({ id: id });
       console.log("the response from the new get is ", get);
       if (get?.data?.success === false) {
         const res = await CreateApiKey_v3({
@@ -37,10 +39,13 @@ const Dashboard = () => {
             profile_img: storedObj?.profile_img,
             phone: storedObj?.phone,
           },
-          userId: storedObj?.userID,
+         workspaceId: storedObj?.client_admin_id,
+        //  userId : storedObj?.userID
         });
         console.log("the generated api key is ", res.data);
-        const get = await GetApiKey_v3({ userId: storedObj?.userID });
+        
+        const get = await GetApiKey_v3({ id:  id});
+        console.log("api data after creating api key is ", get)
         setApiKey(get.data.data);
         dispatch(setData(get.data.data));
       } else {
