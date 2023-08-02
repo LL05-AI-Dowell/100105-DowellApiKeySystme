@@ -101,12 +101,12 @@ def get_active_voucher(field,update_field):
     return response['data']
 
 """SAVE USER API KEY"""
-def save_user_key(api_key, username, email, userId, userDetails ):
+def save_user_key(api_key, username, email, workspaceId, userDetails ):
     field = {
         "api_key": api_key,
         "username": username,
         "email": email,
-        "userId": userId,
+        "workspaceId": workspaceId,
         "userDetails": userDetails,
         "is_active": False,
         "services": [],
@@ -117,14 +117,14 @@ def save_user_key(api_key, username, email, userId, userDetails ):
     fetch_field = {
         "username": username,
         "email": email,
-        "userId": userId
+        "workspaceId": workspaceId
     }
     update_field = {
         "status": "Nothing to udpate"
     }
     responses = json.loads(dowellconnection(*User_Services,"fetch",fetch_field,update_field))
     for item in responses.get('data', []):
-        if item['username'] == username and item['email'] == email and item['userId'] == userId:
+        if item['username'] == username and item['email'] == email and item['workspaceId'] == workspaceId:
             return {
                 "success": False,
                 "message": "User API key already exists",

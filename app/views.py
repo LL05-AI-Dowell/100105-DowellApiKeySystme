@@ -184,20 +184,20 @@ class user_api_key(APIView):
     def create_api_key(self, request):
         username= request.data.get('username')
         email= request.data.get('email')
-        userId = request.data.get('userId')
+        workspaceId = request.data.get('workspaceId')
         userDetails = request.data.get('userDetails')
 
         field= {
             "username": username,
             "email": email,
-            "userId": userId,
+            "workspaceId": workspaceId,
             "userDetails": userDetails
         }
         APIKey = generate_uuid()
         print("API KEY ",APIKey)
         serializer = UserAPIKeySerializer(data=field)
         if serializer.is_valid():
-            response = save_user_key(APIKey,field["username"],field["email"], field["userId"],field["userDetails"])
+            response = save_user_key(APIKey,field["username"],field["email"], field["workspaceId"],field["userDetails"])
             if response['success']:
                 return Response(response,status=status.HTTP_201_CREATED)
             else:
@@ -281,12 +281,12 @@ class user_api_key(APIView):
 
     """GET API KEY"""
     def get_api_key(self, request):
-        user_id = request.GET.get("user_id", None)
+        workspaceId = request.GET.get("workspace_id", None)
         api_key = request.GET.get("api_key", None)
         
-        if not user_id == None:
+        if not workspaceId == None:
             field= {
-                "userId": user_id
+                "workspaceId": workspaceId
             }
         else:
             field= {

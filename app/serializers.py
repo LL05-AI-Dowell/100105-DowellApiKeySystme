@@ -26,7 +26,7 @@ class VoucherServiceSerializer(serializers.Serializer):
 class UserAPIKeySerializer(serializers.Serializer):
     username = serializers.CharField(allow_null=False, allow_blank=False)
     email = serializers.CharField(allow_null=False, allow_blank=False)
-    userId = serializers.CharField(allow_null=False, allow_blank=False)
+    workspaceId = serializers.CharField(allow_null=False, allow_blank=False)
     userDetails = serializers.JSONField()
 
 class ModuleSerializer(serializers.Serializer):
