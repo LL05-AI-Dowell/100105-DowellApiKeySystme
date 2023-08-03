@@ -459,3 +459,41 @@ class process_services(APIView):
             "success": False,
             "message": "Invalid request type"
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@method_decorator(csrf_exempt, name='dispatch')
+class add_name(APIView):
+    def post(self, request):
+        name = request.data.get('name')
+        field = {
+            "name": name,
+            "status": True 
+        }
+        update_field = {
+            "status": "nothing to update",
+        }
+
+        response = json.loads(dowellconnection(*Voucher_Services,"insert",field,update_field))
+        print(response)
+        if response["isSuccess"]:
+            return Response({
+                "success": True,
+                "message": "Thank you for your response"
+            })
+        else:
+            return Response({
+                "success": False,
+                "message": "Something went wrong"
+            })
+    def get(self, request):
+        field = {
+            "status": True
+        }
+        update_field = {
+            "status": "nothing to update",
+        }
+        response = json.loads(dowellconnection(*Voucher_Services,"fetch",field,update_field))
+        return Response({
+            "success": True,
+            "data": response["data"] 
+        })
