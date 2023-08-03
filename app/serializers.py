@@ -39,3 +39,10 @@ class ProductSerializer(serializers.Serializer):
 
 class UpgradeSerializer(serializers.Serializer):
     total_credits = serializers.IntegerField()
+
+class SubServiceSerializer(serializers.Serializer):
+    service_id = serializers.CharField(allow_null=False, allow_blank=False)
+    sub_service_id = serializers.CharField(allow_null=False, allow_blank=False)
+    name = serializers.CharField(allow_null=False, allow_blank=False)
+    description = serializers.CharField(allow_null=False, allow_blank=False)
+    credits = serializers.CharField(allow_null=False, allow_blank=False)

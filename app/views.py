@@ -14,6 +14,8 @@ class services(APIView):
 
         if type_request == "add_services":
             return self.add_services(request)
+        if type_request == "add_sub_service":
+            return self.add_sub_service(request)
         else:
             return self.handle_error(request)
         
@@ -64,6 +66,43 @@ class services(APIView):
                 "message": "Posting wrong data to API",
                 "error": serializer.errors
             },status=status.HTTP_400_BAD_REQUEST)
+
+    """ADD SUB SERVICE"""
+    @protector(password= "dowellX1234uxLivingLab") 
+    def add_sub_service(self, request):
+        service_id = request.data.get('service_id')
+        sub_service_id = request.data.get('sub_service_id')
+        name = request.data.get('name')
+        description = request.data.get('description')
+        credits = request.data.get('credits')
+
+        field = {
+            "service_id": service_id,
+            "sub_service_id": sub_service_id,
+            "name": name,
+            "description":description,
+            "credits": credits
+        }
+        serializer = SubServiceSerializer(data=field)
+        if serializer.is_valid():
+            if save_sub_service(field["service_id"],field["sub_service_id"],field["name"],field["description"],field["credits"]):
+                return Response({
+                    "success": True,
+                    "message": "New Service created successfully",
+                    "data": field
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "success": False,
+                    "message": f"Service details not saved successfully or combination of {service_id} exist",
+                },status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST)
+            
 
     """GET SERVICE"""  
     def get_service(self, request):
@@ -402,7 +441,7 @@ class process_services(APIView):
             update_field= {
                 "status": "Nothing to update"
             }
-            response = process_module_service_by_user(service_ids,product_id,field,update_field)
+            response = process_prouct_service_by_user(service_ids,product_id,field,update_field)
             if response["success"]:
                 return Response(response,status=status.HTTP_200_OK)
             else:

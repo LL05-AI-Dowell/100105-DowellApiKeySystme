@@ -112,6 +112,7 @@ def save_user_key(api_key, username, email, workspaceId, userDetails ):
         "services": [],
         "is_paid": False,
         "total_credits": 1000,
+        "disable_key": False,
         "created_at": datetime.datetime.now().strftime('%Y-%m-%d')
     }
     fetch_field = {
@@ -308,7 +309,9 @@ def process_api_service_by_user(service_id, field, update_field):
     data = response.get("data", {})
     if not data == None:
         is_active = data.get("is_active")
+        disable_key = data.get("disable_key")
         total_credits = data.get("total_credits")
+        
 
         services = data.get("services")
 
@@ -316,6 +319,11 @@ def process_api_service_by_user(service_id, field, update_field):
             return {
                 "success": False,
                 "message": "API KEY is not activated",
+            }
+        elif disable_key is True:
+            return {
+                "success": False,
+                "message": "YOUR API KEY IS DISABLED BY ADMIN.",
             }
         elif total_credits <= 0:
             return {
@@ -361,11 +369,18 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
         is_active = data.get("is_active")
         user_credits = data.get("total_credits")
         services = data.get("services")
+        disable_key = data.get("disable_key")
 
         if is_active is False:
             return {
                 "success": False,
                 "message": "API KEY is not activated",
+            }
+        
+        if disable_key is True :
+            return {
+                "success": False,
+                "message": "YOUR API KEY IS DISABLED BY ADMIN.",
             }
 
         if user_credits <= 0:
@@ -432,7 +447,7 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
         }
 
 """PROCESS PRODUCT BY USERS"""    
-def process_module_service_by_user(service_ids, product_id, field, update_field):
+def process_prouct_service_by_user(service_ids, product_id, field, update_field):
     response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
     data = response.get("data", {})
     
@@ -440,6 +455,7 @@ def process_module_service_by_user(service_ids, product_id, field, update_field)
         is_active = data.get("is_active")
         user_credits = data.get("total_credits")
         services = data.get("services")
+        disable_key = data.get("disable_key")
 
         if is_active is False:
             return {
@@ -447,6 +463,12 @@ def process_module_service_by_user(service_ids, product_id, field, update_field)
                 "message": "API KEY is not activated",
             }
 
+        if disable_key is True :
+            return {
+                "success": False,
+                "message": "YOUR API KEY IS DISABLED BY ADMIN.",
+            }
+        
         if user_credits <= 0:
             return {
                 "success": False,
@@ -542,3 +564,32 @@ def upgrade_credits_by_user(total_credits, field):
             "success": False,
             "message": "API key not found"
         }
+
+"""SAVE SUBSERVICE"""   
+def save_sub_service(service_id,sub_service_id,name,description,credits):
+    field = {
+        "service_id": service_id,
+        "sub_service_id": sub_service_id,
+        "name": name,
+        "description": description,
+        "credits": credits,
+        "is_active": False,
+        "is_released": True,
+        "created_at": datetime.datetime.now().strftime('%Y-%m-%d')
+    }
+    fetch_field = {
+        "service_id": service_id,
+        "name": name
+    }
+    update_field = {
+        "status": "Nothing to udpate"
+    }
+    responses = json.loads(dowellconnection(*Product_Services,"fetch",fetch_field,update_field))
+    for item in responses.get('data', []):
+        if item['service_id'] == service_id and item['name'] == name:
+            return False
+    response = json.loads(dowellconnection(*Product_Services,"insert", field , update_field))
+    if response["isSuccess"]:
+        return True
+    else:
+        return False
