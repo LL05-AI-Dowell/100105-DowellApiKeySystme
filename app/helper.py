@@ -4,7 +4,7 @@ import datetime
 import json
 
 """SAVE SERVICES"""
-def save_service(service_id,name,description,link,credits,service_type):
+def save_service(service_id,name,description,link,credits,service_type,sub_service):
     field = {
         "service_id": service_id,
         "name": name,
@@ -14,6 +14,7 @@ def save_service(service_id,name,description,link,credits,service_type):
         "service_type": service_type,
         "is_active": False,
         "is_released": True,
+        "sub_service": sub_service,
         "created_at": datetime.datetime.now().strftime('%Y-%m-%d')
     }
     fetch_field = {
@@ -213,7 +214,8 @@ def get_services():
             "service_id": service.get("service_id"),
             "service_type": service.get("service_type"),
             "is_active": service.get("is_active"),
-            "credits": service.get("credits")
+            "credits": service.get("credits"),
+            "sub_service": service.get("sub_service", None)
         }
         services_list.append(service_data)
 
@@ -446,8 +448,8 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
             "message": "API key not found"
         }
 
-"""PROCESS PRODUCT BY USERS"""    
-def process_prouct_service_by_user(service_ids, product_id, field, update_field):
+"""PROCESS PRODUCT BY USERS"""   
+def process_product_service_by_user(service_id, sub_service_ids, field, update_field):
     response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
     data = response.get("data", {})
     
@@ -457,13 +459,13 @@ def process_prouct_service_by_user(service_ids, product_id, field, update_field)
         services = data.get("services")
         disable_key = data.get("disable_key")
 
-        if is_active is False:
+        if not is_active:
             return {
                 "success": False,
                 "message": "API KEY is not activated",
             }
 
-        if disable_key is True :
+        if disable_key:
             return {
                 "success": False,
                 "message": "YOUR API KEY IS DISABLED BY ADMIN.",
@@ -477,50 +479,71 @@ def process_prouct_service_by_user(service_ids, product_id, field, update_field)
             }
 
         product_active = False
-        product_credits = 0
         product_found = False
+        sub_service = None
 
         for service in services:
-            if service.get("service_id") == product_id:
+            if service.get("service_id") == service_id:
                 product_active = service.get("is_active")
-                product_credits = service.get("credits")
                 product_found = True
+                sub_service = service.get("sub_service") 
                 break
-
+            
         if not product_found:
             return {
                 "success": False,
                 "message": "Product not found"
             }
-
-        if product_active is True:
-            total_credits = 0
-            service_ids_found = []
-
-            for service in services:
-                if service.get("service_id") in service_ids:
-                    service_ids_found.append(service.get("service_id"))
-                    service["is_active"] = True
-
-            if set(service_ids) != set(service_ids_found):
+        
+        if product_active:
+            if sub_service:  
+                sub_service_info = []  
+                total_credits_used = 0
+                
+                for sub_serv in sub_service:
+                    sub_service_id = sub_serv.get("sub_service_id")
+                    if sub_service_id in sub_service_ids:  
+                        sub_service_credits = sub_serv.get("sub_service_credits")
+                        quantity = sub_serv.get("quantity")
+                        sub_service_name = sub_serv.get("sub_service_name")
+                        if sub_service_credits is not None and quantity is not None:
+                            sub_service_info.append({
+                                "sub_service_name": sub_service_name,
+                                "sub_service_id": sub_service_id,
+                                "sub_service_credits": sub_service_credits,
+                                "quantity": quantity
+                            })
+                            total_credits_used += sub_service_credits * quantity
+                        else:
+                            return {
+                                "success": False,
+                                "message": "Sub service information missing for sub_service_id: {}".format(sub_service_id),
+                                "data": data
+                            }
+                
+                if not sub_service_info:
+                    return {
+                        "success": False,
+                        "message": "No valid sub_service_ids provided",
+                    }
+                
+                remaining_credits = user_credits - total_credits_used
+                update_field = {
+                    "total_credits": remaining_credits
+                }
+                response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+                
+                return {
+                    "success": True,
+                    "message": "Credits reduced successfully",
+                    "sub_service_info": sub_service_info,
+                    "remaining_credits": remaining_credits
+                }
+            else:
                 return {
                     "success": False,
-                    "message": "One or more service_ids not found in services"
+                    "message": "Sub service not found"
                 }
-
-            total_credits += product_credits
-            user_credits = user_credits - total_credits
-            
-            update_field = {
-                "services": services,
-                "total_credits": user_credits
-            }
-            response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
-            return {
-                "success": True,
-                "message": "Consumed credits successfully",
-                "total_credits": user_credits
-            }
         else:
             return {
                 "success": False,
@@ -529,7 +552,7 @@ def process_prouct_service_by_user(service_ids, product_id, field, update_field)
     else:
         return {
             "success": False,
-            "message": "API key not found"
+            "message": "Something went wrong"
         }
 
 """UPGRATE CREDITS BY USER"""
@@ -564,32 +587,3 @@ def upgrade_credits_by_user(total_credits, field):
             "success": False,
             "message": "API key not found"
         }
-
-"""SAVE SUBSERVICE"""   
-def save_sub_service(service_id,sub_service_id,name,description,credits):
-    field = {
-        "service_id": service_id,
-        "sub_service_id": sub_service_id,
-        "name": name,
-        "description": description,
-        "credits": credits,
-        "is_active": False,
-        "is_released": True,
-        "created_at": datetime.datetime.now().strftime('%Y-%m-%d')
-    }
-    fetch_field = {
-        "service_id": service_id,
-        "name": name
-    }
-    update_field = {
-        "status": "Nothing to udpate"
-    }
-    responses = json.loads(dowellconnection(*Product_Services,"fetch",fetch_field,update_field))
-    for item in responses.get('data', []):
-        if item['service_id'] == service_id and item['name'] == name:
-            return False
-    response = json.loads(dowellconnection(*Product_Services,"insert", field , update_field))
-    if response["isSuccess"]:
-        return True
-    else:
-        return False

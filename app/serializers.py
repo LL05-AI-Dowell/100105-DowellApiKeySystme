@@ -15,7 +15,8 @@ class ApiServiceSerializer(serializers.Serializer):
     name = serializers.CharField(allow_null=False, allow_blank=False)
     description = serializers.CharField(allow_null=False, allow_blank=False)
     link = serializers.CharField(allow_null=False, allow_blank=False)
-    credits = serializers.CharField(allow_null=False, allow_blank=False)
+    credits = serializers.CharField(allow_null=True, allow_blank=True)
+    sub_service = serializers.ListField(child=serializers.JSONField())
 
 class VoucherServiceSerializer(serializers.Serializer):
     name = serializers.CharField(allow_null=False, allow_blank=False)
@@ -34,15 +35,13 @@ class ModuleSerializer(serializers.Serializer):
     module_id = serializers.CharField(allow_null=False, allow_blank=False)
 
 class ProductSerializer(serializers.Serializer):
-    service_ids = serializers.ListField(child=serializers.CharField(allow_null=False, allow_blank=False))
-    product_id = serializers.CharField(allow_null=False, allow_blank=False)
+    service_id = serializers.CharField(allow_null=False, allow_blank=False)
+    sub_service_ids = serializers.ListField(child=serializers.CharField(allow_null=False, allow_blank=False))
 
 class UpgradeSerializer(serializers.Serializer):
     total_credits = serializers.IntegerField()
 
 class SubServiceSerializer(serializers.Serializer):
     service_id = serializers.CharField(allow_null=False, allow_blank=False)
-    sub_service_id = serializers.CharField(allow_null=False, allow_blank=False)
-    name = serializers.CharField(allow_null=False, allow_blank=False)
+    sub_service = serializers.ListField(child=serializers.JSONField())
     description = serializers.CharField(allow_null=False, allow_blank=False)
-    credits = serializers.CharField(allow_null=False, allow_blank=False)

@@ -14,8 +14,6 @@ class services(APIView):
 
         if type_request == "add_services":
             return self.add_services(request)
-        if type_request == "add_sub_service":
-            return self.add_sub_service(request)
         else:
             return self.handle_error(request)
         
@@ -37,7 +35,8 @@ class services(APIView):
         description = request.data.get('description')
         link = request.data.get('link')
         service_type = request.data.get('service_type')
-        credits = request.data.get('credits')
+        credits = request.data.get('credits' , None)
+        sub_service = request.data.get('sub_service', None)
 
         field = {
             "service_id": service_id,
@@ -45,47 +44,12 @@ class services(APIView):
             "description":description,
             "link": link,
             "credits": credits,
-            "service_type": service_type
+            "service_type": service_type,
+            "sub_service": sub_service
         }
         serializer = ApiServiceSerializer(data=field)
         if serializer.is_valid():
-            if save_service(field['service_id'],field['name'],field['description'],field['link'],field['credits'],field["service_type"]):
-                return Response({
-                    "success": True,
-                    "message": "New Service created successfully",
-                    "data": field
-                }, status=status.HTTP_201_CREATED)
-            else:
-                return Response({
-                    "success": False,
-                    "message": f"Service details not saved successfully or combination of {service_id} exist",
-                },status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({
-                "success": False,
-                "message": "Posting wrong data to API",
-                "error": serializer.errors
-            },status=status.HTTP_400_BAD_REQUEST)
-
-    """ADD SUB SERVICE"""
-    @protector(password= "dowellX1234uxLivingLab") 
-    def add_sub_service(self, request):
-        service_id = request.data.get('service_id')
-        sub_service_id = request.data.get('sub_service_id')
-        name = request.data.get('name')
-        description = request.data.get('description')
-        credits = request.data.get('credits')
-
-        field = {
-            "service_id": service_id,
-            "sub_service_id": sub_service_id,
-            "name": name,
-            "description":description,
-            "credits": credits
-        }
-        serializer = SubServiceSerializer(data=field)
-        if serializer.is_valid():
-            if save_sub_service(field["service_id"],field["sub_service_id"],field["name"],field["description"],field["credits"]):
+            if save_service(field['service_id'],field['name'],field['description'],field['link'],field['credits'],field["service_type"], field["sub_service"]):
                 return Response({
                     "success": True,
                     "message": "New Service created successfully",
@@ -103,7 +67,6 @@ class services(APIView):
                 "error": serializer.errors
             },status=status.HTTP_400_BAD_REQUEST)
             
-
     """GET SERVICE"""  
     def get_service(self, request):
         service_id = request.GET.get('service_id')
@@ -426,12 +389,12 @@ class process_services(APIView):
     """PRODUCT SERVICE"""
     def product_service(self, request):
         api_key = request.GET.get("api_key")
-        service_ids = request.data.get("service_ids")
-        product_id = request.data.get("product_id")
+        service_id = request.data.get("service_id")
+        sub_service_ids = request.data.get("sub_service_ids")
 
         data = {
-            "service_ids": service_ids,
-            "product_id": product_id
+            "service_id": service_id,
+            "sub_service_ids": sub_service_ids
         }
         serializer = ProductSerializer(data=data)
         if serializer.is_valid():
@@ -441,7 +404,7 @@ class process_services(APIView):
             update_field= {
                 "status": "Nothing to update"
             }
-            response = process_prouct_service_by_user(service_ids,product_id,field,update_field)
+            response = process_product_service_by_user(data["service_id"],data["sub_service_ids"],field,update_field)
             if response["success"]:
                 return Response(response,status=status.HTTP_200_OK)
             else:
@@ -461,39 +424,3 @@ class process_services(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
-@method_decorator(csrf_exempt, name='dispatch')
-class add_name(APIView):
-    def post(self, request):
-        name = request.data.get('name')
-        field = {
-            "name": name,
-            "status": True 
-        }
-        update_field = {
-            "status": "nothing to update",
-        }
-
-        response = json.loads(dowellconnection(*Voucher_Services,"insert",field,update_field))
-        print(response)
-        if response["isSuccess"]:
-            return Response({
-                "success": True,
-                "message": "Thank you for your response"
-            })
-        else:
-            return Response({
-                "success": False,
-                "message": "Something went wrong"
-            })
-    def get(self, request):
-        field = {
-            "status": True
-        }
-        update_field = {
-            "status": "nothing to update",
-        }
-        response = json.loads(dowellconnection(*Voucher_Services,"fetch",field,update_field))
-        return Response({
-            "success": True,
-            "data": response["data"] 
-        })
