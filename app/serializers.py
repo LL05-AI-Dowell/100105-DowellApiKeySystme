@@ -45,3 +45,31 @@ class SubServiceSerializer(serializers.Serializer):
     service_id = serializers.CharField(allow_null=False, allow_blank=False)
     sub_service = serializers.ListField(child=serializers.JSONField())
     description = serializers.CharField(allow_null=False, allow_blank=False)
+
+class RestrictWorkspaceIdSerializer(serializers.Serializer):
+    workspaceId = serializers.CharField(allow_null=False, allow_blank=False)
+
+class ClaimMethodSerializer(serializers.Serializer):
+    METHOD_CHOICES = (
+        ("DIRECT FROM DOWELLPAY", "DIRECT FROM DOWELLPAY"),
+        ('STORE MARKETPLACE', 'STORES MARKETPLACE'),
+        ('SALES AGENTS BOOKING COUPONS', 'SALES AGENTS BOOKING COUPONS'),
+        ('REFERENCES CREDIT COUPONS', 'REFERENCES CREDIT COUPONS'),
+        ('ACTIVITY CREDIT COUPONS', 'ACTIVITY CREDIT COUPONS'),
+        ('DOWNLOADS - GOOGLEPLAY/APPLE STORE', 'DOWNLOADS - GOOGLEPLAY/APPLE STORE'),
+        ('PUBLIC REVIEW CREDITS COUPONS', 'PUBLIC REVIEW CREDITS COUPONS'),
+        ('SIGNUP CREDITS', 'SIGNUP CREDITS'),
+        ('STARTUP CREDIT COUPONS', 'STARTUP CREDIT COUPONS'),
+        ('INTERNAL CREDIT COUPONS', 'INTERNAL CREDIT COUPONS')
+    )
+    
+    claim_method = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
+    workspaceId = serializers.CharField(allow_null=False, allow_blank=False)
+    description = serializers.CharField(allow_null=False, allow_blank=False)
+    timezone = serializers.CharField(allow_null=False, allow_blank=False)
+
+class RedeemMethodSerializer(serializers.Serializer):
+    voucher_id = serializers.CharField(allow_null=False, allow_blank=False)
+    timezone = serializers.CharField(allow_null=False, allow_blank=False)
+
+

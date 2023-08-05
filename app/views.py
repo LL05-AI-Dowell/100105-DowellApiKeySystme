@@ -112,53 +112,6 @@ class services(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 @method_decorator(csrf_exempt, name='dispatch')
-class voucher(APIView):
-    """CREATE NEW VOUCHER"""
-    def post(self, request):
-        name = request.data.get('name')
-        discount = request.data.get('discount')
-        description = request.data.get('description')
-        field = {
-            "name": name,
-            "discount": discount,
-            "code": generate_code(4),
-            "description": description
-        }
-        serializer = VoucherServiceSerializer(data=field)
-        if serializer.is_valid():
-            if save_voucher(field["name"], field["description"], field["code"], field["discount"]):
-                return Response({
-                    "success": True,
-                    "message": "Voucher saved successfully",
-                    "data": field
-                })
-            else:
-                return Response({
-                    "success": False,
-                    "message": "Voucher not saved successfully",
-                },status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({
-                "success": False,
-                "message": "Posting wrong data to API",
-                "error": serializer.errors
-            },status=status.HTTP_400_BAD_REQUEST) 
-        
-    """GET ACTIVE VOUCHER"""
-    def get(self, request):
-        field = {
-            "is_active": True
-        }
-        update_field = {
-            "status":"Nothing to update"
-        }
-        return Response({
-            "success": True,
-            "message": "The Active voucher",
-            "data": get_active_voucher(field,update_field)
-        },status=status.HTTP_200_OK)
-
-@method_decorator(csrf_exempt, name='dispatch')
 class user_api_key(APIView):
     def post(self, request):
         type_request = request.GET.get('type')
@@ -424,3 +377,174 @@ class process_services(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
+@method_decorator(csrf_exempt, name='dispatch')
+class platform_admin_duties(APIView):
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == "restrict_workspace_key":
+            return self.restrict_workspace_key(request)
+        else:
+            return self.handle_error(request)
+        
+    def get(self, request):
+        type_request = request.GET.get('type')
+        if type_request == "get_all_workspaces":
+            return self.get_all_workspaces(request)
+        else:
+            return self.handle_error(request)
+        
+    """ACTIVATE OR DEACTIVATE WORKSPACE/USER SERVICE/API KEY"""
+    def restrict_workspace_key(self, request):
+        workspaceId = request.GET.get("workspace_id")
+        field = {
+            "workspaceId": workspaceId
+        }
+        serializer =  RestrictWorkspaceIdSerializer(data= field)
+    
+        if serializer.is_valid():
+            response = restrict_workspace(field)
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            })
+
+    """GET ALL WORKSPACES DETAILS"""
+    def get_all_workspaces(self, request):
+        field= {
+            "is_active": True
+        }
+        response = get_all_workspaces_details(field)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+
+    """HANDLE ERROR"""
+    def handle_error(self, request): 
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class voucher(APIView):
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == 'claim_voucher':
+            return self.claim_voucher(request)
+        elif type_request == 'redeem_voucher':
+            return self.redeem_voucher(request)
+        elif type_request == 'verify_voucher_redemption':
+            return self.verify_voucher_redemption(request)
+        else:
+            return self.handle_error(request)
+    def get(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == 'verication_voucher':
+            return self.verication_voucher(request)
+        else:
+            return self.handle_error(request)
+        
+    """CLAIM VOUCHER"""
+    def claim_voucher(self, request):
+        workspaceId = request.GET.get('workspace_id')
+        claim_method = request.data.get('claim_method')
+        description = request.data.get('description')
+        timezone = request.data.get('timezone')
+
+        field = {
+            "workspaceId": workspaceId,
+            "claim_method": claim_method,
+            "description": description,
+            "timezone":timezone
+        }
+        serializer = ClaimMethodSerializer(data=field)
+        if serializer.is_valid():
+            response = claim_coupon(field["workspaceId"],field["claim_method"], field["description"],field["timezone"])
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 
+    
+    """REDEEM VOCUHER"""
+    def redeem_voucher(self,request):
+        voucher_id = request.GET.get('voucher_id')
+        timezone = request.data.get('timezone')
+
+        field ={
+            "voucher_id":voucher_id,
+            "timezone":timezone
+        }
+        serializer = RedeemMethodSerializer(data=field)
+        if serializer.is_valid():
+            response = redeem_coupon(field["voucher_id"],field["timezone"])
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 
+
+    """VERIFY VOUCHER REDEMPTION"""
+    def verify_voucher_redemption(self,request):
+        voucher_id = request.GET.get('voucher_id')
+        response = verify_redemption(voucher_id)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+
+    """GET VERIFICATION VOUCHERS"""
+    def verication_voucher(self, request):
+        action = request.GET.get('action')
+        if action == 'verified':
+            field = {
+                "is_verified": True
+            }
+        elif action == 'unverified':
+            field = {
+                "is_verified": False
+            }
+        elif action == 'not_redeemed':
+            field = {
+                "is_redeemed": False
+            }
+        elif action == 'redeemed':
+            field = {
+                "is_redeemed": True
+            }
+        else:
+            return self.handle_error(request)
+        
+        response = unverified_coupon(field)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+    
+
+    """HANDLE ERROR"""
+    def handle_error(self, request): 
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)
