@@ -45,3 +45,6 @@ class SubServiceSerializer(serializers.Serializer):
     service_id = serializers.CharField(allow_null=False, allow_blank=False)
     sub_service = serializers.ListField(child=serializers.JSONField())
     description = serializers.CharField(allow_null=False, allow_blank=False)
+
+class RestrictWorkspaceIdSerializer(serializers.Serializer):
+    workspaceId = serializers.CharField(allow_null=False, allow_blank=False)

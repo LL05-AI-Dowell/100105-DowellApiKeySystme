@@ -587,3 +587,73 @@ def upgrade_credits_by_user(total_credits, field):
             "success": False,
             "message": "API key not found"
         }
+
+"""Restrict workspace service key access"""
+def restrict_workspace(field):
+    response = json.loads(dowellconnection(*User_Services, "find", field, update_field=None))
+    data = response.get("data",{})
+
+    if data is not None:
+        disable_key = data["disable_key"]
+        update_field = {
+            "disable_key": not disable_key
+        }
+        response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+        if response["isSuccess"]:
+            action = "Restriction is enabled" if not disable_key else "Restriction is disabled"
+            return {
+                "success": True,
+                "message": f"{action}",
+            }
+        else:
+            return {
+                "success": False,
+                "message": f"{field} failed to activate or deactivate"
+            } 
+    else:
+        return {
+            "success": False,
+            "message": "WorkspaceId not found"
+        }
+
+"""GET ALL WORKSPACE DETAILS"""
+def get_all_workspaces_details(field):
+    response = json.loads(dowellconnection(*User_Services,"fetch",field,update_field=None))
+    data = response.get("data",{})
+
+    if data is not None:
+        desired_data = []
+
+        for item in data:
+            active_services = []
+            for service in item['services']:
+                if service['is_active']:
+                    active_services.append(service['name'])
+
+            desired_item = {
+                'api_key': item['api_key'],
+                'workspaceId': item['workspaceId'],
+                'username': item['username'],
+                'is_active': item['is_active'],
+                'is_paid': item['is_paid'],
+                'total_credits': item['total_credits'],
+                'created_at': item['created_at'],
+                'disable_key': item['disable_key'],
+                'active_services': active_services
+            }
+
+            desired_data.append(desired_item)
+        return{
+            "success": True,
+            "message": "Workspace details",
+            "data": desired_data
+        }
+    else:
+        return {
+            "success": False,
+            "message": "Soemthing went wrong"
+        }
+    
+
+
+

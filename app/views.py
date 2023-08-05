@@ -424,3 +424,59 @@ class process_services(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
+@method_decorator(csrf_exempt, name='dispatch')
+class platform_admin_duties(APIView):
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == "restrict_workspace_key":
+            return self.restrict_workspace_key(request)
+        else:
+            return self.handle_error(request)
+        
+    def get(self, request):
+        type_request = request.GET.get('type')
+        if type_request == "get_all_workspaces":
+            return self.get_all_workspaces(request)
+        else:
+            return self.handle_error(request)
+        
+    """ACTIVATE OR DEACTIVATE WORKSPACE/USER SERVICE/API KEY"""
+    def restrict_workspace_key(self, request):
+        workspaceId = request.GET.get("workspace_id")
+        field = {
+            "workspaceId": workspaceId
+        }
+        serializer =  RestrictWorkspaceIdSerializer(data= field)
+    
+        if serializer.is_valid():
+            response = restrict_workspace(field)
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            })
+
+    """GET ALL WORKSPACES DETAILS"""
+    def get_all_workspaces(self, request):
+        field= {
+            "is_active": True
+        }
+        response = get_all_workspaces_details(field)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+
+    """HANDLE ERROR"""
+    def handle_error(self, request): 
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
