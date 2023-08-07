@@ -668,18 +668,20 @@ def claim_coupon(workspaceId,claim_method,description,timezone):
         "created_at": dowell_time(timezone)["dowelltime"],
         "redemption_duration": voucher_details.get("time")
     }
-    print("--- here ----")
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"insert",field,update_field=None))
+    print(response)
     if response["isSuccess"]:
         return {
             "success": True,
-            "message":"Voucher created successfully"
+            "message":"Voucher created successfully",
+            "voucher_id": response.get("inserted_id")
         }
     else:
         return {
             "success": False,
             "message": "Something went wrong"
         }
+
 """REDEEM VOUCHER/COUPON"""
 def redeem_coupon(id,timezone):
     field= {
@@ -698,17 +700,46 @@ def redeem_coupon(id,timezone):
         created_at = data.get("created_at")
         redemption_duration = data.get("redemption_duration")
         redemption_time = dowell_time(timezone)["dowelltime"]
+
+        if is_redeemed:
+            return {
+                "success": False,
+                "message": f"voucher name ,{name} is already redeemed"
+            }
         
+        if redemption_duration == 0 :
+            update_field = {
+                "is_verified": True,
+                "is_redeemed":True
+            }
+            response = json.loads(dowellconnection(*Reedem_Voucher_Services,"update",field, update_field))
+            field = {
+                "workspaceId": workspaceId 
+            }
+            response = json.loads(dowellconnection(*User_Services,"find",field,update_field=None))
+            data = response.get("data",{})
+            if data is not None:
+                total_credits = data.get("total_credits")
+                total_credits = total_credits + voucher_worth
+                update_field = {
+                    "total_credits": total_credits
+                }
+                response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+                return {
+                    "success": True,
+                    "message": "Successfully voucher redeemed.",
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": "Workspace does not exist"
+                }
+
 
         if not is_verified:
             return {
                 "success": False,
                 "message":"We are still processing your request"
-            }
-        if is_redeemed:
-            return {
-                "success": False,
-                "message": f"voucher name ,{name} is already redeemed"
             }
 
         redemption_time = redemption_time - created_at
@@ -770,14 +801,25 @@ def verify_redemption(voucher_id):
             "message": "No voucher or already verified"
         }
 
-"""UNVERIFIED VOUCHER/COUPON"""
-def unverified_coupon(field):
+"""VOUCHER/COUPON"""
+def coupon_details(action,field):
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"fetch", field,update_field=None))
     data = response.get("data",{})
 
     if data is not None :
         return {
             "success": True,
-            "message": "List of unverified voucher",
+            "message": f"List of {action} voucher",
+            "data": data
+        }
+"""WORKSPACE VOUCHER/COUPON"""
+def workspace_voucher_details(action,field):
+    response = json.loads(dowellconnection(*Reedem_Voucher_Services,"fetch", field,update_field=None))
+    data = response.get("data",{})
+    print({field["workspaceId"]})
+    if data is not None :
+        return {
+            "success": True,
+            "message": f"List of {action} voucher for ",
             "data": data
         }

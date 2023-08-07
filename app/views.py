@@ -451,6 +451,8 @@ class voucher(APIView):
 
         if type_request == 'verication_voucher':
             return self.verication_voucher(request)
+        if type_request == 'workspace_voucher':
+            return self.workspace_voucher(request)
         else:
             return self.handle_error(request)
         
@@ -535,7 +537,40 @@ class voucher(APIView):
         else:
             return self.handle_error(request)
         
-        response = unverified_coupon(field)
+        response = coupon_details(action,field)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        
+    """GET VERIFICATION VOUCHERS"""
+    def workspace_voucher(self, request):
+        workspaceId = request.GET.get('workspace_id')
+        action = request.GET.get('action')
+        if action == 'verified':
+            field = {
+                "workspaceId": workspaceId,
+                "is_verified": True
+            }
+        elif action == 'unverified':
+            field = {
+                "workspaceId": workspaceId,
+                "is_verified": False
+            }
+        elif action == 'not_redeemed':
+            field = {
+                "workspaceId": workspaceId,
+                "is_redeemed": False
+            }
+        elif action == 'redeemed':
+            field = {
+                "workspaceId": workspaceId,
+                "is_redeemed": True
+            }
+        else:
+            return self.handle_error(request)
+        
+        response = workspace_voucher_details(action,field)
         if response["success"]:
             return Response(response,status=status.HTTP_200_OK)
         else:
