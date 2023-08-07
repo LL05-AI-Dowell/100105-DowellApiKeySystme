@@ -55,6 +55,9 @@ const Nav = () => {
   const [snackBar, setSnackBar] = useState(false);
   const { currentUser } = useUserContext();
 
+  var storedData = sessionStorage.getItem("userinfo");
+  var storedObj = JSON.parse(storedData);
+
   const [drawer, setDrawer] = useState(false);
   // console.log("the current user data is ", currentUser)
   const navigate = useNavigate();
@@ -136,7 +139,18 @@ const Nav = () => {
           >
             Dowell Services
           </Typography>
-          <Box>
+          <Box display={"flex"}>
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#005734",
+                mt: 1.5,
+                mr: 1,
+                display: { xs: "none", md: "block" },
+              }}
+            >
+              {storedObj?.username}
+            </Typography>
             <IconButton size="large" onClick={handleMenu}>
               <AccountCircle fontSize="large" sx={{ color: "#005734" }} />
             </IconButton>

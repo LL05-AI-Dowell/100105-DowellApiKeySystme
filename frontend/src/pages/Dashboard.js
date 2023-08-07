@@ -12,8 +12,10 @@ import { GetApiKey_v3, CreateApiKey_v3, UpdateApiKey_v3 } from "../util/api_v3";
 
 import { useDispatch, useSelector } from "react-redux";
 import { setData, setLoading, setError } from "../store/reducers/data";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { currentUser } = useUserContext();
   const [apiKey, setApiKey] = useState(null);
   var storedData = sessionStorage.getItem("userinfo");
@@ -59,19 +61,14 @@ const Dashboard = () => {
     }
   }, [currentUser]);
   
-  // useEffect(() => {
-  //   const updataApi = async () => {
-     
-  //     if (api_data?.api_key) {    
-  //       const apiKey= api_data.api_key
-  //       const res = await UpdateApiKey_v3({ api_key: apiKey });
-  //       console.log("the api updata res is ", res)
-  //     }
-  //   };
-    // const intervalId = setInterval(updataApi, 30000);
-    // return () => clearInterval(intervalId);
-  //   updataApi()
-  // }, []);
+  useEffect(() => {
+    var storedId = sessionStorage.getItem("payment_id");
+    var storedIdObj = JSON.parse(storedId);
+    if(storedIdObj !== null && storedIdObj !== "12345" && storedIdObj !== undefined){
+      navigate("/checkPayment")
+      console.log("the stored id is ", storedIdObj)
+    }
+  }, []);
 
   return (
     <div>

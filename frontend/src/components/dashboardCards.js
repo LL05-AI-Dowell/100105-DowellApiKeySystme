@@ -27,6 +27,8 @@ import {
 import CachedIcon from "@mui/icons-material/Cached";
 
 import Logo from "../dowellLogo.png";
+import Paypal from "../icons/paypal.png";
+import Stripe from "../icons/stripe.png";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -35,21 +37,38 @@ import {
   GetApiKey_v3,
   ActivateService_v3,
   UpdateApiKey_v3,
+  InitializePay_Stripe,
+  InitializePay_Paypal,
 } from "../util/api_v3";
 import { setData, setLoading, setError } from "../store/reducers/data";
+import { useNavigate } from "react-router-dom";
+
+const creditOptions = [
+  { id: 1, name: "Basic", price: 1, credit: 100 },
+  { id: 2, name: "Standard", price: 9, credit: 1000 },
+  { id: 3, name: "Premium", price: 19, credit: 2000 },
+];
 
 const DashboardCards = () => {
+  const navigate = useNavigate();
+
   const [snackBar, setSnackBar] = useState(false);
   const [serviceSnackBar, setServiceSnackBar] = useState(false);
   const [upgradeSnackBar, setUpgradeSnackBar] = useState(false);
   const [genKey, setGenKey] = useState(null);
+  const [removeService, setRemoveService] = useState(null);
+
   const [dialog, setDialog] = useState(false);
   const [buyCredit, setBuyCredit] = useState("");
-  const [removeService, setRemoveService] = useState(null);
+
+  ///for buy credit
+  const [selectedOPtion, setSelectedOption] = useState(null);
+  const [openPaymentMethod, setOpenPaymentMethod] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(null);
 
   var storedData = sessionStorage.getItem("userinfo");
   var storedObj = JSON.parse(storedData);
-  const id = storedObj?.client_admin_id 
+  const id = storedObj?.client_admin_id;
 
   const dispatch = useDispatch();
   const { api_data, loading, error } = useSelector((state) => state.data);
@@ -74,7 +93,7 @@ const DashboardCards = () => {
     if (res?.data.success == true) {
       setServiceSnackBar("success");
       // window.location.reload();
-      const get = await GetApiKey_v3({ id: id});
+      const get = await GetApiKey_v3({ id: id });
       dispatch(setData(get.data.data));
       setRemoveService(null);
     } else {
@@ -85,16 +104,61 @@ const DashboardCards = () => {
 
   //upgrade api function
   const handleUpgrade = async () => {
-    console.log("the credits buy is ", buyCredit);
-    // const val = api_data.APIKey;
-    // const res = await UpgradeKey({ val: val });
-    // console.log(res);
-    // if (res?.Success == true) {
-    //   setUpgradeSnackBar("success");
-    //   window.location.reload();
-    // } else {
-    //   setUpgradeSnackBar("error");
-    // }
+    console.log("the credits buy is ", selectedOPtion);
+    setDialog(false);
+    setOpenPaymentMethod(true);
+  };
+  const handlePayment = async () => {
+    // setOpenPaymentMethod(false)
+    console.log(
+      "the chosen payments are first ",
+      creditOptions[selectedOPtion - 1],
+      " and payment method is ",
+      paymentMethod
+    );
+    const p_data = creditOptions[selectedOPtion - 1];
+    sessionStorage.setItem("api_key", JSON.stringify(api_data.api_key));
+    sessionStorage.setItem("payment_data", JSON.stringify(p_data));
+    sessionStorage.setItem("payment_method", JSON.stringify(paymentMethod));
+    const pay_data = {
+      price: creditOptions[selectedOPtion - 1].price,
+      product: "Credit",
+      currency_code: "usd",
+      callback_url:
+        "https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/#/checkPayment",
+    };
+    const data = JSON.stringify(pay_data);
+    console.log("the pay data is ", data);
+    if (paymentMethod == "stripe") {
+      try {
+        const res = await InitializePay_Stripe({ data: data });
+        sessionStorage.setItem(
+          "payment_id",
+          JSON.stringify(res.data.payment_id)
+        );
+        console.log("the response from pay is ", res);
+        const url = res.data.approval_url;
+        window.location.href = `${url}`;
+        // navigate("/checkPayment");
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      try {
+        const res = await InitializePay_Paypal({ data: data });
+        sessionStorage.setItem(
+          "payment_id",
+          JSON.stringify(res.data.payment_id)
+        );
+        console.log("the response from pay is ", res);
+        const url = res.data.approval_url;
+        window.location.href = `${url}`;
+        // navigate("/checkPayment");
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    // navigate("/checkPayment");
   };
 
   /// activate api key
@@ -136,7 +200,9 @@ const DashboardCards = () => {
     );
   }
 
-  const filteredServiceData = api_data?.services.filter((item) => item.is_active === true);
+  const filteredServiceData = api_data?.services.filter(
+    (item) => item.is_active === true
+  );
   const showHeaderText = filteredServiceData.length > 0;
 
   return (
@@ -148,9 +214,9 @@ const DashboardCards = () => {
         <Typography>
           You are currently on a {api_data?.is_paid ? "Paid" : "free"} plan,{" "}
           {api_data?.is_paid ? (
-            ""
+            <Button onClick={() => setDialog(true)}>Add Credits</Button>
           ) : (
-            <Button >Add Credits</Button>
+            <Button onClick={() => setDialog(true)}>Add Credits</Button>
           )}
         </Typography>
       </Box>
@@ -220,21 +286,27 @@ const DashboardCards = () => {
                 Copy to Clipboard
               </Button>
             </CopyToClipboard>
-            <Button
-              variant="contained"
-              size="small"
-              // onClick={setDialog}
-              onClick={api_data?.is_active ? deactivateApiKey : activateApiKey}
-              sx={{
-                bgcolor: "#e6e8e9",
-                color: "black",
-                "&:hover": {
-                  backgroundColor: "#edf2f3",
-                },
-              }}
-            >
-              {api_data?.is_active ? "Deactivate" : "Activate Key"}
-            </Button>
+            {api_data?.disable_key ? (
+              ""
+            ) : (
+              <Button
+                variant="contained"
+                size="small"
+                // onClick={setDialog}
+                onClick={
+                  api_data?.is_active ? deactivateApiKey : activateApiKey
+                }
+                sx={{
+                  bgcolor: "#e6e8e9",
+                  color: "black",
+                  "&:hover": {
+                    backgroundColor: "#edf2f3",
+                  },
+                }}
+              >
+                {api_data?.is_active ? "Deactivate" : "Activate Key"}
+              </Button>
+            )}
           </Box>
         </Grid>
         <Grid
@@ -295,20 +367,35 @@ const DashboardCards = () => {
                 alignItems: "center",
               }}
             >
-              <Typography ml={2} sx={{ width: { xs: "85%", md: "20%" }, display:{xs:"none", md:"block"} }}>
+              <Typography
+                ml={2}
+                sx={{
+                  width: { xs: "85%", md: "20%" },
+                  display: { xs: "none", md: "block" },
+                }}
+              >
                 Service ID
               </Typography>
-              <Typography ml={2} sx={{ width: { xs: "85%", md: "30%" }, display:{xs:"none", md:"block"} }}>
+              <Typography
+                ml={2}
+                sx={{
+                  width: { xs: "85%", md: "30%" },
+                  display: { xs: "none", md: "block" },
+                }}
+              >
                 Service service_type
               </Typography>
-              <Typography ml={2} sx={{ width: { xs: "85%", md: "40%" }, mt:{xs:2, md:0} }}>
+              <Typography
+                ml={2}
+                sx={{ width: { xs: "85%", md: "40%" }, mt: { xs: 2, md: 0 } }}
+              >
                 Service name
               </Typography>
             </Box>
 
             <Typography ml={2} m={1}>
-                Remove Service
-              </Typography>
+              Remove Service
+            </Typography>
           </Box>
         )}
         {api_data.services.length > 0 &&
@@ -320,7 +407,7 @@ const DashboardCards = () => {
                 component={Paper}
                 pl={2}
                 pr={2}
-                sx={{m:1, ml: { xs: 1, md: 2 },mr: { xs: 1, md: 2 } }}
+                sx={{ m: 1, ml: { xs: 1, md: 2 }, mr: { xs: 1, md: 2 } }}
               >
                 <Box
                   sx={{
@@ -332,7 +419,13 @@ const DashboardCards = () => {
                   <Typography ml={2} sx={{ width: { xs: "85%", md: "20%" } }}>
                     {i.service_id}
                   </Typography>
-                  <Typography ml={2} sx={{ width: { xs: "85%", md: "30%" }, display:{xs:"none", md:"block"} }}>
+                  <Typography
+                    ml={2}
+                    sx={{
+                      width: { xs: "85%", md: "30%" },
+                      display: { xs: "none", md: "block" },
+                    }}
+                  >
                     {i.service_type}
                   </Typography>
                   <Typography ml={2} sx={{ width: { xs: "85%", md: "40%" } }}>
@@ -437,52 +530,125 @@ const DashboardCards = () => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          Choose the amout you want
+        <DialogTitle
+          id="alert-dialog-title"
+          sx={{ textAlign: "center", fontWeight: "bold" }}
+        >
+          Select Your Plan
         </DialogTitle>
-        <DialogContent>
-          <FormControl component="fieldset">
-            <RadioGroup
-              aria-label="buy-credits"
-              name="Buy credits"
-              value={buyCredit}
-              onChange={(e) => setBuyCredit(e.target.value)}
+        <DialogContent sx={{ width: { xs: "84%", md: "350px" } }}>
+          {creditOptions.map((option) => (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                cursor: "pointer",
+                border:
+                  selectedOPtion === option.id
+                    ? "3px solid green"
+                    : "2px solid #ccc",
+                padding: "12px",
+                margin: "4px",
+                borderRadius: "20px",
+              }}
+              onClick={() => setSelectedOption(option.id)}
             >
-              <FormControlLabel
-                value="99"
-                control={<Radio />}
-                label="100 for 99 ₹"
-              />
-              <FormControlLabel
-                value="899"
-                control={<Radio />}
-                label="1000 for 899 ₹"
-              />
-              <FormControlLabel
-                value="7999"
-                control={<Radio />}
-                label="10000 for 7999 ₹"
-              />
-              <FormControlLabel
-                value="69999"
-                control={<Radio />}
-                label="100000 for 69999 ₹"
-              />
-            </RadioGroup>
-          </FormControl>
+              <Box sx={{ width: { xs: "60%", md: "75%" } }}>
+                <Typography variant="h6" fontWeight={"bold"}>
+                  {option.name}
+                </Typography>
+                <Typography fontWeight={"bold"}>
+                  [totalCredits] ({option.credit} credits)
+                </Typography>
+                <Typography>Free Support</Typography>
+                <Typography>Database</Typography>
+              </Box>
+              <Box fontWeight={"bold"}>$ {option.price}/mon</Box>
+            </Box>
+          ))}
         </DialogContent>
         <DialogActions>
-          <Button color="error" onClick={() => setDialog(false)}>
-            Go Back
-          </Button>
-
           <Button
             onClick={handleUpgrade}
             autoFocus
             color="success"
             variant="contained"
+            disabled={!selectedOPtion}
+            fullWidth
+            sx={{ ml: "5%", mr: "5%", mb: 2 }}
           >
             Buy Now
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openPaymentMethod}
+        onClose={() => setOpenPaymentMethod(false)}
+      >
+        <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
+          Choose Payment Method
+        </DialogTitle>
+        <DialogContent sx={{ width: { xs: "84%", md: "350px" } }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              height: "60px",
+              justifyContent: "space-between",
+              cursor: "pointer",
+              border:
+                paymentMethod === "stripe"
+                  ? "3px solid green"
+                  : "2px solid #ccc",
+              padding: "12px",
+              margin: "4px",
+              borderRadius: "20px",
+            }}
+            onClick={() => setPaymentMethod("stripe")}
+          >
+            <Box sx={{ width: { xs: "60%", md: "50%" } }}>
+              <img src={Stripe} width="70" height="30" />
+            </Box>
+            <Box fontWeight={"bold"} width={"30%"}>
+              Stripe Pay
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              cursor: "pointer",
+              border:
+                paymentMethod === "pay pal"
+                  ? "3px solid green"
+                  : "2px solid #ccc",
+              padding: "12px",
+              margin: "4px",
+              borderRadius: "20px",
+              height: "60px",
+            }}
+            onClick={() => setPaymentMethod("pay pal")}
+          >
+            <Box sx={{ width: { xs: "60%", md: "50%" } }}>
+              <img src={Paypal} width="80" height="25" />
+            </Box>
+            <Box fontWeight={"bold"} width={"30%"}>
+              PayPal Pay
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handlePayment}
+            autoFocus
+            color="success"
+            variant="contained"
+            disabled={!paymentMethod}
+            fullWidth
+            sx={{ ml: "5%", mr: "5%", mb: 2 }}
+          >
+            Pay Now
           </Button>
         </DialogActions>
       </Dialog>

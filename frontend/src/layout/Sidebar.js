@@ -269,7 +269,7 @@ const Sidebar = (props) => {
           <ListItemButton
             onClick={() => {
               setItem("settings");
-              // navigate("/settings");
+              navigate("/settings");
             }}
             className={item === "settings" ? "clickedItem" : ""}
             sx={{
@@ -290,6 +290,31 @@ const Sidebar = (props) => {
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
+        {/* <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              setItem("admin");
+              navigate("/admin");
+            }}
+            className={item === "admin" ? "clickedItem" : ""}
+            sx={{
+              color: `${item === "admin" ? "#005734" : "black"}`,
+              bgcolor: `${item === "admin" ? "#dce7e6" : "#edf2f3"}`,
+              borderRight: `${
+                item === "admin" ? "7px solid #005734" : "none"
+              }`,
+            }}
+          >
+            <ListItemIcon>
+              <SettingsIcon
+                sx={{
+                  color: `${item === "admin" ? "#005734" : "black"}`,
+                }}
+              />
+            </ListItemIcon>
+            <ListItemText primary="admin" />
+          </ListItemButton>
+        </ListItem> */}
       </List>
 
       <Box

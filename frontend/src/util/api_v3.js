@@ -43,17 +43,21 @@ export const DeactivateApiKey_v3 = async (params) => {
     console.log("Error deactivating api key ", error);
   }
 };
-export const GetApiKey_v3 = async(params)=>{
+export const GetApiKey_v3 = async (params) => {
   try {
-    const response = await api_v3.get(`/user/?type=get_api_key&workspace_id=${params.id}`);
+    const response = await api_v3.get(
+      `/user/?type=get_api_key&workspace_id=${params.id}`
+    );
     return response;
   } catch (error) {
     console.log("error getting api key", error);
   }
-}
+};
 export const UpdateApiKey_v3 = async (params) => {
   try {
-    const response = await api_v3.get(`/service-update/?api_key=${params.api_key}`);
+    const response = await api_v3.get(
+      `/service-update/?api_key=${params.api_key}`
+    );
     return response;
   } catch (error) {
     console.log("error getting api key", params.api_key, error);
@@ -70,7 +74,6 @@ export const UpdateApiKey_v3 = async (params) => {
   //   return error;
   // }
 };
-
 
 ///Voucher
 export const AddVoucher_v3 = async (params) => {
@@ -121,13 +124,17 @@ export const GetService_v3 = async (params) => {
 export const AddService_v3 = async (params) => {
   try {
     const data = JSON.stringify(params.data);
-    console.log("the data is ", data)
+    console.log("the data is ", data);
 
-    const response = await api_v3.post(`/service/?type=add_services&password=${params.password}`, data, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api_v3.post(
+      `/service/?type=add_services&password=${params.password}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response;
   } catch (error) {
     console.log("Error adding service ", error);
@@ -150,5 +157,146 @@ export const ActivateService_v3 = async (params) => {
     return response;
   } catch (error) {
     console.log("Error adding service ", error);
+  }
+};
+
+////////
+///////////////payment
+export const InitializePay_Stripe = async (params) => {
+  try {
+    const res = await axios.post(
+      "https://100088.pythonanywhere.com/api/stripe/initialize",
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const InitializePay_Paypal = async (params) => {
+  try {
+    const res = await axios.post(
+      "https://100088.pythonanywhere.com/api/paypal/initialize",
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const VerifyPay_Paypal = async (params) => {
+  try {
+    const res = await axios.post(
+      "https://100088.pythonanywhere.com/api/verify/payment/paypal",
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const VerifyPay_Stripe = async (params) => {
+  try {
+    const res = await axios.post(
+      "https://100088.pythonanywhere.com/api/verify/payment/stripe",
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+///////
+///////upgrade Credit
+
+export const UpgradeCredit_v3 = async (params) => {
+  try {
+    const response = await api_v3.post(
+      `/user/?type=upgrade_credits&api_key=${params.api_key}`,
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.log("Error upgrading credit ", error);
+  }
+};
+
+/////// voucher coupon system
+export const ClaimVoucher_v3 = async (params) => {
+  try {
+    const response = await api_v3.post(
+      `/voucher/?type=claim_voucher&workspace_id=${params.id}`,
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const GetNotRedeemedVouchers_v3 = async (params) => {
+  try {
+    const response = api_v3.get(
+      `/voucher/?type=workspace_voucher&action=verified&action=unverified&action=not_redeemed&workspace_id=${params.id}`
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const GetRedeemedVouchers_v3 = async (params) => {
+  try {
+    const response = api_v3.get(
+      `/voucher/?type=workspace_voucher&action=verified&action=redeemed&workspace_id=${params.id}`
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const RedeemVoucher_v3 = async (params) => {
+  try {
+    const response = await api_v3.post(
+      `/voucher/?type=redeem_voucher&voucher_id=${params.id}`,
+      params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
   }
 };

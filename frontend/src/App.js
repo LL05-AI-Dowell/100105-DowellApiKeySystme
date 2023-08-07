@@ -14,6 +14,8 @@ import WpPluginServicePage from "./pages/WpPluginServicePage";
 import ReactComponentServicePage from "./pages/ReactComponentServicePage";
 import AddService from "./pages/AddService";
 import Settings from "./pages/Settings";
+import PaymentStatusPage from "./pages/PaymentStatusPage";
+import AdminPage from "./pages/AdminPage";
 
 import useDowellLogin from "./hooks/useDowellLogin";
 import { useUserContext } from "./contexts/UserContext";
@@ -45,6 +47,8 @@ function App() {
       <Route path="/reactService" element={<ReactComponentServicePage />} />
       <Route path="/addService" element={<AddService />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/checkPayment" element={<PaymentStatusPage />} />
+      <Route path="/admin" element={<AdminPage />} />
     </Routes>
   );
 }
