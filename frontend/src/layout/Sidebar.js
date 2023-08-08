@@ -18,6 +18,7 @@ import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import LanIcon from "@mui/icons-material/Lan";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import CategoryIcon from "@mui/icons-material/Category";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 import { useNavigate } from "react-router-dom";
 
@@ -300,19 +301,17 @@ const Sidebar = (props) => {
             sx={{
               color: `${item === "admin" ? "#005734" : "black"}`,
               bgcolor: `${item === "admin" ? "#dce7e6" : "#edf2f3"}`,
-              borderRight: `${
-                item === "admin" ? "7px solid #005734" : "none"
-              }`,
+              borderRight: `${item === "admin" ? "7px solid #005734" : "none"}`,
             }}
           >
             <ListItemIcon>
-              <SettingsIcon
+              <AdminPanelSettingsIcon
                 sx={{
                   color: `${item === "admin" ? "#005734" : "black"}`,
                 }}
               />
             </ListItemIcon>
-            <ListItemText primary="admin" />
+            <ListItemText primary="Admin Panel" />
           </ListItemButton>
         </ListItem> */}
       </List>

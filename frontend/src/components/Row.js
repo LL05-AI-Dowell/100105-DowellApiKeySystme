@@ -21,9 +21,12 @@ export default function Row(props) {
 
   return (
     <React.Fragment>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+      <TableRow
+        sx={{ "& > *": { borderBottom: "unset" , cursor:`${row?.sub_service?.length > 0 ? "pointer" : "auto"}`} }}
+        onClick={row?.sub_service?.length > 0 ? () => setOpen(!open) : undefined} 
+      >
         <TableCell>
-          {row?.sub_service ? (
+          {/* {row?.sub_service ? (
             <IconButton
               aria-label="expand row"
               size="small"
@@ -33,7 +36,7 @@ export default function Row(props) {
             </IconButton>
           ) : (
             ""
-          )}
+          )} */}
         </TableCell>
         {/* <TableCell component="th" scope="row">
           {row.name}
@@ -80,10 +83,18 @@ export default function Row(props) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Sub service Id</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Sub service name</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "bold" }}>Quantity</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "bold" }}>Sub service credits</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Sub service Id
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>
+                      Sub service name
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                      Quantity
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                      Sub service credits
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

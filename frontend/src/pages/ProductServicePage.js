@@ -45,11 +45,11 @@ const ProductServicePage = () => {
       <Box sx={{ display: "flex", bgcolor: "#edf2f3", minHeight: "100vh" }}>
         <Sidebar page="productService" />
         <Box width="80%" pt={4} ml={4}>
-          <Box display={"flex"} justifyContent={"end"}>
+          {/* <Box display={"flex"} justifyContent={"end"}>
             <Typography alignItems={"end"} onClick={handleClick}>
               ||
             </Typography>
-          </Box>
+          </Box> */}
           {service_data !== null ? (
             <DocumentationCards card="PRODUCT" title="PRODUCT" />
           ) : (

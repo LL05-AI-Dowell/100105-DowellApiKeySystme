@@ -284,11 +284,74 @@ export const GetRedeemedVouchers_v3 = async (params) => {
     console.log(err);
   }
 };
+export const GetAllVouchers_v3 = async (params) => {
+  try {
+    const response = api_v3.get(
+      `/voucher/?type=workspace_voucher&action=not_redeemed&workspace_id=${params.id}&action=all`
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
 export const RedeemVoucher_v3 = async (params) => {
   try {
     const response = await api_v3.post(
       `/voucher/?type=redeem_voucher&voucher_id=${params.id}`,
       params.data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/////////////admin duties
+//////////////////////////
+export const GetAllWorkspaces_v3 = async () => {
+  try {
+    const response = api_v3.get(`/platform-admin/?type=get_all_workspaces`);
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const RestrictWorkspace_v3 = async (params) => {
+  try {
+    const response = await api_v3.post(
+      `/platform-admin/?type=restrict_workspace_key&workspace_id=${params.id}`,
+
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const GetVoucherDetails_v3 = async () => {
+  try {
+    const response = api_v3.get(
+      `/voucher/?type=verication_voucher&action=verified&action=unverified&action=not_redeemed`
+    );
+    return response;
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const VerifyVoucher_v3 = async (params) => {
+  try {
+    const response = await api_v3.post(
+      `/voucher/?type=verify_voucher_redemption&voucher_id=${params.id}`,
+
       {
         headers: {
           "Content-Type": "application/json",

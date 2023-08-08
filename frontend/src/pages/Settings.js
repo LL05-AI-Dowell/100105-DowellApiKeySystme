@@ -35,6 +35,7 @@ import {
   GetRedeemedVouchers_v3,
   GetNotRedeemedVouchers_v3,
   RedeemVoucher_v3,
+  GetAllVouchers_v3,
 } from "../util/api_v3";
 
 import Nav from "../layout/Nav";
@@ -47,9 +48,8 @@ const Settings = () => {
   const [claimRes, setClaimRes] = useState("");
   const [claimSnackbar, setClaimSnackbar] = useState(false);
   const [timeZone, setTimeZone] = useState("");
-  const [redeemed, setRedeemed] = useState("not redeemed");
+  const [redeemed, setRedeemed] = useState("all");
   const [voucher, setVoucher] = useState([]);
-
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
@@ -81,6 +81,10 @@ const Settings = () => {
       const res = await GetRedeemedVouchers_v3({ id: id });
       setVoucher(res.data.data);
       console.log("the handle redeemed data res is ", res);
+    } else if (e.target.value == "all") {
+      const res = await GetAllVouchers_v3({ id: id });
+      setVoucher(res.data.data);
+      console.log("the all voucher data res is ", res);
     } else {
       const res = await GetNotRedeemedVouchers_v3({ id: id });
       setVoucher(res.data.data);
@@ -97,7 +101,7 @@ const Settings = () => {
     const res = await RedeemVoucher_v3({ id: id, data: data });
     console.log(" the redeem response is ", res);
     const idNew = api_data?.workspaceId;
-    const fetch = await GetNotRedeemedVouchers_v3({ id: idNew });
+    const fetch = await GetAllVouchers_v3({ id: idNew });
     console.log("the unredeemed data are ", res);
     setVoucher(fetch.data.data);
   };
@@ -106,9 +110,10 @@ const Settings = () => {
     setTimeZone(timeZone);
     const id = api_data?.workspaceId;
     const RedeemedData = async () => {
-      const res = await GetNotRedeemedVouchers_v3({ id: id });
+      const res = await GetAllVouchers_v3({ id: id });
       console.log("the unredeemed data are ", res);
       setVoucher(res.data.data);
+      
     };
     RedeemedData();
   }, []);
@@ -150,34 +155,6 @@ const Settings = () => {
           </Stack>
           {page == 1 ? (
             <Box>
-              <Box
-                sx={{
-                  display: { xs: "block", md: "flex" },
-                  justifyContent: { xs: "center", md: "space-between" },
-                  mr: { xs: 0, md: "5%" },
-                  mt: 2,
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  fontWeight={"bold"}
-                  mt={1}
-                  mb={2}
-                  sx={{ color: "#005734" }}
-                >
-                  VOUCHER
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={() => setClaimVoucher(true)}
-                  mt={2}
-                  sx={{ height: "40px" }}
-                >
-                  Claim Voucher
-                </Button>
-              </Box>
-
               <Box>
                 <Box
                   display={"flex"}
@@ -185,7 +162,17 @@ const Settings = () => {
                   mr={{ xs: 0, md: "4.8%" }}
                   mt={3}
                 >
-                  <Box width={"170px"}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => setClaimVoucher(true)}
+                    mt={2}
+                    mr={2}
+                    sx={{ height: "40px" }}
+                  >
+                    Claim Voucher
+                  </Button>
+                  <Box width={"170px"} ml={2}>
                     <FormControl fullWidth size="small">
                       <Select
                         value={redeemed}
@@ -193,6 +180,7 @@ const Settings = () => {
                       >
                         <MenuItem value={"redeemed"}>Reedemed</MenuItem>
                         <MenuItem value={"not redeemed"}>Not Redeemed</MenuItem>
+                        <MenuItem value={"all"}>All Voucher</MenuItem>
                       </Select>
                     </FormControl>
                   </Box>
@@ -213,6 +201,9 @@ const Settings = () => {
                           <TableCell sx={{ fontWeight: "bold" }}>
                             Description
                           </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                            Voucher Worth
+                          </TableCell>
                           <TableCell sx={{ fontWeight: "bold" }}>
                             Verified
                           </TableCell>
@@ -222,33 +213,46 @@ const Settings = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {voucher.length === 0
-                          ? ""
-                          : voucher.map((i) => (
-                              <TableRow key={i._id}>
-                                <TableCell>{i.claim_method}</TableCell>
-                                <TableCell>{i.description}</TableCell>
-                                <TableCell>
-                                  {i.is_verified ? "Verified" : "Not Verified"}
-                                </TableCell>
-                                <TableCell>
-                                  {i.is_verified == true &&
-                                  i.is_redeemed == true ? (
-                                    "Redeemed"
-                                  ) : i.is_verified == true &&
-                                    i.is_redeemed == false ? (
-                                    <Button
-                                      color="success"
-                                      onClick={() => redeemVoucher(i._id)}
-                                    >
-                                      Redeem
-                                    </Button>
-                                  ) : (
-                                    "Not Redeemed"
-                                  )}
-                                </TableCell>
-                              </TableRow>
-                            ))}
+                        {voucher.length === 0 ? (
+                          <Box p={4} pr={0}>
+                            <Typography>
+                              You haven't{" "}
+                              {redeemed == "not redeemed"
+                                ? "claimed"
+                                : "redeemed"}{" "}
+                              any voucher
+                            </Typography>
+                          </Box>
+                        ) : (
+                          voucher.map((i) => (
+                            <TableRow key={i._id}>
+                              <TableCell>{i.claim_method}</TableCell>
+                              <TableCell>{i.description}</TableCell>
+                              <TableCell align="right">
+                                {i.voucher_worth}
+                              </TableCell>
+                              <TableCell>
+                                {i.is_verified ? "Verified" : "Not Verified"}
+                              </TableCell>
+                              <TableCell>
+                                {i.is_verified == true &&
+                                i.is_redeemed == true ? (
+                                  "Redeemed"
+                                ) : i.is_verified == true &&
+                                  i.is_redeemed == false ? (
+                                  <Button
+                                    color="success"
+                                    onClick={() => redeemVoucher(i._id)}
+                                  >
+                                    Redeem
+                                  </Button>
+                                ) : (
+                                  "Not Redeemed"
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
                       </TableBody>
                     </Table>
                   </TableContainer>
@@ -342,8 +346,10 @@ const Settings = () => {
               </Snackbar>
             </Box>
           ) : (
-            <Box display={'flex'} justifyContent={'center'}>
-              <Typography mt={4} variant="h5">Coming Soon!</Typography>
+            <Box display={"flex"} justifyContent={"center"}>
+              <Typography mt={4} variant="h5">
+                Coming Soon!
+              </Typography>
             </Box>
           )}
         </Box>

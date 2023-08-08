@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -20,6 +20,7 @@ import {
   ListItemText,
   ListItemIcon,
   Divider,
+  Badge,
 } from "@mui/material";
 
 ////icons
@@ -30,6 +31,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import MailIcon from "@mui/icons-material/Mail";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -46,6 +48,8 @@ import { useUserContext } from "../contexts/UserContext";
 import { dowellLoginUrl } from "../utils";
 
 import { useNavigate, Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { GetAllVouchers_v3 } from "../util/api_v3";
 
 const Nav = () => {
   const [open, setOpen] = React.useState(false);
@@ -54,6 +58,11 @@ const Nav = () => {
   const [redeemed, setRedeemed] = useState(null);
   const [snackBar, setSnackBar] = useState(false);
   const { currentUser } = useUserContext();
+
+  const { api_data, loading, error } = useSelector((state) => state.data);
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationData, setNotificationData] = useState(null);
+  const [notAnchor, setNotAnchor] = useState(false);
 
   var storedData = sessionStorage.getItem("userinfo");
   var storedObj = JSON.parse(storedData);
@@ -65,12 +74,18 @@ const Nav = () => {
   const goToProfile = () => {
     navigate("/profile");
   };
+  const goToSettings = () => {
+    navigate("/settings");
+  };
 
   const handleCloseMenu = () => {
     setAnchor(null);
   };
   const handleMenu = (e) => {
     setAnchor(e.currentTarget);
+  };
+  const handleNotification = () => {
+    setNotAnchor(true);
   };
   const handleVoucherOpen = async () => {
     const res = await GetRedeemVoucher_v2(currentUser?.userinfo?.userID);
@@ -105,6 +120,26 @@ const Nav = () => {
     window.location.href = "https://100014.pythonanywhere.com/en-gb/sign-out";
   };
 
+  useEffect(() => {
+    const id = api_data?.workspaceId;
+    const RedeemedData = async () => {
+      const res = await GetAllVouchers_v3({ id: id });
+      console.log("the unredeemed data are ", res);
+      const unredeemedVoucher = res.data.data.find(
+        (voucher) =>
+          voucher.is_redeemed === false && voucher.is_verified === true
+      );
+      if (unredeemedVoucher) {
+        setShowNotification(true);
+        setNotificationData(unredeemedVoucher);
+      } else {
+        setShowNotification(false);
+        setNotificationData(null);
+      }
+    };
+    RedeemedData();
+  }, []);
+  console.log("the unredeemed voucher is ", notificationData);
   return (
     <Box sx={{ zIndex: "5" }}>
       <AppBar position="static" sx={{ bgcolor: "#dce7e6" }}>
@@ -149,8 +184,47 @@ const Nav = () => {
                 display: { xs: "none", md: "block" },
               }}
             >
-              {storedObj?.username}
+              {storedObj?.username}{" "}
+              {api_data?.total_credits
+                ? `, ${api_data?.total_credits} Credits`
+                : ""}
             </Typography>
+            <IconButton size="large" onClick={showNotification ? handleNotification : undefined}>
+              <Badge badgeContent={showNotification ? 1 : null} color="success">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <Box mt={3}>
+              <Menu
+                id="menu-appbar"
+                anchorEl={notAnchor}
+                keepMounted
+                elevation={2}
+                getContentAnchorEl={null}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(notAnchor)}
+                onClose={() => setNotAnchor(false)}
+                sx={{mt:5}}
+              >
+                <MenuItem onClick={goToSettings} sx={{ display: "block", width: "400px", }}>
+                  <Typography fontWeight={"bold"}>
+                    Congratulatins! You have unredeemed voucher
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    Your {notificationData?.claim_method} <br /> is ready to be
+                    Redeemed. If you  want to redeem it, click here.
+                  </Typography>
+                </MenuItem>
+              </Menu>
+            </Box>
+
             <IconButton size="large" onClick={handleMenu}>
               <AccountCircle fontSize="large" sx={{ color: "#005734" }} />
             </IconButton>
@@ -174,7 +248,7 @@ const Nav = () => {
                 <PersonIcon />
                 &nbsp; Profile
               </MenuItem>
-              <MenuItem onClick={handleCloseMenu}>
+              <MenuItem onClick={goToSettings}>
                 <SettingsIcon />
                 &nbsp; Your Settings
               </MenuItem>
