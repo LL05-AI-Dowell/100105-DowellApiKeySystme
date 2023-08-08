@@ -567,6 +567,10 @@ class voucher(APIView):
                 "workspaceId": workspaceId,
                 "is_redeemed": True
             }
+        elif action == 'all':
+            field = {
+                "workspaceId": workspaceId
+            }
         else:
             return self.handle_error(request)
         

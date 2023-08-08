@@ -812,6 +812,7 @@ def coupon_details(action,field):
             "message": f"List of {action} voucher",
             "data": data
         }
+
 """WORKSPACE VOUCHER/COUPON"""
 def workspace_voucher_details(action,field):
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"fetch", field,update_field=None))
