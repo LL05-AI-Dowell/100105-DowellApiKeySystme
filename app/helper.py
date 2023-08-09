@@ -302,7 +302,7 @@ def get_user_api_key(field, update_field):
     else:
         return {
             "success": False,
-            "message": "API KEY details not found",
+            "message": "You don't have SERVICE KEY",
         }
     
 """PROCEE SERVICE BY USERS"""
@@ -462,13 +462,13 @@ def process_product_service_by_user(service_id, sub_service_ids, field, update_f
         if not is_active:
             return {
                 "success": False,
-                "message": "API KEY is not activated",
+                "message": "SEVICE KEY is not activated",
             }
 
         if disable_key:
             return {
                 "success": False,
-                "message": "YOUR API KEY IS DISABLED BY ADMIN.",
+                "message": "YOUR SERVICE KEY IS DISABLED BY ADMIN.",
             }
         
         if user_credits <= 0:
