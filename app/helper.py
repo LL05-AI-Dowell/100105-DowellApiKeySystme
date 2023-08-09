@@ -296,13 +296,13 @@ def get_user_api_key(field, update_field):
     if not response["data"] == None:
         return {
             "success": True,
-            "message": "User API KEY details",
+            "message": "User SERVICE KEY details",
             "data": response["data"]
         }
     else:
         return {
             "success": False,
-            "message": "You don't have SERVICE KEY",
+            "message": "The workspace you are logged in doesn't have SERVICE KEY",
         }
     
 """PROCEE SERVICE BY USERS"""
