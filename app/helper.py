@@ -552,7 +552,7 @@ def process_product_service_by_user(service_id, sub_service_ids, field, update_f
     else:
         return {
             "success": False,
-            "message": "Something went wrong"
+            "message": "Service key is not available"
         }
 
 """UPGRATE CREDITS BY USER"""
