@@ -824,3 +824,86 @@ def workspace_voucher_details(action,field):
             "message": f"List of {action} voucher for ",
             "data": data
         }
+
+"""GENERATE PUBLIC VOUCHER/COUPON"""
+def generate_voucher(description,timezone,credit):
+    claim_method = "TOPUPS CREDITS"
+    voucher_details = generate_voucher_deatils(claim_method,3)
+    field = {
+        "name": voucher_details.get("name"),
+        "voucher_worth": credit,
+        "workspaceId": "",
+        "claim_method": claim_method, 
+        "is_redeemed": False,
+        "description": description ,
+        "is_verified": True,
+        "created_at": dowell_time(timezone)["dowelltime"],
+        "redemption_duration": voucher_details.get("time")
+    }
+    response = json.loads(dowellconnection(*Reedem_Voucher_Services,"insert",field,update_field=None))
+    print(response)
+    if response["isSuccess"]:
+        return {
+            "success": True,
+            "message":"Voucher created successfully",
+            "voucher code": voucher_details.get("name")
+        }
+    else:
+        return {
+            "success": False,
+            "message": "Something went wrong"
+        }
+    
+"""TOPUP PUBLIC VOUCHER/COUPON"""
+def topup_coupon(voucher_code,workspaceId):
+    field= {
+        "name":voucher_code,
+    }
+    response = json.loads(dowellconnection(*Reedem_Voucher_Services,"find",field,update_field=None))
+
+    data = response.get("data",{})
+
+    if data is not None :
+        name = data.get("name")
+        workspaceId = workspaceId
+        voucher_worth = data.get("voucher_worth")
+        is_redeemed = data.get("is_redeemed")
+
+        if is_redeemed:
+            return {
+                "success": False,
+                "message": f"voucher name ,{name} is already redeemed"
+            }
+    
+        update_field = {
+            "is_redeemed":True,
+            "workspaceId":workspaceId
+        }
+        response = json.loads(dowellconnection(*Reedem_Voucher_Services,"update",field, update_field))
+        field = {
+            "workspaceId": workspaceId 
+        }
+        response = json.loads(dowellconnection(*User_Services,"find",field,update_field=None))
+        data = response.get("data",{})
+        if data is not None:
+            total_credits = data.get("total_credits")
+            total_credits = total_credits + voucher_worth
+            update_field = {
+                "total_credits": total_credits
+            }
+            response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+            return {
+                "success": True,
+                "message": "Successfully voucher redeemed.",
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Workspace does not exist"
+            }
+    else:
+        return {
+            "success": False,
+            "message": "Something went wrong"
+        }
+    

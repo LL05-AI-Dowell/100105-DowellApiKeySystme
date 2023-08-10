@@ -60,7 +60,8 @@ class ClaimMethodSerializer(serializers.Serializer):
         ('PUBLIC REVIEW CREDITS COUPONS', 'PUBLIC REVIEW CREDITS COUPONS'),
         ('SIGNUP CREDITS', 'SIGNUP CREDITS'),
         ('STARTUP CREDIT COUPONS', 'STARTUP CREDIT COUPONS'),
-        ('INTERNAL CREDIT COUPONS', 'INTERNAL CREDIT COUPONS')
+        ('INTERNAL CREDIT COUPONS', 'INTERNAL CREDIT COUPONS'),
+        ('TOPUPS CREDITS', 'TOPUPS CREDITS')
     )
     
     claim_method = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
@@ -71,5 +72,14 @@ class ClaimMethodSerializer(serializers.Serializer):
 class RedeemMethodSerializer(serializers.Serializer):
     voucher_id = serializers.CharField(allow_null=False, allow_blank=False)
     timezone = serializers.CharField(allow_null=False, allow_blank=False)
+
+class PublicVoucherSerializer(serializers.Serializer):
+    timezone = serializers.CharField(allow_null=False, allow_blank=False)
+    description = serializers.CharField(allow_null=False, allow_blank=False)
+    credit = serializers.IntegerField()
+
+class PublicTopupSerializer(serializers.Serializer):
+    voucher_code = serializers.CharField(allow_null=False, allow_blank=False)
+    workspace_id = serializers.CharField(allow_null=False, allow_blank=False)
 
 

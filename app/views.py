@@ -587,3 +587,62 @@ class voucher(APIView):
             "success": False,
             "message": "Invalid request type"
         }, status=status.HTTP_400_BAD_REQUEST)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class public_voucher_system(APIView):
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == 'generate_public_voucher':
+            return self.generate_public_voucher(request)
+        elif type_request == 'topup_public_voucher':
+            return self.topup_public_voucher(request)
+        else:
+            return self.handle_error(request)
+        
+    def generate_public_voucher(self,request):
+        timezone = request.data.get('timezone')
+        description = request.data.get('description')
+        credit = request.data.get('credit')
+
+        field = {
+            "description":description,
+            "timezone":timezone,
+            "credit":credit
+        }
+        serializer = PublicVoucherSerializer(data=field)
+        if serializer.is_valid():
+            response = generate_voucher(field["description"],field["timezone"],field["credit"])
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 
+        
+    def topup_public_voucher(self, request):
+        voucher_code = request.data.get('voucher_code')
+        workspaceId = request.data.get('workspace_id')
+
+        field = {
+            "voucher_code" : voucher_code,
+            "workspace_id" : workspaceId
+
+        }
+        serializer = PublicTopupSerializer(data=field)
+        if serializer.is_valid():
+            response = topup_coupon(field["voucher_code"],field["workspace_id"])
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 

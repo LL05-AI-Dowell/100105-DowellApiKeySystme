@@ -8,5 +8,6 @@ urlpatterns = [
     path('service-update/',update_user_services.as_view()),
     path('process-services/',process_services.as_view()),
     path('platform-admin/',platform_admin_duties.as_view()),
+    path('public-voucher/',public_voucher_system.as_view()),
     
 ]

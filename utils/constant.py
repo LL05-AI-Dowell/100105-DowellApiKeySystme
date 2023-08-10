@@ -58,31 +58,34 @@ Method_Voucher = {
         "code": 11, "voucher_worth": 100, "time": 612000
     },
     "STORE MARKETPLACE": {
-        "code": 22, "voucher_worth": 200, "time": 720000
+        "code": 12, "voucher_worth": 200, "time": 720000
     },
     "SALES AGENTS BOOKING COUPONS": {
-        "code": 33, "voucher_worth": 500, "time": 612000
+        "code": 13, "voucher_worth": 500, "time": 612000
     },
     "REFERENCES CREDIT COUPONS": {
-        "code": 44, "voucher_worth": 50, "time": 1260000
+        "code": 14, "voucher_worth": 50, "time": 1260000
     },
     "ACTIVITY CREDIT COUPONS": {
-        "code": 55, "voucher_worth": 15, "time": 612000
+        "code": 15, "voucher_worth": 15, "time": 612000
     },
     "DOWNLOADS - GOOGLEPLAY/APPLE STORE": {
-        "code": 66, "voucher_worth": 100, "time": 1260000
+        "code": 16, "voucher_worth": 100, "time": 1260000
     },
     "PUBLIC REVIEW CREDITS COUPONS": {
-        "code": 77, "voucher_worth": 100, "time": 612000
+        "code": 17, "voucher_worth": 100, "time": 612000
     },
     "SIGNUP CREDITS": {
-        "code": 88, "voucher_worth": 1000, "time": 0 
+        "code": 18, "voucher_worth": 1000, "time": 0 
     },
     "STARTUP CREDIT COUPONS": {
-        "code": 99, "voucher_worth": 25000, "time": 2700000
+        "code": 19, "voucher_worth": 25000, "time": 2700000
     },
     "INTERNAL CREDIT COUPONS": {
-        "code": 100, "voucher_worth": 5000, "time": 612000
+        "code": 20, "voucher_worth": 5000, "time": 612000
+    },
+    "TOPUPS CREDITS": {
+        "code": 21, "voucher_worth":None, "time":0
     }
 }
 
