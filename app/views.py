@@ -449,8 +449,8 @@ class voucher(APIView):
     def get(self, request):
         type_request = request.GET.get('type')
 
-        if type_request == 'verication_voucher':
-            return self.verication_voucher(request)
+        if type_request == 'verification_voucher':
+            return self.verification_voucher(request)
         if type_request == 'workspace_voucher':
             return self.workspace_voucher(request)
         else:
@@ -458,20 +458,18 @@ class voucher(APIView):
         
     """CLAIM VOUCHER"""
     def claim_voucher(self, request):
-        workspaceId = request.GET.get('workspace_id')
         claim_method = request.data.get('claim_method')
         description = request.data.get('description')
         timezone = request.data.get('timezone')
 
         field = {
-            "workspaceId": workspaceId,
             "claim_method": claim_method,
             "description": description,
             "timezone":timezone
         }
         serializer = ClaimMethodSerializer(data=field)
         if serializer.is_valid():
-            response = claim_coupon(field["workspaceId"],field["claim_method"], field["description"],field["timezone"])
+            response = claim_coupon(field["claim_method"], field["description"],field["timezone"])
             if response["success"]:
                 return Response(response,status=status.HTTP_200_OK)
             else:
@@ -485,16 +483,18 @@ class voucher(APIView):
     
     """REDEEM VOCUHER"""
     def redeem_voucher(self,request):
-        voucher_id = request.GET.get('voucher_id')
+        workspace_id = request.GET.get('workspace_id')
+        voucher_code = request.data.get('voucher_code')
         timezone = request.data.get('timezone')
 
         field ={
-            "voucher_id":voucher_id,
+            "workspace_id" : workspace_id,
+            "voucher_code":voucher_code,
             "timezone":timezone
         }
         serializer = RedeemMethodSerializer(data=field)
         if serializer.is_valid():
-            response = redeem_coupon(field["voucher_id"],field["timezone"])
+            response = redeem_coupon(field["workspace_id"],field["voucher_code"],field["timezone"])
             if response["success"]:
                 return Response(response,status=status.HTTP_200_OK)
             else:
@@ -516,7 +516,7 @@ class voucher(APIView):
             return Response(response,status=status.HTTP_400_BAD_REQUEST)
 
     """GET VERIFICATION VOUCHERS"""
-    def verication_voucher(self, request):
+    def verification_voucher(self, request):
         action = request.GET.get('action')
         if action == 'verified':
             field = {

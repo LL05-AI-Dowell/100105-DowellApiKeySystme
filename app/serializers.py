@@ -65,12 +65,12 @@ class ClaimMethodSerializer(serializers.Serializer):
     )
     
     claim_method = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
-    workspaceId = serializers.CharField(allow_null=False, allow_blank=False)
     description = serializers.CharField(allow_null=False, allow_blank=False)
     timezone = serializers.CharField(allow_null=False, allow_blank=False)
 
 class RedeemMethodSerializer(serializers.Serializer):
-    voucher_id = serializers.CharField(allow_null=False, allow_blank=False)
+    workspace_id = serializers.CharField(allow_null=False, allow_blank=False)
+    voucher_code = serializers.CharField(allow_null=False, allow_blank=False)
     timezone = serializers.CharField(allow_null=False, allow_blank=False)
 
 class PublicVoucherSerializer(serializers.Serializer):

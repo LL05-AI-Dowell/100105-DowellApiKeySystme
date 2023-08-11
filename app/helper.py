@@ -655,12 +655,12 @@ def get_all_workspaces_details(field):
         }
     
 """CLAIM VOUCHER/COUPON"""
-def claim_coupon(workspaceId,claim_method,description,timezone):
+def claim_coupon(claim_method,description,timezone):
     voucher_details = generate_voucher_deatils(claim_method,3)
     field = {
         "name": voucher_details.get("name"),
         "voucher_worth": voucher_details.get("voucher_worth"),
-        "workspaceId": workspaceId,
+        "workspaceId": None,
         "claim_method": claim_method, 
         "is_redeemed": False,
         "description": description,
@@ -683,9 +683,9 @@ def claim_coupon(workspaceId,claim_method,description,timezone):
         }
 
 """REDEEM VOUCHER/COUPON"""
-def redeem_coupon(id,timezone):
+def redeem_coupon(workspace_id,voucher_code,timezone):
     field= {
-        "_id":id,
+        "name":voucher_code,
     }
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"find",field,update_field=None))
 
@@ -693,7 +693,6 @@ def redeem_coupon(id,timezone):
 
     if data is not None :
         name = data.get("name")
-        workspaceId = data.get("workspaceId")
         voucher_worth = data.get("voucher_worth")
         is_verified = data.get("is_verified")
         is_redeemed = data.get("is_redeemed")
@@ -710,11 +709,12 @@ def redeem_coupon(id,timezone):
         if redemption_duration == 0 :
             update_field = {
                 "is_verified": True,
-                "is_redeemed":True
+                "is_redeemed":True,
+                "workspaceId": workspace_id
             }
             response = json.loads(dowellconnection(*Reedem_Voucher_Services,"update",field, update_field))
             field = {
-                "workspaceId": workspaceId 
+                "workspaceId": workspace_id 
             }
             response = json.loads(dowellconnection(*User_Services,"find",field,update_field=None))
             data = response.get("data",{})
@@ -750,7 +750,7 @@ def redeem_coupon(id,timezone):
             }
             response = json.loads(dowellconnection(*Reedem_Voucher_Services,"update",field, update_field))
             field = {
-                "workspaceId": workspaceId 
+                "workspaceId": workspace_id 
             }
             response = json.loads(dowellconnection(*User_Services,"find",field,update_field=None))
             data = response.get("data",{})
