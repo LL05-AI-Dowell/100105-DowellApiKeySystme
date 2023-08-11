@@ -26,6 +26,10 @@ const Sidebar = (props) => {
   const [item, setItem] = useState(props.page);
   const navigate = useNavigate();
 
+  var storedData = sessionStorage.getItem("userinfo");
+  var storedObj = JSON.parse(storedData);
+  const id = storedObj?.client_admin_id;
+
   const handleLogout = () => {
     // Set the new URL for logout
     window.location.href = "https://100014.pythonanywhere.com/en-gb/sign-out";
@@ -67,28 +71,29 @@ const Sidebar = (props) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => {
-              setItem("documentation");
-              navigate("/documentation");
+              setItem("productService");
+              navigate("/productService");
             }}
-            className={item === "documentation" ? "clickedItem" : ""}
+            className={item === "productService" ? "clickedItem" : ""}
             sx={{
-              color: `${item === "documentation" ? "#005734" : "black"}`,
-              bgcolor: `${item === "documentation" ? "#dce7e6" : "#edf2f3"}`,
+              color: `${item === "productService" ? "#005734" : "black"}`,
+              bgcolor: `${item === "productService" ? "#dce7e6" : "#edf2f3"}`,
               borderRight: `${
-                item === "documentation" ? "7px solid #005734" : "none"
+                item === "productService" ? "7px solid #005734" : "none"
               }`,
             }}
           >
             <ListItemIcon>
-              <SubjectIcon
+              <CategoryIcon
                 sx={{
-                  color: `${item === "documentation" ? "#005734" : "black"}`,
+                  color: `${item === "productService" ? "#005734" : "black"}`,
                 }}
               />
             </ListItemIcon>
-            <ListItemText primary="API Service" />
+            <ListItemText primary="Product Service" />
           </ListItemButton>
         </ListItem>
+
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => {
@@ -162,7 +167,7 @@ const Sidebar = (props) => {
                 }}
               />
             </ListItemIcon>
-            <ListItemText primary="WP Plugins" />
+            <ListItemText primary="Word Press Plugins" />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -219,28 +224,29 @@ const Sidebar = (props) => {
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => {
-              setItem("productService");
-              navigate("/productService");
+              setItem("documentation");
+              navigate("/documentation");
             }}
-            className={item === "productService" ? "clickedItem" : ""}
+            className={item === "documentation" ? "clickedItem" : ""}
             sx={{
-              color: `${item === "productService" ? "#005734" : "black"}`,
-              bgcolor: `${item === "productService" ? "#dce7e6" : "#edf2f3"}`,
+              color: `${item === "documentation" ? "#005734" : "black"}`,
+              bgcolor: `${item === "documentation" ? "#dce7e6" : "#edf2f3"}`,
               borderRight: `${
-                item === "productService" ? "7px solid #005734" : "none"
+                item === "documentation" ? "7px solid #005734" : "none"
               }`,
             }}
           >
             <ListItemIcon>
-              <CategoryIcon
+              <SubjectIcon
                 sx={{
-                  color: `${item === "productService" ? "#005734" : "black"}`,
+                  color: `${item === "documentation" ? "#005734" : "black"}`,
                 }}
               />
             </ListItemIcon>
-            <ListItemText primary="Product Service" />
+            <ListItemText primary="API Service" />
           </ListItemButton>
         </ListItem>
+
         <ListItem disablePadding>
           <ListItemButton
             onClick={() => {
@@ -291,29 +297,33 @@ const Sidebar = (props) => {
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
-        {/* <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => {
-              setItem("admin");
-              navigate("/admin");
-            }}
-            className={item === "admin" ? "clickedItem" : ""}
-            sx={{
-              color: `${item === "admin" ? "#005734" : "black"}`,
-              bgcolor: `${item === "admin" ? "#dce7e6" : "#edf2f3"}`,
-              borderRight: `${item === "admin" ? "7px solid #005734" : "none"}`,
-            }}
-          >
-            <ListItemIcon>
-              <AdminPanelSettingsIcon
-                sx={{
-                  color: `${item === "admin" ? "#005734" : "black"}`,
-                }}
-              />
-            </ListItemIcon>
-            <ListItemText primary="Admin Panel" />
-          </ListItemButton>
-        </ListItem> */}
+        {id == "641d50d96e2378d97406fac0" ? (
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                setItem("admin");
+                navigate("/admin");
+              }}
+              className={item === "admin" ? "clickedItem" : ""}
+              sx={{
+                color: `${item === "admin" ? "#005734" : "black"}`,
+                bgcolor: `${item === "admin" ? "#dce7e6" : "#edf2f3"}`,
+                borderRight: `${
+                  item === "admin" ? "7px solid #005734" : "none"
+                }`,
+              }}
+            >
+              <ListItemIcon>
+                <AdminPanelSettingsIcon
+                  sx={{
+                    color: `${item === "admin" ? "#005734" : "black"}`,
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText primary="Admin Panel" />
+            </ListItemButton>
+          </ListItem>
+        ) : null}
       </List>
 
       <Box

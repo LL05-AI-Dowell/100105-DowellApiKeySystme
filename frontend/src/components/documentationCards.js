@@ -16,11 +16,13 @@ import {
   TableCell,
   TableBody,
   TableHead,
+  TablePagination,
 } from "@mui/material";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import Row from "./Row";
+import NoData from "../icons/noData.png";
 
 import { setService, setSError, setSLoading } from "../store/reducers/service";
 import { useSelector, useDispatch } from "react-redux";
@@ -29,6 +31,18 @@ import { ActivateService_v3, GetAllService_v3 } from "../util/api_v3";
 const DocumentationCards = ({ card, title }) => {
   const [snackBar, setSnackBar] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  ////pagination data
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+  /////////////////
 
   const dispatch = useDispatch();
   const { service_data, sloading, serror } = useSelector(
@@ -151,34 +165,62 @@ const DocumentationCards = ({ card, title }) => {
           ""
         )}
       </Box>
-      <TableContainer component={Paper} sx={{ mb: 3 }}>
-        <Table aria-label="collapsible table">
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell sx={{ fontWeight: "bold" }}>Service Id</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Service Name</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Documentation</TableCell>
-              {card == "PRODUCT" ? (
-                ""
-              ) : (
-                <TableCell sx={{ fontWeight: "bold" }}>Credits</TableCell>
-              )}
-              <TableCell sx={{ fontWeight: "bold" }}>Activate</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {service_data?.map((row) => {
-              if (row.service_type == card) {
-                return (
-                  <Row key={row.name} row={row} handleService={handleService} />
-                );
-              }
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+      {filteredService.length === 0 ? (
+        <Box display={"flex"} justifyContent={"center"}>
+          {" "}
+          <img src={NoData} width={"50%"} />
+        </Box>
+      ) : (
+        <Paper sx={{ width: "100%", overflow: "hidden" }}>
+          <TableContainer sx={{ mb: 3 }}>
+            <Table aria-label="collapsible table">
+              <TableHead>
+                <TableRow>
+                  <TableCell />
+                  <TableCell sx={{ fontWeight: "bold" }}>Service Id</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>
+                    Service Name
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
+                  <TableCell sx={{ fontWeight: "bold" }}>
+                    Documentation
+                  </TableCell>
+                  {card == "PRODUCT" ? (
+                    ""
+                  ) : (
+                    <TableCell sx={{ fontWeight: "bold" }}>Credits</TableCell>
+                  )}
+                  <TableCell sx={{ fontWeight: "bold" }}>Activate</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredService
+                  ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row) => {
+                    return (
+                      <Row
+                        key={row.name}
+                        row={row}
+                        handleService={handleService}
+                      />
+                    );
+                  })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10]}
+            component="div"
+            count={filteredService.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
+      )}
+
       <Snackbar
         anchorOrigin={{ horizontal: "right", vertical: "top" }}
         open={snackBar}

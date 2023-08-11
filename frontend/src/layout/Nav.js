@@ -32,6 +32,7 @@ import MailIcon from "@mui/icons-material/Mail";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -66,6 +67,7 @@ const Nav = () => {
 
   var storedData = sessionStorage.getItem("userinfo");
   var storedObj = JSON.parse(storedData);
+  const id = storedObj?.client_admin_id;
 
   const [drawer, setDrawer] = useState(false);
   // console.log("the current user data is ", currentUser)
@@ -121,10 +123,10 @@ const Nav = () => {
   };
 
   useEffect(() => {
-    const id = api_data?.workspaceId;
     const RedeemedData = async () => {
+      // console.log("workspace id is ", id)
       const res = await GetAllVouchers_v3({ id: id });
-      console.log("the unredeemed data are ", res);
+      // console.log("the unredeemed data are ", res);
       const unredeemedVoucher = res.data.data.find(
         (voucher) =>
           voucher.is_redeemed === false && voucher.is_verified === true
@@ -138,8 +140,8 @@ const Nav = () => {
       }
     };
     RedeemedData();
-  }, []);
-  console.log("the unredeemed voucher is ", notificationData);
+  }, [id]);
+  // console.log("the unredeemed voucher is ", notificationData);
   return (
     <Box sx={{ zIndex: "5" }}>
       <AppBar position="static" sx={{ bgcolor: "#dce7e6" }}>
@@ -189,7 +191,10 @@ const Nav = () => {
                 ? `, ${api_data?.total_credits} Credits`
                 : ""}
             </Typography>
-            <IconButton size="large" onClick={showNotification ? handleNotification : undefined}>
+            <IconButton
+              size="large"
+              onClick={showNotification ? handleNotification : undefined}
+            >
               <Badge badgeContent={showNotification ? 1 : null} color="success">
                 <NotificationsIcon />
               </Badge>
@@ -211,15 +216,18 @@ const Nav = () => {
                 }}
                 open={Boolean(notAnchor)}
                 onClose={() => setNotAnchor(false)}
-                sx={{mt:5}}
+                sx={{ mt: 5 }}
               >
-                <MenuItem onClick={goToSettings} sx={{ display: "block", width: "400px", }}>
+                <MenuItem
+                  onClick={goToSettings}
+                  sx={{ display: "block", width: "400px" }}
+                >
                   <Typography fontWeight={"bold"}>
                     Congratulatins! You have unredeemed voucher
                   </Typography>
                   <Typography variant="subtitle2">
                     Your {notificationData?.claim_method} <br /> is ready to be
-                    Redeemed. If you  want to redeem it, click here.
+                    Redeemed. If you want to redeem it, click here.
                   </Typography>
                 </MenuItem>
               </Menu>
@@ -295,16 +303,17 @@ const Nav = () => {
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
-                navigate("/documentation");
+                navigate("/productService");
                 setDrawer(false);
               }}
             >
               <ListItemIcon>
-                <SubjectIcon />
+                <CategoryIcon />
               </ListItemIcon>
-              <ListItemText primary="API Service" />
+              <ListItemText primary="Product Service" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
@@ -341,7 +350,7 @@ const Nav = () => {
               <ListItemIcon>
                 <ViewInArIcon />
               </ListItemIcon>
-              <ListItemText primary="WP Plugins" />
+              <ListItemText primary="Word Press Plugins" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
@@ -373,16 +382,17 @@ const Nav = () => {
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
-                navigate("/productService");
+                navigate("/documentation");
                 setDrawer(false);
               }}
             >
               <ListItemIcon>
-                <CategoryIcon />
+                <SubjectIcon />
               </ListItemIcon>
-              <ListItemText primary="Product Service" />
+              <ListItemText primary="API Service" />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
@@ -409,6 +419,21 @@ const Nav = () => {
               <ListItemText primary="Settings" />
             </ListItemButton>
           </ListItem>
+          {id === "641d50d96e2378d97406fac0" ? (
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  navigate("/admin");
+                  setDrawer(false);
+                }}
+              >
+                <ListItemIcon>
+                  <AdminPanelSettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Admin Panel" />
+              </ListItemButton>
+            </ListItem>
+          ) : null}
         </List>
       </Drawer>
       <Dialog

@@ -11,6 +11,9 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+import ThankYou from "../icons/thankYou.png";
+import NotPaid from "../icons/notPaid.png";
+
 const PaymentStatusPage = () => {
   const navigate = useNavigate();
   var storedData = sessionStorage.getItem("payment_data");
@@ -45,7 +48,7 @@ const PaymentStatusPage = () => {
               data: upgradeData,
               api_key: storedKeyObj,
             });
-            console.log("the upgrad resul is ", upgrade)
+            console.log("the upgrad resul is ", upgrade);
             sessionStorage.setItem("payment_id", JSON.stringify("12345"));
           } else {
             setDisplay("failed");
@@ -64,10 +67,9 @@ const PaymentStatusPage = () => {
               data: upgradeData,
               api_key: storedKeyObj,
             });
-            console.log("the upgrad resul is ", upgrade)
+            console.log("the upgrad resul is ", upgrade);
             sessionStorage.setItem("payment_id", JSON.stringify("12345"));
           } else {
-
             setDisplay("failed");
             sessionStorage.setItem("payment_id", JSON.stringify("12345"));
           }
@@ -97,13 +99,13 @@ const PaymentStatusPage = () => {
         ) : (
           <Box>
             {display == "failed" ? (
-              <Typography color={"red"} textAlign={"center"} variant="h3">
-                Sorry, You haven't Purchased the Credit!
-              </Typography>
+              <Box display={"flex"} justifyContent={"center"}>
+                <img src={NotPaid} width={"60%"} />
+              </Box>
             ) : (
-              <Typography color={"green"} textAlign={"center"} variant="h3">
-                Thank you for Purchasing!
-              </Typography>
+              <Box display={"flex"} justifyContent={"center"}>
+                <img src={ThankYou} width={"60%"} />
+              </Box>
             )}
 
             <Box sx={{ display: "flex", justifyContent: "center" }}>

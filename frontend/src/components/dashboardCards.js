@@ -29,6 +29,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import Logo from "../dowellLogo.png";
 import Paypal from "../icons/paypal.png";
 import Stripe from "../icons/stripe.png";
+import VoucherImg from "../icons/voucher.png"
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -38,7 +39,7 @@ import {
   ActivateService_v3,
   UpdateApiKey_v3,
   InitializePay_Stripe,
-  InitializePay_Paypal,
+  InitializePay_Paypal, TopupPublicVoucher_v3
 } from "../util/api_v3";
 import { setData, setLoading, setError } from "../store/reducers/data";
 import { useNavigate } from "react-router-dom";
@@ -57,6 +58,10 @@ const DashboardCards = () => {
   const [upgradeSnackBar, setUpgradeSnackBar] = useState(false);
   const [genKey, setGenKey] = useState(null);
   const [removeService, setRemoveService] = useState(null);
+  const [topup, setTopup] = useState(false);
+  const [topupValue, setTopupValue] = useState("");
+  const [topupSnackbar, setTopupSnackbar] = useState(false);
+  const [topupSnackbarData, setTopupSnackbarData]= useState({})
 
   const [dialog, setDialog] = useState(false);
   const [buyCredit, setBuyCredit] = useState("");
@@ -205,6 +210,36 @@ const DashboardCards = () => {
   );
   const showHeaderText = filteredServiceData.length > 0;
 
+  /////top up
+
+  const openTopup = () => {
+    setDialog(false);
+    setTopup(true);
+  };
+  const handleTopup = async() => {
+  
+    const id = api_data?.workspaceId
+    const dataObj = {
+      workspace_id : id,
+      voucher_code : topupValue
+    }
+    const data = JSON.stringify(dataObj)
+    // console.log("the data is ", data)
+    const res = await TopupPublicVoucher_v3({data: data})
+    console.log("the topup response is ", res)
+    setTopup(false)
+    setTopupValue("")
+    if(res){
+      setTopupSnackbar(res)
+    }
+    else{
+      setTopupSnackbar({message:"semething went wrong", success:"false"})
+    }
+
+  };
+
+  /////////////
+
   return (
     <Box>
       <Box component={Paper} p={2} sx={{ m: { xs: 1, md: 2 } }}>
@@ -213,11 +248,7 @@ const DashboardCards = () => {
         </Typography>
         <Typography>
           You are currently on a {api_data?.is_paid ? "Paid" : "free"} plan,{" "}
-          {api_data?.is_paid ? (
-            <Button onClick={() => setDialog(true)}>Add Credits</Button>
-          ) : (
-            <Button onClick={() => setDialog(true)}>Add Credits</Button>
-          )}
+          <Button onClick={() => setDialog(true)}>Add Credits</Button>
         </Typography>
       </Box>
       <Grid
@@ -500,6 +531,7 @@ const DashboardCards = () => {
           </Alert>
         )}
       </Snackbar>
+      {/* remove service */}
       <Dialog
         open={removeService}
         onClose={() => setRemoveService(null)}
@@ -524,6 +556,7 @@ const DashboardCards = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      {/* select plan */}
       <Dialog
         open={dialog}
         onClose={() => setDialog(false)}
@@ -566,6 +599,15 @@ const DashboardCards = () => {
               <Box fontWeight={"bold"}>$ {option.price}/mon</Box>
             </Box>
           ))}
+          <Button
+            onClick={openTopup}
+            autoFocus
+            color="success"
+            variant="contained"
+            sx={{ margin: "4px", mt: 2, width: { xs: "100%", md: "342px" } }}
+          >
+            Top Up
+          </Button>
         </DialogContent>
         <DialogActions>
           <Button
@@ -581,6 +623,7 @@ const DashboardCards = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      {/* payment method */}
       <Dialog
         open={openPaymentMethod}
         onClose={() => setOpenPaymentMethod(false)}
@@ -652,6 +695,48 @@ const DashboardCards = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      {/* top up */}
+      <Dialog open={topup} onClose={() => setTopup(false)}>
+        <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
+          <img src={VoucherImg} width={"60pc"} />
+          <Typography variant="h5" fontWeight={'bold'} sx={{color:"green"}}>ADD YOUR VOUCHER CODE</Typography>
+        </DialogTitle>
+        <DialogContent sx={{ width: { xs: "84%", md: "350px" } }}>
+          <TextField
+            name="topup"
+            value={topupValue}
+            type="text"
+            fullWidth
+            onChange={(e) => setTopupValue(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleTopup}
+            autoFocus
+            color="success"
+            variant="contained"
+            disabled={!topupValue}
+            fullWidth
+            sx={{ ml: "5%", mr: "5%", mb: 2 }}
+          >
+            Top Up
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* topup snackbar */}
+      <Snackbar
+        anchorOrigin={{ horizontal: "right", vertical: "top" }}
+        open={topupSnackbar}
+        autoHideDuration={5000}
+        onClose={() => setTopupSnackbar(false)}
+      >
+        <Alert
+          severity={topupSnackbar?.success == "true" ? "success" : "error"}
+        >
+          {topupSnackbar?.message  }
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
