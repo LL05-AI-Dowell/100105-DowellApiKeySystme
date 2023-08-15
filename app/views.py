@@ -384,6 +384,8 @@ class platform_admin_duties(APIView):
 
         if type_request == "restrict_workspace_key":
             return self.restrict_workspace_key(request)
+        elif type_request == "update_services":
+            return self.update_services(request)
         else:
             return self.handle_error(request)
         
@@ -425,6 +427,33 @@ class platform_admin_duties(APIView):
             return Response(response,status=status.HTTP_200_OK)
         else:
             return Response(response,status=status.HTTP_400_BAD_REQUEST)
+
+    """UPDATE SERVICE"""
+    def update_services(self, request):
+        action = request.GET.get("action")
+        document_id = request.GET.get("document_id")
+        field = {
+            "action": action,
+            "document_id": document_id
+        }
+        serializer = UpdateServicesSerializer(data=field)
+        if serializer.is_valid():
+            field = {
+                "_id": document_id,
+            }
+            update_field = request.data.get("update_field")
+            
+            response = update_service(field,update_field)
+            if response["success"]:
+                return Response(response,status=status.HTTP_200_OK)
+            else:
+                return Response(response,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            },status=status.HTTP_400_BAD_REQUEST) 
 
     """HANDLE ERROR"""
     def handle_error(self, request): 

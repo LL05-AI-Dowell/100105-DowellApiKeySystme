@@ -906,4 +906,17 @@ def topup_coupon(voucher_code,workspaceId):
             "success": False,
             "message": "Something went wrong"
         }
-    
+
+"""UPDATE SERVICES""" 
+def update_service(field,update_field):
+    response = json.loads(dowellconnection(*Services,"update",field,update_field))
+    if response["isSuccess"]:
+        return {
+            "success": True,
+            "message":"Services updated successfully"
+        }   
+    else:
+        return {
+            "success": False,
+            "message": "Something went wrong"
+        }

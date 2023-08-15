@@ -82,4 +82,17 @@ class PublicTopupSerializer(serializers.Serializer):
     voucher_code = serializers.CharField(allow_null=False, allow_blank=False)
     workspace_id = serializers.CharField(allow_null=False, allow_blank=False)
 
+class UpdateServicesSerializer(serializers.Serializer):
+    MODULE_CHOICES = (
+        ('API', 'API'),
+        ('PYTHON LIBRARY', 'PYTHON LIBARY'),
+        ('R LIBRARY', 'R LIBARY'),
+        ('WORDPRESS PLUGIN', 'WORDPRESS PLUGIN'),
+        ('FLUTTER COMPONENT', 'FLUTTER COMPONENT'),
+        ('REACT COMPONENT', 'REACT COMPONENT'),
+        ('PRODUCT', 'PRODUCT')
+    )
+    action = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=MODULE_CHOICES)
+    document_id = serializers.CharField(allow_null=False, allow_blank=False)
+
 
