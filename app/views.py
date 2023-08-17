@@ -313,11 +313,11 @@ class process_services(APIView):
     """MODULE SERVICE"""
     def module_service(self, request):
         api_key = request.GET.get("api_key")
-        service_ids = request.data.get("service_ids")
-        module_id = request.data.get("module_id")
+        sub_service_ids = request.data.get("sub_service_ids")
+        service_id = request.data.get("service_id")
         data = {
-            "service_ids": service_ids,
-            "module_id": module_id
+            "sub_service_ids": sub_service_ids,
+            "service_id": service_id
         }
         serializer = ModuleSerializer(data=data)
         if serializer.is_valid():
@@ -327,7 +327,7 @@ class process_services(APIView):
             update_field= {
                 "status": "Nothing to update"
             }
-            response = process_module_service_by_user(service_ids,module_id,field,update_field)
+            response = process_module_service_by_user(data["service_id"],data["sub_service_ids"],field,update_field)
             if response["success"]:
                 return Response(response,status=status.HTTP_200_OK)
             else:

@@ -363,7 +363,7 @@ def process_api_service_by_user(service_id, field, update_field):
         }
 
 """PROCESS MODULE BY USERS"""    
-def process_module_service_by_user(service_ids, module_id, field, update_field):
+def process_module_service_by_user(service_id, sub_service_ids, field, update_field):
     response = json.loads(dowellconnection(*User_Services, "find", field, update_field))
     data = response.get("data", {})
     
@@ -373,18 +373,18 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
         services = data.get("services")
         disable_key = data.get("disable_key")
 
-        if is_active is False:
+        if not is_active:
             return {
                 "success": False,
-                "message": "API KEY is not activated",
-            }
-        
-        if disable_key is True :
-            return {
-                "success": False,
-                "message": "YOUR API KEY IS DISABLED BY ADMIN.",
+                "message": "SEVICE KEY is not activated",
             }
 
+        if disable_key:
+            return {
+                "success": False,
+                "message": "YOUR SERVICE KEY IS DISABLED BY ADMIN.",
+            }
+        
         if user_credits <= 0:
             return {
                 "success": False,
@@ -393,50 +393,71 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
             }
 
         module_active = False
-        module_credits = 0
         module_found = False
+        sub_service = None
 
         for service in services:
-            if service.get("service_id") == module_id:
+            if service.get("service_id") == service_id:
                 module_active = service.get("is_active")
-                module_credits = service.get("credits")
                 module_found = True
+                sub_service = service.get("sub_service") 
                 break
-
+            
         if not module_found:
             return {
                 "success": False,
-                "message": "Module not found"
+                "message": "module not found"
             }
-
-        if module_active is True:
-            total_credits = 0
-            service_ids_found = []
-
-            for service in services:
-                if service.get("service_id") in service_ids:
-                    service_ids_found.append(service.get("service_id"))
-                    service["is_active"] = True
-
-            if set(service_ids) != set(service_ids_found):
+        
+        if module_active:
+            if sub_service:  
+                sub_service_info = []  
+                total_credits_used = 0
+                
+                for sub_serv in sub_service:
+                    sub_service_id = sub_serv.get("sub_service_id")
+                    if sub_service_id in sub_service_ids:  
+                        sub_service_credits = sub_serv.get("sub_service_credits")
+                        quantity = sub_serv.get("quantity")
+                        sub_service_name = sub_serv.get("sub_service_name")
+                        if sub_service_credits is not None and quantity is not None:
+                            sub_service_info.append({
+                                "sub_service_name": sub_service_name,
+                                "sub_service_id": sub_service_id,
+                                "sub_service_credits": sub_service_credits,
+                                "quantity": quantity
+                            })
+                            total_credits_used += sub_service_credits * quantity
+                        else:
+                            return {
+                                "success": False,
+                                "message": "Sub service information missing for sub_service_id: {}".format(sub_service_id),
+                                "data": data
+                            }
+                
+                if not sub_service_info:
+                    return {
+                        "success": False,
+                        "message": "No valid sub_service_ids provided",
+                    }
+                
+                remaining_credits = user_credits - total_credits_used
+                update_field = {
+                    "total_credits": remaining_credits
+                }
+                response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
+                
+                return {
+                    "success": True,
+                    "message": "Credits reduced successfully",
+                    "sub_service_info": sub_service_info,
+                    "remaining_credits": remaining_credits
+                }
+            else:
                 return {
                     "success": False,
-                    "message": "One or more service_ids not found in services"
+                    "message": "Sub service not found"
                 }
-
-            total_credits += module_credits
-            user_credits = user_credits - total_credits
-            
-            update_field = {
-                "services": services,
-                "total_credits": user_credits
-            }
-            response = json.loads(dowellconnection(*User_Services,"update",field,update_field))
-            return {
-                "success": True,
-                "message": "Consumed credits successfully",
-                "total_credits": user_credits
-            }
         else:
             return {
                 "success": False,
@@ -445,7 +466,7 @@ def process_module_service_by_user(service_ids, module_id, field, update_field):
     else:
         return {
             "success": False,
-            "message": "API key not found"
+            "message": "Service key is not available"
         }
 
 """PROCESS PRODUCT BY USERS"""   

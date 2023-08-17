@@ -31,8 +31,8 @@ class UserAPIKeySerializer(serializers.Serializer):
     userDetails = serializers.JSONField()
 
 class ModuleSerializer(serializers.Serializer):
-    service_ids = serializers.ListField(child=serializers.CharField(allow_null=False, allow_blank=False))
-    module_id = serializers.CharField(allow_null=False, allow_blank=False)
+    sub_service_ids = serializers.ListField(child=serializers.CharField(allow_null=False, allow_blank=False))
+    service_id = serializers.CharField(allow_null=False, allow_blank=False)
 
 class ProductSerializer(serializers.Serializer):
     service_id = serializers.CharField(allow_null=False, allow_blank=False)
