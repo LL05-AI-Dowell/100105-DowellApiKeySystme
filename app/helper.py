@@ -690,12 +690,12 @@ def claim_coupon(claim_method,description,timezone):
         "redemption_duration": voucher_details.get("time")
     }
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"insert",field,update_field=None))
-    print(response)
     if response["isSuccess"]:
         return {
             "success": True,
             "message":"Voucher created successfully",
-            "voucher_id": response.get("inserted_id")
+            "voucher_id": response.get("inserted_id"),
+            "coupon": field["name"],
         }
     else:
         return {
