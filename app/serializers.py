@@ -63,7 +63,7 @@ class ClaimMethodSerializer(serializers.Serializer):
         ('INTERNAL CREDIT COUPONS', 'INTERNAL CREDIT COUPONS'),
         ('TOPUPS CREDITS', 'TOPUPS CREDITS')
     )
-    
+    email =  serializers.CharField(allow_null=True, allow_blank=True)
     claim_method = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     description = serializers.CharField(allow_null=False, allow_blank=False)
     timezone = serializers.CharField(allow_null=False, allow_blank=False)

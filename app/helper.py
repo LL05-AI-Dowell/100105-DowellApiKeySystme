@@ -676,7 +676,7 @@ def get_all_workspaces_details(field):
         }
     
 """CLAIM VOUCHER/COUPON"""
-def claim_coupon(claim_method,description,timezone):
+def claim_coupon(claim_method,description,timezone,email):
     voucher_details = generate_voucher_deatils(claim_method,3)
     field = {
         "name": voucher_details.get("name"),
@@ -687,13 +687,15 @@ def claim_coupon(claim_method,description,timezone):
         "description": description,
         "is_verified": False,
         "created_at": dowell_time(timezone)["dowelltime"],
-        "redemption_duration": voucher_details.get("time")
+        "redemption_duration": voucher_details.get("time"),
+        "email": email
     }
+    time = field["redemption_duration"]//3600
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"insert",field,update_field=None))
     if response["isSuccess"]:
         return {
             "success": True,
-            "message":"Voucher created successfully",
+            "message":f"Voucher created successfully , you can redeem with in {time} Hours",
             "voucher_id": response.get("inserted_id"),
             "coupon": field["name"],
         }

@@ -487,18 +487,20 @@ class voucher(APIView):
         
     """CLAIM VOUCHER"""
     def claim_voucher(self, request):
+        email = request.data.get('email')
         claim_method = request.data.get('claim_method')
         description = request.data.get('description')
         timezone = request.data.get('timezone')
 
         field = {
+            "email": email,
             "claim_method": claim_method,
             "description": description,
             "timezone":timezone
         }
         serializer = ClaimMethodSerializer(data=field)
         if serializer.is_valid():
-            response = claim_coupon(field["claim_method"], field["description"],field["timezone"])
+            response = claim_coupon(field["claim_method"], field["description"],field["timezone"],field['email'])
             if response["success"]:
                 return Response(response,status=status.HTTP_200_OK)
             else:
