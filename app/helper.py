@@ -3,6 +3,54 @@ from utils.helper import *
 import datetime
 import json
 
+
+EMAIL = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>COUPON CODE</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 0; display: flex; justify-content: center;">
+<div style="width: 80%; background-color: #edf2f3;">
+    <header style="background-color: #005733; color: #fff; display: flex; text-align: center; justify-content: center; padding: 5px;">
+        <img src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" height="80px" width="140px" >
+    </header>
+    <article style="margin-top: 20px; text-align: center;">
+        <h2>DoWell Credits Coupon Code</h2>
+    </article>
+
+    <main style="padding: 20px;">
+        <section style="margin: 20px;">
+            <p>Dear {},</p>
+            <p>Unlock your credits at DoWell UX LivingLab using the coupon code provided. Enjoy access to a variety of DoWell products designed to elevate your experience. Start exploring innovative solutions tailored to your needs and make the most of your accumulated credits.Here is your coupon:</p>
+            <p style="text-align: center;">
+                <span style="font-weight: bold;font-size: 2rem;">{}</span>
+            </p>
+            <p style="font-weight: bold;">Steps to follow :</p>
+            <ul>
+                <li>Log in to your account on the DoWell login portal.</li>
+                <li>Select the product "Dowell Service."</li>
+                <li>Navigate to the settings and redeem your voucher.</li>
+                <li>If the voucher is not verified, please wait until it gets verified.</li>
+            </ul>
+            <div style="margin: 20px;">
+                <p>Thank You,</p>
+                <p>DoWell UX Living Lab Team</p>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background-color: #005733; color: #fff; text-align: center; padding: 10px;">
+        <a href="https://uxlivinglab.com/en/" style="text-align: center; color: white; margin-bottom: 20px; padding-bottom: 10px;">DoWell UX LivingLab</a>
+        <p style="margin-top: 10px; font-size: 13px;">&copy; 2023-All rights reserved.</p>
+    </footer>
+</div>
+</body>
+</html>
+"""
+
 """SAVE SERVICES"""
 def save_service(service_id,name,description,link,credits,service_type,sub_service):
     field = {
@@ -691,7 +739,12 @@ def claim_coupon(claim_method,description,timezone,email):
         "email": email
     }
     time = field["redemption_duration"]//3600
+    subject = f"Reason to claim voucher is {claim_method}"
+    email_content = EMAIL.format(email,field["name"])
+    mail = send_email(email,email,subject,email_content)
+    print(mail)
     response = json.loads(dowellconnection(*Reedem_Voucher_Services,"insert",field,update_field=None))
+    print(response)
     if response["isSuccess"]:
         return {
             "success": True,

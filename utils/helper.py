@@ -21,22 +21,17 @@ def generate_code(number):
     return otp
 
 """Dowell Mail API services"""
-def send_email(email, name, api_key, api_services):
-    url = "https://100085.pythonanywhere.com/api/send-api-key/"
-    payload = json.dumps({
-        "email":email,
-        "name":name,
-        "api_key":api_key,
-        "api_services": api_services
-        })
-    headers = {
-        'Content-Type': 'application/json'
-        }
-
-    response = requests.request("POST", url, headers=headers, data=payload)
-    res= json.loads(response.text)
-
-    return res
+def send_email(toname,toemail,subject,email_content):
+    url = "https://100085.pythonanywhere.com/api/email/"
+    print(toemail)
+    payload = {
+        "toname": toname,
+        "toemail": toemail,
+        "subject": subject,
+        "email_content":email_content
+    }
+    response = requests.post(url, json=payload)
+    return response.text
 
 """Dowell Connection"""
 def dowellconnection(cluster,database,collection,document,team_member_ID,function_ID,command,field,update_field):
