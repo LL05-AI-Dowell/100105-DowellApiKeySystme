@@ -16,7 +16,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { Button } from "@mui/material";
 
 export default function Row(props) {
-  const { row, handleService } = props;
+  const { row, handleService, hasCredit } = props;
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -61,7 +61,8 @@ export default function Row(props) {
             Click
           </Button>
         </TableCell>
-        {row.credits == null ? "" : <TableCell>{row.credits}</TableCell>}
+        {hasCredit ?  <TableCell>{row.credits}</TableCell> : null}
+       
         <TableCell>
           <Button
             // disabled={api.is_active}

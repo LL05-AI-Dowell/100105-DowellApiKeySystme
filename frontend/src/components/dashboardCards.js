@@ -47,7 +47,7 @@ import { useNavigate } from "react-router-dom";
 const creditOptions = [
   { id: 1, name: "Basic", price: 1, credit: 100 },
   { id: 2, name: "Standard", price: 9, credit: 1000 },
-  { id: 3, name: "Premium", price: 19, credit: 2000 },
+  { id: 3, name: "Premium", price: 16, credit: 2000 },
 ];
 
 const DashboardCards = () => {
@@ -591,12 +591,13 @@ const DashboardCards = () => {
                   {option.name}
                 </Typography>
                 <Typography fontWeight={"bold"}>
-                  [totalCredits] ({option.credit} credits)
+                ({option.credit} credits)
+                  {/* [totalCredits] ({option.credit} credits) */}
                 </Typography>
-                <Typography>Free Support</Typography>
-                <Typography>Database</Typography>
+                {/* <Typography>Free Support</Typography>
+                <Typography>Database</Typography> */}
               </Box>
-              <Box fontWeight={"bold"}>$ {option.price}/mon</Box>
+              <Box fontWeight={"bold"} mt={1}>$ {option.price}</Box>
             </Box>
           ))}
           <Button

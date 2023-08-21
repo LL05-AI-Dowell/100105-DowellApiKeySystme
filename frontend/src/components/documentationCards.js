@@ -82,6 +82,9 @@ const DocumentationCards = ({ card, title }) => {
       i?.service_type == card
   );
   console.log("the fileted service is ", filteredService);
+  const hasCredit = filteredService.some(item => item.credits !== null);
+  console.log("does it have atleast 1 credits? ", hasCredit)
+
 
   return (
     <Box>
@@ -186,11 +189,9 @@ const DocumentationCards = ({ card, title }) => {
                   <TableCell sx={{ fontWeight: "bold" }}>
                     Documentation
                   </TableCell>
-                  {card == "PRODUCT" ? (
-                    ""
-                  ) : (
-                    <TableCell sx={{ fontWeight: "bold" }}>Credits</TableCell>
-                  )}
+
+                   {hasCredit ? <TableCell sx={{ fontWeight: "bold" }}>Credits</TableCell> : null} 
+
                   <TableCell sx={{ fontWeight: "bold" }}>Activate</TableCell>
                 </TableRow>
               </TableHead>
@@ -203,6 +204,7 @@ const DocumentationCards = ({ card, title }) => {
                         key={row.name}
                         row={row}
                         handleService={handleService}
+                        hasCredit={hasCredit}
                       />
                     );
                   })}
