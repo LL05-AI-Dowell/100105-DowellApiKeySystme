@@ -17,10 +17,19 @@ import {
   DialogTitle,
   Alert,
   Snackbar,
+  Paper,
+  Container,
+  Stepper,
+  Step,
+  StepLabel,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import { AddService_v3 } from "../../util/api_v3";
+
+import Review from "../addService/review";
+import ServiceComponents from "../addService/serviceComponents";
+import ServiceInfo from "../addService/serviceInfo";
 
 const AddServices = () => {
   const [dialog, setDialog] = useState(false);
@@ -29,6 +38,103 @@ const AddServices = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackBar, setSnackBar] = useState("");
+
+  const [serviceInfo, setServiceInfo] = useState({
+    name: "",
+    service_id: "",
+    link: "",
+    description: "",
+    service_type: "",
+    credits: "",
+  });
+  const [serviceInfoNot, setServiceInfoNot] = useState(null);
+  const [subService, setSubService] = useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ["Service Info", "Service Components", "Review"];
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setServiceInfo({ ...serviceInfo, [name]: value });
+  };
+
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return (
+          <ServiceInfo
+            handleChange={handleChange}
+            serviceInfo={serviceInfo}
+            serviceInfoNot={serviceInfoNot}
+          />
+        );
+      case 1:
+        return <ServiceComponents setSubService={setSubService} />;
+      case 2:
+        return <Review serviceInfo={serviceInfo} subService={subService} />;
+      default:
+        throw new Error("Unknown step");
+    }
+  }
+  const handleAddServiceTest = async () => {
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 500));
+    setLoading(false);
+    // alert(JSON.stringify(values?.sub_services, null, 2));
+  };
+  const handleNext = () => {
+    if (activeStep == 0) {
+      console.log("this is first step", serviceInfo);
+      if (
+        serviceInfo.name !== "" &&
+        serviceInfo.description !== "" &&
+        serviceInfo.link !== "" &&
+        serviceInfo.service_id !== "" &&
+        serviceInfo.service_type !== ""
+      ) {
+        setServiceInfoNot(null);
+        setActiveStep(activeStep + 1);
+      } else {
+        setServiceInfoNot("Please fill the required ones first*");
+      }
+    } else if (activeStep == 1) {
+      console.log("this sub services are ", subService);
+
+      setActiveStep(activeStep + 1);
+    } else {
+      let dataObj ={}
+      if (subService.length > 0) {
+       dataObj = {
+          name: serviceInfo.name,
+          service_id: serviceInfo.service_id,
+          link: serviceInfo.link,
+          description: serviceInfo.description,
+          service_type: serviceInfo.service_type,
+          credits: serviceInfo.credits,
+          sub_service: subService,
+        };
+      } else {
+        dataObj = {
+          name: serviceInfo.name,
+          service_id: serviceInfo.service_id,
+          link: serviceInfo.link,
+          description: serviceInfo.description,
+          service_type: serviceInfo.service_type,
+          credits: serviceInfo.credits,
+        };
+      }
+      console.log("the final data is ", dataObj);
+      handleAddServiceTest();
+     
+      setActiveStep(activeStep + 1);
+    }
+  };
+ 
+  const handleBack = () => {
+    if (activeStep == 1) {
+      setSubService([]);
+    }
+    setActiveStep(activeStep - 1);
+  };
 
   const navigate = useNavigate();
   const handleSubmit = async (event) => {
@@ -85,165 +191,74 @@ const AddServices = () => {
 
   return (
     <div>
-      <Box width="80%" pt={4} ml={4}>
-        <Typography
-          variant="h4"
-          fontWeight={"bold"}
-          sx={{ color: "#005734", width: "100%", textAlign: "center" }}
-        >
-          ADD SERVICE
-        </Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          noValidate
-          sx={{
-            mt: 1,
-            width: { xs: "100%", md: "60%" },
-            ml: { xs: 0, md: "20%" },
-          }}
-        >
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="name"
-            label="Service Name"
-            name="name"
-            autoComplete="name"
-            autoFocus
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="service_id"
-            label="Service ID"
-            type="text"
-            id="service_id"
-            autoComplete="ID for the service"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="link"
-            label="Link"
-            type="text"
-            id="link"
-            autoComplete="URL for the service"
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="description"
-            label="Description"
-            type="text"
-            id="description"
-            autoComplete="description for the service"
-          />
-          <FormControl
-            variant="standard"
-            sx={{ m: 1, minWidth: 120 }}
-            fullWidth
-          >
-            <InputLabel>Service Type</InputLabel>
-            <Select label="Service Type" name="service_type" id="service_type">
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              <MenuItem value={"API"}>API</MenuItem>
-              <MenuItem value={"PYTHON LIBRARY"}>PYTHON LIBRARY</MenuItem>
-              <MenuItem value={"R LIBRARY"}>R LIBRARY</MenuItem>
-              <MenuItem value={"WORDPRESS PLUGIN"}>WORDPRESS PLUGIN</MenuItem>
-              <MenuItem value={"FLUTTER COMPONENT"}>FLUTTER COMPONENT</MenuItem>
-              <MenuItem value={"REACT COMPONENT"}>REACT COMPONENT</MenuItem>
-              <MenuItem value={"PRODUCT"}>PRODUCT</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="credits"
-            label="Credits"
-            type="number"
-            id="credits"
-            autoComplete="Credits for the service"
-          />
-          <Box
+      <Box
+        pt={4}
+        ml={4}
+        sx={{ ml: { xs: 0, md: 4 }, width: { xs: "100%", md: "80%" } }}
+      >
+        <Container component="main" sx={{ mb: 4 }}>
+          <Paper
+            variant="outlined"
             sx={{
-              width: { xs: "100%", md: "50%" },
-              ml: { xs: 0, md: "25%" },
+              my: { xs: 3, md: 6 },
+              p: { xs: 2, md: 3 },
+              width: "100%",
+              ml: 0,
             }}
           >
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2, bgcolor: "#005734" }}
+            <Typography component="h1" variant="h4" align="center">
+              Add Service
+            </Typography>
+            <Stepper
+              activeStep={activeStep}
+              sx={{ pt: 3, pb: 5 }}
+              color="success"
             >
-              Submit
-            </Button>
-          </Box>
-        </Box>
-        <Dialog
-          open={dialog}
-          onClose={() => setDialog(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Enter your passowrd</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="password"
-              label="Password"
-              type="password"
-              fullWidth
-              variant="standard"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDialog(false)}>Go Back</Button>
-            {loading ? (
-              <CircularProgress />
+              {steps.map((label) => (
+                <Step key={label} color="success" sx={{ color: "green" }}>
+                  <StepLabel color="success" sx={{ color: "green" }}>
+                    {label}
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            {activeStep === steps.length ? (
+              <React.Fragment>
+                <Typography variant="h5" gutterBottom>
+                  Add Service
+                </Typography>
+                <Box mt={3} display={"flex"} justifyContent={"center"}>
+                  {loading ? (
+                    <CircularProgress />
+                  ) : (
+                    <Typography variant="h5">
+                      You have created service successfully!
+                    </Typography>
+                  )}
+                </Box>
+              </React.Fragment>
             ) : (
-              <Button onClick={handleAddService} autoFocus>
-                Submit
-              </Button>
+              <React.Fragment>
+                {getStepContent(activeStep)}
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  {activeStep !== 0 && (
+                    <Button onClick={handleBack} sx={{ mt: 3, ml: 1 }}>
+                      Back
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    sx={{ mt: 3, ml: 1 }}
+                  >
+                    {activeStep === steps.length - 1 ? "Add Service" : "Next"}
+                  </Button>
+                </Box>
+              </React.Fragment>
             )}
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={fdialog}
-          onClose={() => setFdialog(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Enter your again</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              The Form you trying to submit lacks some information.
-            </DialogContentText>
-          </DialogContent>
-        </Dialog>
-        <Snackbar
-          anchorOrigin={{ horizontal: "right", vertical: "top" }}
-          open={snackBar}
-          autoHideDuration={5000}
-          onClose={() => setSnackBar("")}
-        >
-          <Alert severity={snackBar} sx={{ width: "100%" }}>
-            {snackBar == "success"
-              ? "Service Added"
-              : "Error Occured / Wrong Password"}
-          </Alert>
-        </Snackbar>
+          </Paper>
+        </Container>
       </Box>
     </div>
   );
