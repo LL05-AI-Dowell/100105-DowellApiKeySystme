@@ -72,13 +72,13 @@ const ClaimVoucher = () => {
     };
     const id = api_data?.workspaceId;
     const data = JSON.stringify(dataObj);
-    console.log(data)
-    const res = await RedeemVoucher_v3_1({id: id, data:data})
+    console.log("the data is", dataObj)
+    const res = await RedeemVoucher_v3_1({id: id, data:dataObj})
     console.log("the res is ", res)
     setClaimVoucher(false)
     setVoucherId("")
     if(res){
-      setClaimSnackbar(res)
+      setClaimSnackbar(res.data)
     }
     else{
       setClaimSnackbar({message:"semething went wrong", success:"false"})

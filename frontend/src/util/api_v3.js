@@ -121,13 +121,32 @@ export const GetService_v3 = async (params) => {
   }
 };
 
+export const UpdateService_v3 = async (params) => {
+  try {
+    const data = JSON.stringify(params.data);
+    console.log("the data is ", data);
+
+    const response = await api_v3.post(
+      `/platform-admin/?type=update_services&action=API&document_id=${params.id}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.log("Error adding service ", error);
+  }
+};
 export const AddService_v3 = async (params) => {
   try {
     const data = JSON.stringify(params.data);
     console.log("the data is ", data);
 
     const response = await api_v3.post(
-      `/service/?type=add_services&password=${params.password}`,
+      `/service/?type=add_services&password=dowellX1234uxLivingLab`,
       data,
       {
         headers: {
@@ -287,7 +306,7 @@ export const GetRedeemedVouchers_v3 = async (params) => {
 export const GetAllVouchers_v3 = async (params) => {
   try {
     const response = api_v3.get(
-      `/voucher/?type=workspace_voucher&action=not_redeemed&workspace_id=${params.id}&action=all`
+      `/voucher/?type=workspace_voucher&action=not_redeemed&action=redeemed&workspace_id=${params.id}&action=all`
     );
     return response;
   } catch (err) {
@@ -308,7 +327,10 @@ export const RedeemVoucher_v3_1 = async (params) => {
     return response;
   } catch (err) {
     console.log(err);
+    return err.response
   }
+
+  
 };
 export const RedeemVoucher_v3 = async (params) => {
   try {
@@ -373,7 +395,7 @@ export const RestrictWorkspace_v3 = async (params) => {
 export const GetVoucherDetails_v3 = async () => {
   try {
     const response = api_v3.get(
-      `/voucher/?type=verification_voucher&action=verified`
+      `/voucher/?type=verification_voucher&action=unverified`
     );
     return response;
   } catch (err) {

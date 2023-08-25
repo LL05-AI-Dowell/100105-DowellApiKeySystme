@@ -55,7 +55,7 @@ const Vouchers = () => {
   useEffect(() => {
     const Vouchers = async () => {
       const res = await GetVoucherDetails_v3();
-      console.log(res.data);
+      console.log("the voucer data is ", res.data);
       console.log(res.data.data);
       setVouchers(res.data.data);
     };
