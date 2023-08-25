@@ -38,6 +38,7 @@ const AddServices = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackBar, setSnackBar] = useState("");
+  const [apiResponse, setApiResponse] = useState(null);
 
   const [serviceInfo, setServiceInfo] = useState({
     name: "",
@@ -45,7 +46,7 @@ const AddServices = () => {
     link: "",
     description: "",
     service_type: "",
-    credits: "",
+    credits: null,
   });
   const [serviceInfoNot, setServiceInfoNot] = useState(null);
   const [subService, setSubService] = useState([]);
@@ -75,11 +76,25 @@ const AddServices = () => {
         throw new Error("Unknown step");
     }
   }
-  const handleAddServiceTest = async () => {
+  const handleAddServiceTest = async (e) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 500));
+    // await new Promise((r) => setTimeout(r, 500));
+    const res = await AddService_v3({
+      data: e,
+    });
+    // const res = 'success'
+    if (res == undefined) {
+      console.log(res);
+      console.log("error occured");
+      setApiResponse("An error occured while adding, please try again later");
+      setLoading(false);
+    } else {
+      console.log(res);
+      console.log("success");
+      setApiResponse(res.data.message);
+      setLoading(false);
+    }
     setLoading(false);
-    // alert(JSON.stringify(values?.sub_services, null, 2));
   };
   const handleNext = () => {
     if (activeStep == 0) {
@@ -101,34 +116,28 @@ const AddServices = () => {
 
       setActiveStep(activeStep + 1);
     } else {
-      let dataObj ={}
-      if (subService.length > 0) {
-       dataObj = {
-          name: serviceInfo.name,
-          service_id: serviceInfo.service_id,
-          link: serviceInfo.link,
-          description: serviceInfo.description,
-          service_type: serviceInfo.service_type,
-          credits: serviceInfo.credits,
-          sub_service: subService,
-        };
-      } else {
-        dataObj = {
-          name: serviceInfo.name,
-          service_id: serviceInfo.service_id,
-          link: serviceInfo.link,
-          description: serviceInfo.description,
-          service_type: serviceInfo.service_type,
-          credits: serviceInfo.credits,
-        };
-      }
+      let dataObj = {};
+
+      dataObj = {
+        name: serviceInfo.name,
+        service_id: serviceInfo.service_id,
+        link: serviceInfo.link,
+        description: serviceInfo.description,
+        service_type: serviceInfo.service_type,
+        ...(serviceInfo?.credits !== null &&
+          serviceInfo?.credits !== "0" && {
+            credits: Number(serviceInfo.credits),
+          }),
+        sub_service: subService,
+      };
+
       console.log("the final data is ", dataObj);
-      handleAddServiceTest();
-     
+      handleAddServiceTest(dataObj);
+
       setActiveStep(activeStep + 1);
     }
   };
- 
+
   const handleBack = () => {
     if (activeStep == 1) {
       setSubService([]);
@@ -137,6 +146,7 @@ const AddServices = () => {
   };
 
   const navigate = useNavigate();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -194,13 +204,13 @@ const AddServices = () => {
       <Box
         pt={4}
         ml={4}
-        sx={{ ml: { xs: 0, md: 4 }, width: { xs: "100%", md: "80%" } }}
+        sx={{ ml: { xs: 0, md: 4 }, width: { xs: "100%", md: "90%" } }}
       >
         <Container component="main" sx={{ mb: 4 }}>
           <Paper
             variant="outlined"
             sx={{
-              my: { xs: 3, md: 6 },
+              my: { xs: 3, md: 0 },
               p: { xs: 2, md: 3 },
               width: "100%",
               ml: 0,
@@ -224,16 +234,16 @@ const AddServices = () => {
             </Stepper>
             {activeStep === steps.length ? (
               <React.Fragment>
-                <Typography variant="h5" gutterBottom>
-                  Add Service
-                </Typography>
-                <Box mt={3} display={"flex"} justifyContent={"center"}>
+                <Box
+                  mt={3}
+                  display={"flex"}
+                  justifyContent={"center"}
+                  sx={{ minHeight: "30vh" }}
+                >
                   {loading ? (
                     <CircularProgress />
                   ) : (
-                    <Typography variant="h5">
-                      You have created service successfully!
-                    </Typography>
+                    <Typography variant="h5">{apiResponse}</Typography>
                   )}
                 </Box>
               </React.Fragment>

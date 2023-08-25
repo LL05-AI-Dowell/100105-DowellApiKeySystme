@@ -2,6 +2,17 @@ import React from "react";
 import { Box, Typography, Grid } from "@mui/material";
 
 const Review = ({ serviceInfo, subService }) => {
+  const data = {
+    name: serviceInfo?.name,
+    service_id: serviceInfo?.service_id,
+    link: serviceInfo?.link,
+    description: serviceInfo?.description,
+    service_type: serviceInfo?.service_type,
+    ...(serviceInfo?.credits !== null &&
+      serviceInfo?.credits !== "0" && { credits: Number(serviceInfo.credits) }),
+    sub_service: subService,
+  };
+  // console.log("the service data is ", data);
   return (
     <Box>
       <Typography variant="h5">Review the service</Typography>
@@ -22,8 +33,11 @@ const Review = ({ serviceInfo, subService }) => {
             Service Description : {serviceInfo.description}
           </Typography>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Typography>Service Type : {serviceInfo.service_type}</Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Typography>Service Credits : {serviceInfo.credits}</Typography>
         </Grid>
       </Grid>
       <Box>
@@ -42,7 +56,7 @@ const Review = ({ serviceInfo, subService }) => {
                 m={2}
                 mt={0}
                 sx={{
-                 bgcolor:"#edf2f3",
+                  bgcolor: "#edf2f3",
                   // borderBottom: "1px solid black",
                 }}
               >
@@ -56,7 +70,7 @@ const Review = ({ serviceInfo, subService }) => {
                   Quantitiy : {i.quantity}
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                Credits : {i.sub_service_credits} 
+                  Credits : {i.sub_service_credits}
                 </Grid>
               </Grid>
             ))}
