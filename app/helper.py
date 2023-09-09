@@ -998,6 +998,8 @@ def update_service(field,update_field):
         }
     
 
+import json
+
 def user_services_key_details(workspace_id, required_service, service_type):
     field = {
         "workspaceId": workspace_id
@@ -1006,63 +1008,59 @@ def user_services_key_details(workspace_id, required_service, service_type):
     response = json.loads(dowellconnection(*User_Services, "find", field, update_field=None))
     data = response.get("data", {})
 
-    print(data.get("disable_key"))
+    if data is None :
+        return {
+        "success": False,
+        "message": "PLEASE CREATE SERVICE/API KEY FOR THIS WORKSPACE"
+    }
+    total_credits = data.get("total_credits", 0)
+    is_active = data.get("is_active", False)
+    disable_key = data.get("disable_key", False)
+    services = data.get("services", [])
+    
 
-    if data is not None:
-
-        if data.get("total_credits") <= 0:
-            return {
-                "success": False,
-                "message": "KINDLY BUY CREDITS",
-                "total_credits": data.get("total_credits")
-            }
-        if data.get("disable_key"):
-            return {
-                "success": False,
-                "message": "YOUR SERVICE/API KEY IS DISABLED"
-            }
-        if not data.get("is_active"):
-            return {
-                "success": False,
-                "message": "PLEASE ACTIVATE THE SERVICE/API KEY",
-                "total_credits": data.get("total_credits")
-            }
-
-        service_found = False
-        service_status = False
-
-        for service_details in data.get("services", []):
-            if service_details["name"] == required_service and service_details["service_type"] == service_type:
-                service_found = True
-                service_status = service_details["is_active"]
-                
-        if service_status:
-           return {
-                    "success": True,
-                    "message": f"SERVICE DETAILS FOR {required_service}",
-                    "service_key_status": data.get("is_active"),
-                    "service_status": service_status,
-                    "total_credits": data.get("total_credits")
-                } 
-            
-        if not service_status:
-            return {
-                    "success": False,
-                    "message": f"PLEASE ACTIVATE THE {required_service}",
-                    "service_key_status": data.get("is_active"),
-                    "service_status": service_status,
-                    "total_credits": data.get("total_credits")
-                } 
-
-        if not service_found:
-            return {
-                "success": False,
-                "message": f"SERVICE '{required_service}' WITH SERVICE TYPE '{service_type}' NOT FOUND FOR THIS WORKSPACE",
-                "service_key_status": data.get("is_active"),
-                "total_credits": data.get("total_credits")
-            }
-    else:
+    if total_credits <= 0:
         return {
             "success": False,
-            "message": "PLEASE CREATE SERVICE/API KEY FOR THIS WORKSPACE"
+            "message": "KINDLY BUY CREDITS",
+            "total_credits": total_credits
         }
+
+    if disable_key:
+        return {
+            "success": False,
+            "message": "YOUR SERVICE/API KEY IS DISABLED"
+        }
+
+    if not is_active:
+        return {
+            "success": False,
+            "message": "PLEASE ACTIVATE THE SERVICE/API KEY",
+            "total_credits": total_credits
+        }
+
+    service_status = False
+
+    for service_details in services:
+        if service_details["name"] == required_service and service_details["service_type"] == service_type:
+            service_status = service_details["is_active"]
+
+    if service_status:
+        return {
+            "success": True,
+            "message": f"SERVICE DETAILS FOR {required_service}",
+            "service_key_status": is_active,
+            "service_status": service_status,
+            "total_credits": total_credits
+        }
+
+    return {
+        "success": False,
+        "message": f"PLEASE ACTIVATE THE {required_service}",
+        "service_key_status": is_active,
+        "service_status": service_status,
+        "total_credits": total_credits
+    }
+
+
+    
