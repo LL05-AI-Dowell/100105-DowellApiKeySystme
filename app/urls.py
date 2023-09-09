@@ -9,5 +9,6 @@ urlpatterns = [
     path('process-services/',process_services.as_view()),
     path('platform-admin/',platform_admin_duties.as_view()),
     path('public-voucher/',public_voucher_system.as_view()),
+    path('deactivate-all-services/',deavtivate_service_all_key.as_view()),
     
 ]

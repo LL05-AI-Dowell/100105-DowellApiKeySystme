@@ -132,6 +132,8 @@ class user_api_key(APIView):
         type_request = request.GET.get('type')
         if type_request == "get_api_key":
             return self.get_api_key(request)
+        elif type_request == "get_user_service_key_details":
+            return self.get_user_service_key_details(request)
         else:
             return self.handle_error(request)
         
@@ -253,6 +255,16 @@ class user_api_key(APIView):
         response = get_user_api_key(field,update_field)    
         return Response(response, status=status.HTTP_200_OK)
     
+    """GET USER SERVICE KEY DETAILS"""
+    def get_user_service_key_details(self, request):
+        workspace_id = request.GET.get('workspace_id')
+        required_service = request.GET.get('service')
+        service_type = request.GET.get('service_type')
+        response = user_services_key_details(workspace_id,required_service,service_type)
+        if response["success"]:
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({
@@ -677,3 +689,23 @@ class public_voucher_system(APIView):
                 "message": "Posting wrong data to API",
                 "error": serializer.errors
             },status=status.HTTP_400_BAD_REQUEST) 
+        
+@method_decorator(csrf_exempt, name="dispatch")
+class deavtivate_service_all_key(APIView):
+    def get(self, request):
+        field = {
+            "is_active": True
+        }
+        response = json.loads(dowellconnection(*User_Services , "fetch", field, update_field= None))
+        count = 0
+        for data in response["data"]:
+            if data["is_active"]:
+                update_field = {
+                    "is_active": False
+                }
+                count += 1
+                response = json.loads(dowellconnection(*User_Services ,"update",field, update_field= update_field))
+                
+        print("service key deactivated",count)
+
+        return Response(response)
