@@ -29,7 +29,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ActivateService_v3, GetAllService_v3 } from "../util/api_v3";
 
 const DocumentationCards = ({ card, title }) => {
-  const [snackBar, setSnackBar] = useState("");
+  const [snackBar, setSnackBar] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   ////pagination data
   const [page, setPage] = React.useState(0);
@@ -65,14 +65,14 @@ const DocumentationCards = ({ card, title }) => {
       });
       console.log("the service res is ", res);
       if (res?.data.success == true) {
-        setSnackBar("success");
+        setSnackBar(res?.data);
         // window.location.reload();
         const get = await GetAllService_v3();
         console.log("the response for all service is ", get);
         dispatch(setService(get.data.data));
         navigate("/");
       } else {
-        setSnackBar("error");
+        setSnackBar(res?.data);
       }
     }
   };
@@ -225,16 +225,16 @@ const DocumentationCards = ({ card, title }) => {
 
       <Snackbar
         anchorOrigin={{ horizontal: "right", vertical: "top" }}
-        open={snackBar}
+        open={snackBar !== null}
         autoHideDuration={5000}
-        onClose={() => setSnackBar("")}
+        onClose={() => setSnackBar(null)}
       >
-        <Alert severity={snackBar} sx={{ width: "100%" }}>
-          {snackBar == "success"
-            ? "Done"
-            : snackBar == "info"
-            ? "It is not released yet"
-            : "Error Occured"}
+        <Alert severity={snackBar?.success ? 'success' : 'error'} sx={{ width: "100%" }}>
+          {snackBar?.success 
+            ? snackBar?.message
+            : snackBar?.success == false
+            ? snackBar?.message
+            : "It is not released yet"}
         </Alert>
       </Snackbar>
     </Box>

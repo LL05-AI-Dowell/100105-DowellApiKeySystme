@@ -176,6 +176,8 @@ export const ActivateService_v3 = async (params) => {
     return response;
   } catch (error) {
     console.log("Error adding service ", error);
+    return error.response;
+    
   }
 };
 
