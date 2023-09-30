@@ -24,6 +24,8 @@ class services(APIView):
             return self.get_service(request)
         elif type_request == "get_all_services":
             return self.get_all_services(request)
+        elif type_request == "get_all_product_services":
+            return self.get_all_product_services(request)
         else:
             return self.handle_error(request)
         
@@ -103,7 +105,44 @@ class services(APIView):
             return Response(
                 response, status=status.HTTP_404_NOT_FOUND
             )
-        
+
+    """GET ALL PRODUCT SERVICES"""
+    def get_all_product_services(self, request):
+        response = json.loads(dowellconnection(*Services,"fetch",field=[],update_field=None))
+
+        data = response.get("data", {})
+
+        product_services = []
+
+        for product in data:
+            if product["service_type"] == "PRODUCT":
+                sub_services_list = []
+
+                for sub_service in product.get("sub_service", []):
+                    sub_service_name = sub_service["sub_service_name"]
+                    sub_service_credits = sub_service.get("sub_service_credits", 0)
+
+                 
+                    sub_services_list.append({
+                        "name": sub_service_name,
+                        "credits": sub_service_credits
+                    })
+
+                data_workflow = {
+                    "Product name": product["name"],
+                    "Product credits": sum(sub_service["credits"] for sub_service in sub_services_list),
+                    "Subproduct names": sub_services_list  
+                }
+                product_services.append(data_workflow)
+
+        response_data = {
+            "success": True,
+            "message": "The list of product services",
+            "details": product_services
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({
@@ -709,3 +748,4 @@ class deavtivate_service_all_key(APIView):
         print("service key deactivated",count)
 
         return Response(response)
+    
