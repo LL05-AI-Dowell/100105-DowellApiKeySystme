@@ -26,6 +26,7 @@ import AdminCard from "../components/adminCard";
 import Workspaces from "../components/admin/workspaces";
 import Vouchers from "../components/admin/vouchers";
 import AddServices from "../components/admin/addServices";
+import UpdateService from "../components/admin/updateService";
 
 const AdminPage = () => {
   const [page, setPage] = useState(1);
@@ -76,14 +77,24 @@ const AdminPage = () => {
                 >
                   Add Services
                 </Button>
+                <Button
+                  color="success"
+                  sx={{
+                    borderBottom: page == 4 ? "solid 5px green" : "",
+                    borderRadius: 0,
+                  }}
+                  onClick={() => setPage(4)}
+                >
+                  Update Services
+                </Button>
               </Stack>
               {page == 1 ? (
                 <Workspaces />
               ) : page == 2 ? (
                 <Vouchers />
-              ) : (
+              ) :  page == 3 ?  (
                 <AddServices />
-              )}
+              ) : <UpdateService />}
             </Box>
           ) : (
             <Box>

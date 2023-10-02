@@ -45,9 +45,10 @@ import { setData, setLoading, setError } from "../store/reducers/data";
 import { useNavigate } from "react-router-dom";
 
 const creditOptions = [
-  { id: 1, name: "Basic", price: 1, credit: 100 },
-  { id: 2, name: "Standard", price: 9, credit: 1000 },
+  { id: 1, name: "Basic", price: 2, credit: 100 },
+  { id: 2, name: "Standard", price: 8, credit: 1000 },
   { id: 3, name: "Premium", price: 16, credit: 2000 },
+  { id: 4, name: "Business", price: 75, credit: 10000 },
 ];
 
 const DashboardCards = () => {
@@ -127,10 +128,12 @@ const DashboardCards = () => {
     sessionStorage.setItem("payment_method", JSON.stringify(paymentMethod));
     const pay_data = {
       price: creditOptions[selectedOPtion - 1].price,
-      product: "Credit",
+      product: "credit",
       currency_code: "usd",
       callback_url:
         "https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/#/checkPayment",
+      description:'credit',
+      credit: creditOptions[selectedOPtion - 1].credit
     };
     const data = JSON.stringify(pay_data);
     console.log("the pay data is ", data);
