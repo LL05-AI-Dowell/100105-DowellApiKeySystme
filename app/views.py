@@ -26,6 +26,8 @@ class services(APIView):
             return self.get_all_services(request)
         elif type_request == "get_all_product_services":
             return self.get_all_product_services(request)
+        elif type_request == "get_products_details":
+            return self.get_products_details(request)
         else:
             return self.handle_error(request)
         
@@ -143,6 +145,17 @@ class services(APIView):
 
         return Response(response_data, status=status.HTTP_200_OK)
 
+    """GET ALL PRODUCT SERVICES BASED ON LOGIN"""
+    def get_products_details(self, request):
+        response = product_details()
+        if response["success"] :
+            return Response(
+                response, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                response, status=status.HTTP_404_NOT_FOUND
+            )
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({

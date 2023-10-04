@@ -997,9 +997,7 @@ def update_service(field,update_field):
             "message": "Something went wrong"
         }
     
-
-import json
-
+"""USER KEY BANNER"""
 def user_services_key_details(workspace_id, required_service, service_type):
     field = {
         "workspaceId": workspace_id
@@ -1062,5 +1060,77 @@ def user_services_key_details(workspace_id, required_service, service_type):
         "total_credits": total_credits
     }
 
+"""PRODUCT DETAILS BASED ON LOGIN FUNCTION"""
+def product_details():
+    product_master_details = product_master()
+    service_master_details = service_master()
 
-    
+    product_info = []
+    product_services = []
+
+    for product in product_master_details.get("data", []):
+        product_name = product.get("product_name")
+        product_url = product.get("product_url")
+        product_image = product.get("product_logo")
+
+        product_info.append({
+            "product name": product_name,
+            "product url": product_url,
+            "product image": product_image,
+        })
+
+    for service in service_master_details.get("data", []):
+        if service["service_type"] == "PRODUCT":
+            sub_services_list = []
+
+            for sub_service in service.get("sub_service", []):
+                sub_service_name = sub_service["sub_service_name"]
+                sub_service_credits = sub_service.get("sub_service_credits", 0)
+
+                sub_services_list.append({
+                    "name": sub_service_name,
+                    "credits": sub_service_credits
+                })
+
+            data_workflow = {
+                "Product name": service["name"],
+                "Product credits": sum(sub_service["credits"] for sub_service in sub_services_list),
+                "Subproduct names": sub_services_list
+            }
+            product_services.append(data_workflow)
+
+
+    combined_result = []
+
+    for product_info_item in product_info:
+        product_name = product_info_item.get("product name")
+        product_url = product_info_item.get("product url")
+        product_image = product_info_item.get("product image")
+
+        matching_services = []
+        for service in product_services:
+            product_service_name = service["Product name"]
+
+            if product_service_name.lower() == product_name.lower():
+                matching_services.append(service)
+
+        if matching_services:
+            total_credits = sum(service["Product credits"] for service in matching_services)
+            sub_product_details = [sub_service for service in matching_services for sub_service in service["Subproduct names"]]
+        else:
+            total_credits = None
+            sub_product_details = None
+
+        combined_result.append({
+            "product_name": product_name,
+            "product_url": product_url,
+            "product_image": product_image,
+            "product_credits": total_credits,
+            "Sub product Details": sub_product_details
+        })
+
+    return {
+        "success": True,
+        "message": "List of product details.",
+        "response": combined_result
+    }

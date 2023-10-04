@@ -89,3 +89,6 @@ Method_Voucher = {
     }
 }
 
+
+product_url = "http://100093.pythonanywhere.com/api/listproducts/"
+service_url = "https://100105.pythonanywhere.com/api/v3/service/?type=get_all_services"

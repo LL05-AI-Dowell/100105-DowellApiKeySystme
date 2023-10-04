@@ -98,3 +98,13 @@ def dowell_time(timezone):
     res= json.loads(response.text)
 
     return res
+
+"""ALL PRODUCT DETAILS FROM LOGIN SERVER"""
+def product_master():
+    response = requests.get(product_url)
+    return json.loads(response.text)
+
+"""ALL PRODUCT DETAILS FROM SERVICE SERVER"""
+def service_master():
+    response = requests.get(service_url)
+    return json.loads(response.text)
