@@ -61,7 +61,8 @@ class ClaimMethodSerializer(serializers.Serializer):
         ('SIGNUP CREDITS', 'SIGNUP CREDITS'),
         ('STARTUP CREDIT COUPONS', 'STARTUP CREDIT COUPONS'),
         ('INTERNAL CREDIT COUPONS', 'INTERNAL CREDIT COUPONS'),
-        ('TOPUPS CREDITS', 'TOPUPS CREDITS')
+        ('TOPUPS CREDITS', 'TOPUPS CREDITS'),
+        ('TEAM MANAGEMENT CREDITS','TEAM MANAGEMENT CREDITS')
     )
     email =  serializers.CharField(allow_null=True, allow_blank=True)
     claim_method = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
