@@ -876,6 +876,22 @@ def verify_redemption(voucher_id):
             "success": False,
             "message": "No voucher or already verified"
         }
+"""GET VOCUHER DEATILS DOR REDEMPTION"""
+def get_voucher_code_details(voucher_code):
+    response = json.loads(dowellconnection(*Reedem_Voucher_Services,"find", field= {"name":voucher_code},update_field=None))
+    data = response.get("data",{})
+
+    if data is not None :
+        return {
+            "success": True,
+            "message": "Details of voucher code",
+            "response": data
+        }  
+    else :
+        return {
+            "success": False,
+            "message": "No voucher with this code"
+        } 
 
 """VOUCHER/COUPON"""
 def coupon_details(action,field):

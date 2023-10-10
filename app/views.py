@@ -537,6 +537,8 @@ class voucher(APIView):
             return self.redeem_voucher(request)
         elif type_request == 'verify_voucher_redemption':
             return self.verify_voucher_redemption(request)
+        elif type_request == 'voucher_code_details':
+            return self.voucher_code_details(request)
         else:
             return self.handle_error(request)
     def get(self, request):
@@ -610,6 +612,13 @@ class voucher(APIView):
         else:
             return Response(response,status=status.HTTP_400_BAD_REQUEST)
 
+    def voucher_code_details(self,request):
+        voucher_code = request.data.get('voucher_code') 
+        response = get_voucher_code_details(voucher_code)
+        if response["success"]:
+            return Response(response,status=status.HTTP_200_OK)
+        else:
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
     """GET VERIFICATION VOUCHERS"""
     def verification_voucher(self, request):
         action = request.GET.get('action')
