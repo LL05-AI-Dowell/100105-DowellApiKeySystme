@@ -86,6 +86,9 @@ Method_Voucher = {
     },
     "TOPUPS CREDITS": {
         "code": 21, "voucher_worth":None, "time":0
+    },
+    "TEAM MANAGEMENT CREDITS": {
+        "code": 22, "voucher_worth": 2000, "time": 612000
     }
 }
 
