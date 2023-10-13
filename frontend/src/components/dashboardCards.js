@@ -29,7 +29,7 @@ import CachedIcon from "@mui/icons-material/Cached";
 import Logo from "../dowellLogo.png";
 import Paypal from "../icons/paypal.png";
 import Stripe from "../icons/stripe.png";
-import VoucherImg from "../icons/voucher.png"
+import VoucherImg from "../icons/voucher.png";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -39,7 +39,8 @@ import {
   ActivateService_v3,
   UpdateApiKey_v3,
   InitializePay_Stripe,
-  InitializePay_Paypal, TopupPublicVoucher_v3
+  InitializePay_Paypal,
+  TopupPublicVoucher_v3,
 } from "../util/api_v3";
 import { setData, setLoading, setError } from "../store/reducers/data";
 import { useNavigate } from "react-router-dom";
@@ -62,7 +63,7 @@ const DashboardCards = () => {
   const [topup, setTopup] = useState(false);
   const [topupValue, setTopupValue] = useState("");
   const [topupSnackbar, setTopupSnackbar] = useState(false);
-  const [topupSnackbarData, setTopupSnackbarData]= useState({})
+  const [topupSnackbarData, setTopupSnackbarData] = useState({});
 
   const [dialog, setDialog] = useState(false);
   const [buyCredit, setBuyCredit] = useState("");
@@ -132,8 +133,8 @@ const DashboardCards = () => {
       currency_code: "usd",
       callback_url:
         "https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/#/checkPayment",
-      description:'credit',
-      credit: creditOptions[selectedOPtion - 1].credit
+      description: "credit",
+      credit: creditOptions[selectedOPtion - 1].credit,
     };
     const data = JSON.stringify(pay_data);
     console.log("the pay data is ", data);
@@ -219,28 +220,46 @@ const DashboardCards = () => {
     setDialog(false);
     setTopup(true);
   };
-  const handleTopup = async() => {
-  
-    const id = api_data?.workspaceId
+  const handleTopup = async () => {
+    const id = api_data?.workspaceId;
     const dataObj = {
-      workspace_id : id,
-      voucher_code : topupValue
-    }
-    const data = JSON.stringify(dataObj)
+      workspace_id: id,
+      voucher_code: topupValue,
+    };
+    const data = JSON.stringify(dataObj);
     // console.log("the data is ", data)
-    const res = await TopupPublicVoucher_v3({data: data})
-    console.log("the topup response is ", res)
-    setTopup(false)
-    setTopupValue("")
-    if(res){
-      setTopupSnackbar(res)
+    const res = await TopupPublicVoucher_v3({ data: data });
+    console.log("the topup response is ", res);
+    setTopup(false);
+    setTopupValue("");
+    if (res) {
+      setTopupSnackbar(res);
+    } else {
+      setTopupSnackbar({ message: "semething went wrong", success: "false" });
     }
-    else{
-      setTopupSnackbar({message:"semething went wrong", success:"false"})
-    }
-
   };
 
+  const isTopupValueValid = () => {
+    const trimmedTopupValue = topupValue.trim();
+
+  const wordCount = topupValue.replace(/\\s+/g, '').length;
+  const startsWith20 = trimmedTopupValue.startsWith('20');
+  const startsWith22 = trimmedTopupValue.startsWith('22');
+
+  console.log('topupValue:', topupValue);
+  console.log('trimmedTopupValue:', trimmedTopupValue);
+  console.log('wordCount:', wordCount);
+  console.log('startsWith20:', startsWith20);
+  console.log('startsWith22:', startsWith22);
+
+  const isValid = wordCount >= 3 && !startsWith20 && !startsWith22;
+
+  console.log('isTopupValueValid:', isValid);
+
+  return isValid;
+  };
+
+  console.log("topupValue:", topupValue);
   /////////////
 
   return (
@@ -594,13 +613,15 @@ const DashboardCards = () => {
                   {option.name}
                 </Typography>
                 <Typography fontWeight={"bold"}>
-                ({option.credit} credits)
+                  ({option.credit} credits)
                   {/* [totalCredits] ({option.credit} credits) */}
                 </Typography>
                 {/* <Typography>Free Support</Typography>
                 <Typography>Database</Typography> */}
               </Box>
-              <Box fontWeight={"bold"} mt={1}>$ {option.price}</Box>
+              <Box fontWeight={"bold"} mt={1}>
+                $ {option.price}
+              </Box>
             </Box>
           ))}
           <Button
@@ -703,7 +724,9 @@ const DashboardCards = () => {
       <Dialog open={topup} onClose={() => setTopup(false)}>
         <DialogTitle sx={{ textAlign: "center", fontWeight: "bold" }}>
           <img src={VoucherImg} width={"60pc"} />
-          <Typography variant="h5" fontWeight={'bold'} sx={{color:"green"}}>ADD YOUR VOUCHER CODE</Typography>
+          <Typography variant="h5" fontWeight={"bold"} sx={{ color: "green" }}>
+            ADD YOUR VOUCHER CODE
+          </Typography>
         </DialogTitle>
         <DialogContent sx={{ width: { xs: "84%", md: "350px" } }}>
           <TextField
@@ -720,7 +743,7 @@ const DashboardCards = () => {
             autoFocus
             color="success"
             variant="contained"
-            disabled={!topupValue}
+            disabled={!isTopupValueValid()}
             fullWidth
             sx={{ ml: "5%", mr: "5%", mb: 2 }}
           >
@@ -738,7 +761,7 @@ const DashboardCards = () => {
         <Alert
           severity={topupSnackbar?.success == "true" ? "success" : "error"}
         >
-          {topupSnackbar?.message  }
+          {topupSnackbar?.message}
         </Alert>
       </Snackbar>
     </Box>

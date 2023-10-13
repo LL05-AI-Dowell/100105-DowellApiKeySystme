@@ -82,9 +82,8 @@ const DocumentationCards = ({ card, title }) => {
       i?.service_type == card
   );
   console.log("the fileted service is ", filteredService);
-  const hasCredit = filteredService.some(item => item.credits !== null);
-  console.log("does it have atleast 1 credits? ", hasCredit)
-
+  const hasCredit = filteredService.some((item) => item.credits !== null);
+  console.log("does it have atleast 1 credits? ", hasCredit);
 
   return (
     <Box>
@@ -149,16 +148,19 @@ const DocumentationCards = ({ card, title }) => {
               )}
               <Snackbar
                 anchorOrigin={{ horizontal: "right", vertical: "top" }}
-                open={snackBar}
+                open={snackBar !== null}
                 autoHideDuration={5000}
-                onClose={() => setSnackBar("")}
+                onClose={() => setSnackBar(null)}
               >
-                <Alert severity={snackBar} sx={{ width: "100%" }}>
-                  {snackBar == "success"
-                    ? "Done"
-                    : snackBar == "info"
-                    ? "It is not released yet"
-                    : "Error Occured"}
+                <Alert
+                  severity={snackBar?.success ? "success" : "error"}
+                  sx={{ width: "100%" }}
+                >
+                  {snackBar?.success
+                    ? snackBar?.message
+                    : snackBar?.success == false
+                    ? snackBar?.message
+                    : "It is not released yet"}
                 </Alert>
               </Snackbar>
             </TableContainer>
@@ -190,7 +192,9 @@ const DocumentationCards = ({ card, title }) => {
                     Documentation
                   </TableCell>
 
-                   {hasCredit ? <TableCell sx={{ fontWeight: "bold" }}>Credits</TableCell> : null} 
+                  {hasCredit ? (
+                    <TableCell sx={{ fontWeight: "bold" }}>Credits</TableCell>
+                  ) : null}
 
                   <TableCell sx={{ fontWeight: "bold" }}>Activate</TableCell>
                 </TableRow>
@@ -229,8 +233,11 @@ const DocumentationCards = ({ card, title }) => {
         autoHideDuration={5000}
         onClose={() => setSnackBar(null)}
       >
-        <Alert severity={snackBar?.success ? 'success' : 'error'} sx={{ width: "100%" }}>
-          {snackBar?.success 
+        <Alert
+          severity={snackBar?.success ? "success" : "error"}
+          sx={{ width: "100%" }}
+        >
+          {snackBar?.success
             ? snackBar?.message
             : snackBar?.success == false
             ? snackBar?.message
