@@ -5,6 +5,9 @@ import requests
 from utils.constant import *
 import pytz
 import datetime
+from datetime import datetime
+
+
 
 """Generate UUID"""
 def generate_uuid():
@@ -108,3 +111,15 @@ def product_master():
 def service_master():
     response = requests.get(service_url)
     return json.loads(response.text)
+
+"""GEt the current date"""
+def get_formatted_date():
+    today = datetime.now()
+    formatted_date = today.strftime("%d-%m-%Y")
+    formatted_time = today.strftime("%H:%M:%S")
+    formatted_date_ux = formatted_date.replace("-", "_") + f"_uxlivinglab_org"
+    return {
+        "formatted_date": formatted_date,
+        "formatted_time": formatted_time,
+        "formatted_date_ux": formatted_date_ux
+    }

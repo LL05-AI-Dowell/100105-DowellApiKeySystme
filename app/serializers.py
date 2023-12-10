@@ -97,3 +97,25 @@ class UpdateServicesSerializer(serializers.Serializer):
     document_id = serializers.CharField(allow_null=False, allow_blank=False)
 
 
+class ExperiencedProductSerializer(serializers.Serializer):
+    METHOD_CHOICES = (
+        ("SAMANTA CONTENT EVALUATOR", "SAMANTA CONTENT EVALUATOR"),
+        ('WORLD PRICE INDICATOR', 'WORLD PRICE INDICATOR'),
+        ('LEGALZARD', 'LEGALZARD'),
+        ('LOCATION SPECIFIC SEARCH', 'LOCATION SPECIFIC SEARCH'),
+        ('WEBSITE CRAWL', 'WEBSITE CRAWL'),
+    )
+    product_name = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
+    email = serializers.CharField(allow_null=False, allow_blank=False)
+    experienced_data =  serializers.JSONField()
+
+class ExperiencedUserDetailsSerializer(serializers.Serializer):
+    METHOD_CHOICES = (
+        ("UXLIVINGLAB001", "UXLIVINGLAB001"),
+        ('UXLIVINGLAB002', 'UXLIVINGLAB002'),
+        ('UXLIVINGLAB003', 'UXLIVINGLAB003'),
+        ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
+        ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
+    )
+    product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
+    email = serializers.CharField(allow_null=False, allow_blank=False)

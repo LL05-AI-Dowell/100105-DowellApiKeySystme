@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from .exper_views import *
 
 urlpatterns = [
     path('service/',services.as_view()),
@@ -10,5 +11,5 @@ urlpatterns = [
     path('platform-admin/',platform_admin_duties.as_view()),
     path('public-voucher/',public_voucher_system.as_view()),
     path('deactivate-all-services/',deavtivate_service_all_key.as_view()),
-    
+    path('experience_database_services/',experiences_datacube_services.as_view()),
 ]
