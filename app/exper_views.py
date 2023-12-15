@@ -11,23 +11,23 @@ import os
 from threading import Thread
 import json
 
-
+# UNCOMMENT ON PRODUCTION
 load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
 api_key = str(os.getenv("API_KEY"))
 DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
 DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
 
-SAMANTA_CONTENT_EVALUATOR_DB0 = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_DB0"))
-WORLD_PRICE_INDICATOR_DB0 = str(os.getenv("WORLD_PRICE_INDICATOR_DB0"))
-LEGALZARD_DB0 = str(os.getenv("LEGALZARD_DB0"))
-LOCATION_SPECIFIC_SEARCH_DB0 = str(os.getenv("LOCATION_SPECIFIC_SEARCH_DB0"))
-WEBSITE_CRAWL_DB0 = str(os.getenv("WEBSITE_CRAWL_DB0"))
+SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
+WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
+LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
+LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
+WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
 
-SAMANTA_CONTENT_EVALUATOR_DB1 = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_DB1"))
-WORLD_PRICE_INDICATOR_DB1 = str(os.getenv("WORLD_PRICE_INDICATOR_DB1"))
-LEGALZARD_DB1 = str(os.getenv("LEGALZARD_DB1"))
-LOCATION_SPECIFIC_SEARCH_DB1 = str(os.getenv("LOCATION_SPECIFIC_SEARCH_DB1"))
-WEBSITE_CRAWL_DB1 = str(os.getenv("WEBSITE_CRAWL_DB1"))
+SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
+WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
+LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
+LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
+WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 
 # # UNCOMMENT WHEN RUNNING WITH LOCAL 
 # load_dotenv(f"{os.getcwd()}/.env")
@@ -35,17 +35,17 @@ WEBSITE_CRAWL_DB1 = str(os.getenv("WEBSITE_CRAWL_DB1"))
 # DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
 # DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
 
-# SAMANTA_CONTENT_EVALUATOR_DB0 = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_DB0"))
-# WORLD_PRICE_INDICATOR_DB0 = str(os.getenv("WORLD_PRICE_INDICATOR_DB0"))
-# LEGALZARD_DB0 = str(os.getenv("LEGALZARD_DB0"))
-# LOCATION_SPECIFIC_SEARCH_DB0 = str(os.getenv("LOCATION_SPECIFIC_SEARCH_DB0"))
-# WEBSITE_CRAWL_DB0 = str(os.getenv("WEBSITE_CRAWL_DB0"))
+# SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
+# WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
+# LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
+# LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
+# WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
 
-# SAMANTA_CONTENT_EVALUATOR_DB1 = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_DB1"))
-# WORLD_PRICE_INDICATOR_DB1 = str(os.getenv("WORLD_PRICE_INDICATOR_DB1"))
-# LEGALZARD_DB1 = str(os.getenv("LEGALZARD_DB1"))
-# LOCATION_SPECIFIC_SEARCH_DB1 = str(os.getenv("LOCATION_SPECIFIC_SEARCH_DB1"))
-# WEBSITE_CRAWL_DB1 = str(os.getenv("WEBSITE_CRAWL_DB1"))
+# SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
+# WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
+# LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
+# LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
+# WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -53,9 +53,10 @@ class experiences_datacube_services(APIView):
     def post(self, request):
         type_request = request.GET.get('type')
     
-
         if type_request == "experienced_user_details":
             return self.experienced_user_details(request)
+        elif type_request == "register_user":
+            return self.register_user(request)
         else:
             return self.handle_error(request)
         
@@ -66,6 +67,8 @@ class experiences_datacube_services(APIView):
             return self.healt_check(request)
         elif type_request == "get_user_email":
             return self.get_user_email(request)
+        elif type_request == "update_user_usage":
+            return self.update_user_usage(request)
         else:
             return self.handle_error(request)
 
@@ -100,11 +103,11 @@ class experiences_datacube_services(APIView):
         collection_name = get_formatted_date()
 
         db0_collection_mapping = {
-            "SAMANTA CONTENT EVALUATOR": SAMANTA_CONTENT_EVALUATOR_DB0,
-            "WORLD PRICE INDICATOR": WORLD_PRICE_INDICATOR_DB0,
-            "LEGALZARD": LEGALZARD_DB0,
-            "LOCATION SPECIFIC SEARCH": LOCATION_SPECIFIC_SEARCH_DB0,
-            "WEBSITE CRAWL": WEBSITE_CRAWL_DB0
+            "SAMANTA CONTENT EVALUATOR": SAMANTA_CONTENT_EVALUATOR_EXPERINECED,
+            "WORLD PRICE INDICATOR": WORLD_PRICE_INDICATOR_EXPERINECED,
+            "LEGALZARD": LEGALZARD_EXPERINECED,
+            "LOCATION SPECIFIC SEARCH": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
+            "WEBSITE CRAWL": WEBSITE_CRAWL_EXPERINECED
         }
 
         db0_collection_name = db0_collection_mapping.get(product_name)
@@ -217,14 +220,13 @@ class experiences_datacube_services(APIView):
                 "message": "Posting wrong data to API",
                 "error": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
-
-
+        
         db0_collection = {
-            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_DB0,
-            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_DB0,
-            "UXLIVINGLAB003": LEGALZARD_DB0,
-            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_DB0,
-            "UXLIVINGLAB005": WEBSITE_CRAWL_DB0
+            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_EXPERINECED,
+            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_EXPERINECED,
+            "UXLIVINGLAB003": LEGALZARD_EXPERINECED,
+            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
+            "UXLIVINGLAB005": WEBSITE_CRAWL_EXPERINECED
         }
         db0_collection_name = db0_collection.get(product_number)
 
@@ -235,7 +237,7 @@ class experiences_datacube_services(APIView):
             {
                 "email": email
             },
-            100000,
+            1,
             0,
             False
         ))
@@ -252,7 +254,7 @@ class experiences_datacube_services(APIView):
 
         data = response.get("data",[])
 
-        occurrences = sum(entry['email'] == email for entry in data)
+        occurrences = sum(entry['email'] == email for entry in data) 
 
         return Response({
             "success": True,
@@ -260,6 +262,137 @@ class experiences_datacube_services(APIView):
             "occurrences": occurrences
         }, status=status.HTTP_200_OK)
 
+    """Register a new email address"""
+    def register_user(self, request):
+        email = request.data.get("email")
+        product_number = request.data.get("product_number")
+
+        serializer= ExperiencedUserDetailsSerializer(data ={"email": email,"product_number": product_number})
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        email_verification = json.loads(verify_email(email))
+        if not email_verification["success"]:
+            return Response({
+                "success": False,
+                "message": verify_email["message"]
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        db0_collection = {
+            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
+            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
+            "UXLIVINGLAB003": LEGALZARD_USER,
+            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+        }
+        db_user_collection_name = db0_collection.get(product_number)
+        response = json.loads(datacube_data_insertion(
+            api_key,
+            DATABASE_DB0,
+            db_user_collection_name,
+                {
+                    "email": email,
+                    "total_times": 5,
+                    "used_time": 0,
+                    "registered_on": get_formatted_date()["formatted_date"],
+                    "registered_at": get_formatted_date()["formatted_time"],
+                    "is_active": True,
+                    "is_paid": False,
+                    "paid_on":"",
+                    "paid_at":"",
+                    "records": [{
+                        "record": "1",
+                        "type": "overall"
+                    }]
+                }
+            ))
+
+        if not response["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to insert data into the database",
+                "database_response": {
+                    "success": response["success"],
+                    "message": response["message"],
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+        return Response({
+            "success": True,
+            "message": "Experienced user details saved successfully",
+            "database_response": {
+                "success": response["success"],
+                "message": response["message"],
+                "inserted_id": response.get("data", {}).get("inserted_id"),
+            },
+        }, status=status.HTTP_201_CREATED)
+
+    """Update user usage/ reduce number of usage"""
+    def update_user_usage(self, request):
+        email = request.GET.get("email")
+        product_number = request.GET.get("product_number")
+        occurrences = int(request.GET.get("occurrences"))
+
+        serializer= ReduceExperiencedSerializer(data = {
+            "email": email,
+            "product_number": product_number,
+            "occurrences": occurrences
+        })
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        db0_collection = {
+            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
+            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
+            "UXLIVINGLAB003": LEGALZARD_USER,
+            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+        }
+        db_user_collection_name = db0_collection.get(product_number)
+        response = json.loads(datacube_data_update(
+            api_key,
+            DATABASE_DB0,
+            db_user_collection_name,
+            {
+                "email": email,
+            },
+            {
+                "used_time": occurrences,
+                "records": [{
+                    "record": "1",
+                    "type": "overall_updated"
+                }]
+            }
+        ))
+
+        if not response["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to update data",
+                "database_response": {
+                    "success": response["success"],
+                    "message": response["message"],
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            "success": True,
+                "message": "Date updated successfully",
+                "database_response": {
+                    "success": response["success"],
+                    "message": response["message"],
+                },
+        },status=status.HTTP_200_OK)
+    
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({

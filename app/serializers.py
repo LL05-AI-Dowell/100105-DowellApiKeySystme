@@ -119,3 +119,14 @@ class ExperiencedUserDetailsSerializer(serializers.Serializer):
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
+class ReduceExperiencedSerializer(serializers.Serializer):
+    METHOD_CHOICES = (
+        ("UXLIVINGLAB001", "UXLIVINGLAB001"),
+        ('UXLIVINGLAB002', 'UXLIVINGLAB002'),
+        ('UXLIVINGLAB003', 'UXLIVINGLAB003'),
+        ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
+        ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
+    )
+    product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
+    email = serializers.CharField(allow_null=False, allow_blank=False)
+    occurrences = serializers.IntegerField()

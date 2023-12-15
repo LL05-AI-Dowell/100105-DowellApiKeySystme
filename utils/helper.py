@@ -123,3 +123,13 @@ def get_formatted_date():
         "formatted_time": formatted_time,
         "formatted_date_ux": formatted_date_ux
     }
+
+"""Email validation"""
+def verify_email(email):
+    url = "https://100085.pythonanywhere.com/api/uxlivinglab/verify-email/"
+    payload = {
+        "email":email
+    }
+    
+    response = requests.request("POST", url, data=payload)
+    return response.text
