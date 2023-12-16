@@ -11,26 +11,8 @@ import os
 from threading import Thread
 import json
 
-# UNCOMMENT ON PRODUCTION
-load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
-api_key = str(os.getenv("API_KEY"))
-DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
-DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
-
-SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
-WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
-LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
-LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
-WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
-
-SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
-WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
-LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
-LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
-WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
-
-# # UNCOMMENT WHEN RUNNING WITH LOCAL 
-# load_dotenv(f"{os.getcwd()}/.env")
+# # UNCOMMENT ON PRODUCTION
+# load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
 # api_key = str(os.getenv("API_KEY"))
 # DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
 # DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
@@ -46,6 +28,24 @@ WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 # LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
 # LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
 # WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
+
+# UNCOMMENT WHEN RUNNING WITH LOCAL 
+load_dotenv(f"{os.getcwd()}/.env")
+api_key = str(os.getenv("API_KEY"))
+DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
+DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
+
+SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
+WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
+LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
+LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
+WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
+
+SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
+WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
+LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
+LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
+WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -67,6 +67,8 @@ class experiences_datacube_services(APIView):
             return self.healt_check(request)
         elif type_request == "get_user_email":
             return self.get_user_email(request)
+        elif type_request == "get_registered_user":
+            return self.get_registered_user(request)
         elif type_request == "update_user_usage":
             return self.update_user_usage(request)
         else:
@@ -331,6 +333,60 @@ class experiences_datacube_services(APIView):
             },
         }, status=status.HTTP_201_CREATED)
 
+    """Registered user details"""
+    def get_registered_user(self, request):
+        email = request.GET.get("email")
+        product_number = request.GET.get("product_number")
+
+        serializer= ExperiencedUserDetailsSerializer(data = {
+            "email": email,
+            "product_number": product_number
+        })
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        db0_collection = {
+            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
+            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
+            "UXLIVINGLAB003": LEGALZARD_USER,
+            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+        }
+        db_user_collection_name = db0_collection.get(product_number)
+        response = json.loads(datacube_data_retrival(
+            api_key, 
+            DATABASE_DB0,
+            db_user_collection_name,
+            {
+                "email": email
+            },
+            1,
+            0,
+            False
+        ))
+
+        
+        if not response["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to retrive data from database",
+                "database_response": {
+                    "success": response["success"],
+                    "message": response["message"],
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            "success": True,
+            "message": "Date retrived successfully",
+            "response": response.get("data",[])
+        },status=status.HTTP_200_OK)
+    
     """Update user usage/ reduce number of usage"""
     def update_user_usage(self, request):
         email = request.GET.get("email")
