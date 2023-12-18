@@ -57,6 +57,8 @@ class experiences_datacube_services(APIView):
             return self.experienced_user_details(request)
         elif type_request == "register_user":
             return self.register_user(request)
+        elif type_request== "experienced_service_user_details":
+            return self.experienced_service_user_details(request)
         else:
             return self.handle_error(request)
         
@@ -448,6 +450,91 @@ class experiences_datacube_services(APIView):
                     "message": response["message"],
                 },
         },status=status.HTTP_200_OK)
+    
+    """Experienced services user details"""
+    def experienced_service_user_details(self, request):
+        email = request.data.get("email")
+        print(email)
+        product_number = request.data.get("product_number")
+        occurrences = request.data.get("occurrences")
+
+        serializer = ExperiencedUserDetailsSerializer(data={
+            "email": email,
+            "product_number": product_number
+        })
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Incorrect data sent to API",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        db0_collection = {
+            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
+            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
+            "UXLIVINGLAB003": LEGALZARD_USER,
+            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+        }
+
+        db_user_collection_name = db0_collection.get(product_number)
+
+        response = json.loads(datacube_data_retrival(
+            api_key, 
+            DATABASE_DB0,
+            db_user_collection_name,
+            {"email": email},
+            1000000,
+            0,
+            False
+        ))
+
+        if not response.get("success", False):
+            return Response({
+                "success": False,
+                "message": "Failed to retrieve data from the database",
+                "database_response": {
+                    "success": response.get("success", False),
+                    "message": response.get("message", "Unknown error"),
+                },
+            }, status=status.HTTP_400_BAD_REQUEST)
+        user_data = response.get("data", [])
+
+        if not user_data:
+            return Response({"success": False, "message": "No user data found."})
+
+        user_info = user_data[0]
+        is_active = user_info.get("is_active", False)
+        is_paid = user_info.get("is_paid", False)
+        total_time = user_info.get("total_times", 0)
+        used_time = user_info.get("used_time", 0)
+
+        if not is_active:
+            return Response({
+                "success": False, 
+                "message": "Your account has been suspended"
+            })
+
+        if not is_paid:
+            if total_time < occurrences:
+                print("----")
+                return Response({
+                    "success": False, 
+                    "message": "Exceeded experienced limits."
+                },)
+        else:
+            if total_time < used_time:
+                return Response({
+                    "success": False, 
+                    "message": "Exceeded experienced limits."
+                })
+
+        return Response({
+            "success": True,
+            "message": "Data retrieved successfully",
+            "response": response.get("data", [])
+        }, status=status.HTTP_200_OK)
     
     """HANDLE ERROR"""
     def handle_error(self, request): 
