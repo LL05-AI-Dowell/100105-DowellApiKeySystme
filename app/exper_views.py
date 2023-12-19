@@ -529,7 +529,7 @@ class experiences_datacube_services(APIView):
         if not is_active:
             return Response({
                 "success": False, 
-                "message": "Your account has been suspended"
+                "message": "Your account has been suspended , Please contact our customer support team. Thank you"
             })
 
         if not is_paid:
@@ -537,13 +537,13 @@ class experiences_datacube_services(APIView):
                 print("----")
                 return Response({
                     "success": False, 
-                    "message": "Exceeded experienced limits."
+                    "message": "Exceeded experienced limits. Please contact our customer support team. Thank you"
                 },)
         else:
             if total_time < used_time:
                 return Response({
                     "success": False, 
-                    "message": "Exceeded experienced limits."
+                    "message": "Exceeded experienced limits. Please contact our customer support team. Thank you"
                 })
 
         return Response({
