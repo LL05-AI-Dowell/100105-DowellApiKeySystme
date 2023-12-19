@@ -271,7 +271,7 @@ class experiences_datacube_services(APIView):
         email = request.data.get("email")
         product_number = request.data.get("product_number")
 
-        serializer= ExperiencedUserDetailsSerializer(data ={"email": email,"product_number": product_number})
+        serializer = ExperiencedUserDetailsSerializer(data={"email": email, "product_number": product_number})
 
         if not serializer.is_valid():
             return Response({
@@ -279,13 +279,7 @@ class experiences_datacube_services(APIView):
                 "message": "Posting wrong data to API",
                 "error": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
-        email_verification = json.loads(verify_email(email))
-        if not email_verification["success"]:
-            return Response({
-                "success": False,
-                "message": verify_email["message"]
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         db0_collection = {
             "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
@@ -294,10 +288,29 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER
         }
         db_user_collection_name = db0_collection.get(product_number)
-        response = json.loads(datacube_data_insertion(
+
+        check_user_present = json.loads(datacube_data_retrival(
             api_key,
             DATABASE_DB0,
             db_user_collection_name,
+            {"email": email},
+            10000,
+            0,
+            False
+        ))
+
+        if not check_user_present.get("data"):
+            email_verification = json.loads(verify_email(email))
+            if not email_verification.get("success"):
+                return Response({
+                    "success": False,
+                    "message": email_verification.get("message", "Email verification failed")
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            response = json.loads(datacube_data_insertion(
+                api_key,
+                DATABASE_DB0,
+                db_user_collection_name,
                 {
                     "email": email,
                     "total_times": 5,
@@ -306,34 +319,37 @@ class experiences_datacube_services(APIView):
                     "registered_at": get_formatted_date()["formatted_time"],
                     "is_active": True,
                     "is_paid": False,
-                    "paid_on":"",
-                    "paid_at":"",
-                    "records": [{
-                        "record": "1",
-                        "type": "overall"
-                    }]
+                    "paid_on": "",
+                    "paid_at": "",
+                    "records": [{"record": "1", "type": "overall"}]
                 }
             ))
 
-        if not response["success"]:
+            if not response.get("success"):
+                return Response({
+                    "success": False,
+                    "message": "Failed to insert data into the database",
+                    "database_response": {
+                        "success": response.get("success"),
+                        "message": response.get("message"),
+                    },
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             return Response({
-                "success": False,
-                "message": "Failed to insert data into the database",
+                "success": True,
+                "message": "Experienced user details saved successfully",
                 "database_response": {
-                    "success": response["success"],
-                    "message": response["message"],
+                    "success": response.get("success"),
+                    "message": response.get("message"),
+                    "inserted_id": response.get("data", {}).get("inserted_id"),
                 },
-            }, status=status.HTTP_400_BAD_REQUEST)
-    
+            }, status=status.HTTP_201_CREATED)
+
         return Response({
             "success": True,
-            "message": "Experienced user details saved successfully",
-            "database_response": {
-                "success": response["success"],
-                "message": response["message"],
-                "inserted_id": response.get("data", {}).get("inserted_id"),
-            },
-        }, status=status.HTTP_201_CREATED)
+            "message": "Experienced user details already exist"
+        }, status=status.HTTP_200_OK)
+
 
     """Registered user details"""
     def get_registered_user(self, request):
