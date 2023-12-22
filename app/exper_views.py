@@ -22,12 +22,14 @@ WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERIN
 LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
 LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
 WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
+SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
 
 SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
 WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
 LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
 LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
 WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
+SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
 
 # # UNCOMMENT WHEN RUNNING WITH LOCAL 
 # load_dotenv(f"{os.getcwd()}/.env")
@@ -40,12 +42,14 @@ WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 # LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
 # LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
 # WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
+# SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
 
 # SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
 # WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
 # LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
 # LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
 # WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
+# SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -111,7 +115,8 @@ class experiences_datacube_services(APIView):
             "WORLD PRICE INDICATOR": WORLD_PRICE_INDICATOR_EXPERINECED,
             "LEGALZARD": LEGALZARD_EXPERINECED,
             "LOCATION SPECIFIC SEARCH": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
-            "WEBSITE CRAWL": WEBSITE_CRAWL_EXPERINECED
+            "WEBSITE CRAWL": WEBSITE_CRAWL_EXPERINECED,
+            "SEARCH IN LIVINGLAB": SEARCH_IN_LIVINGLAB_EXPERINECED
         }
 
         db0_collection_name = db0_collection_mapping.get(product_name)
@@ -230,7 +235,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_EXPERINECED,
             "UXLIVINGLAB003": LEGALZARD_EXPERINECED,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
-            "UXLIVINGLAB005": WEBSITE_CRAWL_EXPERINECED
+            "UXLIVINGLAB005": WEBSITE_CRAWL_EXPERINECED,
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_EXPERINECED
         }
         db0_collection_name = db0_collection.get(product_number)
 
@@ -285,7 +291,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
-            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
         }
         db_user_collection_name = db0_collection.get(product_number)
 
@@ -373,7 +380,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
-            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
         }
         db_user_collection_name = db0_collection.get(product_number)
         response = json.loads(datacube_data_retrival(
@@ -429,7 +437,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
-            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
         }
         db_user_collection_name = db0_collection.get(product_number)
         response = json.loads(datacube_data_update(
@@ -491,7 +500,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
-            "UXLIVINGLAB005": WEBSITE_CRAWL_USER
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
         }
 
         db_user_collection_name = db0_collection.get(product_number)
