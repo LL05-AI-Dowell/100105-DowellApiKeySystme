@@ -12,4 +12,5 @@ urlpatterns = [
     path('public-voucher/',public_voucher_system.as_view()),
     path('deactivate-all-services/',deavtivate_service_all_key.as_view()),
     path('experience_database_services/',experiences_datacube_services.as_view()),
+    path('experience_report_services/',experiences_report.as_view()),
 ]

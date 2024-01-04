@@ -104,6 +104,7 @@ class ExperiencedProductSerializer(serializers.Serializer):
         ('LEGALZARD', 'LEGALZARD'),
         ('LOCATION SPECIFIC SEARCH', 'LOCATION SPECIFIC SEARCH'),
         ('WEBSITE CRAWL', 'WEBSITE CRAWL'),
+        ('SEARCH IN LIVINGLAB', 'SEARCH IN LIVINGLAB'),
     )
     product_name = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
@@ -116,6 +117,7 @@ class ExperiencedUserDetailsSerializer(serializers.Serializer):
         ('UXLIVINGLAB003', 'UXLIVINGLAB003'),
         ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
         ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
+        ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
@@ -126,7 +128,41 @@ class ReduceExperiencedSerializer(serializers.Serializer):
         ('UXLIVINGLAB003', 'UXLIVINGLAB003'),
         ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
         ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
+        ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
     occurrences = serializers.IntegerField()
+
+class GenerateCouponSerializer(serializers.Serializer):
+    number_of_coupons = serializers.IntegerField()
+
+class UseCouponSerializer(serializers.Serializer):
+    METHOD_CHOICES = (
+        ("UXLIVINGLAB001", "UXLIVINGLAB001"),
+        ('UXLIVINGLAB002', 'UXLIVINGLAB002'),
+        ('UXLIVINGLAB003', 'UXLIVINGLAB003'),
+        ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
+        ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
+        ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
+    )
+    product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
+    email = serializers.CharField(allow_null=False, allow_blank=False)
+    coupon = serializers.CharField(allow_null=False, allow_blank=False)
+class ReportUserExperiencedCountSerializer(serializers.Serializer):
+    DATE_TYPE_CHOICES = (
+        ("one_day", "one_day"),
+        ('seven_days', 'seven_days'),
+        ('one_month', 'one_month')
+    )
+    METHOD_CHOICES = (
+        ("UXLIVINGLAB001", "UXLIVINGLAB001"),
+        ('UXLIVINGLAB002', 'UXLIVINGLAB002'),
+        ('UXLIVINGLAB003', 'UXLIVINGLAB003'),
+        ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
+        ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
+        ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
+    )
+    product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
+    date_type = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=DATE_TYPE_CHOICES)
+    date = serializers.CharField(allow_null=False, allow_blank=False)

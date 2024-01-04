@@ -6,8 +6,7 @@ from utils.constant import *
 import pytz
 import datetime
 from datetime import datetime
-
-
+import string
 
 """Generate UUID"""
 def generate_uuid():
@@ -133,3 +132,13 @@ def verify_email(email):
     
     response = requests.request("POST", url, data=payload)
     return response.text
+
+"""Generate coupon for experience product"""
+def generate_coupons(number):
+    characters = string.ascii_letters
+    code = ""
+
+    for _ in range(number):
+        code += random.choice(characters)
+
+    return code
