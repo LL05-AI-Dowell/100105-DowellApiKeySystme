@@ -76,6 +76,8 @@ class experiences_datacube_services(APIView):
             return self.generate_coupon(request)
         elif type_request== "use_coupons":
             return self.use_coupons(request)
+        elif type_request== "contribute":
+            return self.contribute(request)
         else:
             return self.handle_error(request)
         
@@ -673,6 +675,7 @@ class experiences_datacube_services(APIView):
             "coupons": coupons_data["coupon_generated"]
         })
 
+    """Redeem Coupons"""
     def use_coupons(self,request):
         email = request.data.get("email")
         coupon = request.data.get("coupon")
@@ -752,7 +755,75 @@ class experiences_datacube_services(APIView):
             "success":True,
             "message":"Experience time increased by 1"
         },status= status.HTTP_200_OK)
-        
+    
+    """Contribute by users"""
+    def contribute(self, request):
+        email = request.data.get("email")
+        product_number = request.data.get("product_number")
+
+        serializer = ExperiencedUserDetailsSerializer(data={"email": email, "product_number": product_number})
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        db0_collection = {
+            "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
+            "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
+            "UXLIVINGLAB003": LEGALZARD_USER,
+            "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
+            "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+        }
+        db_user_collection_name = db0_collection.get(product_number)
+        user_data = json.loads(datacube_data_retrival(
+            api_key,
+            DATABASE_DB0,
+            db_user_collection_name,
+            {
+                "email": email
+            },
+            1,
+            0,
+            False
+        ))
+        existing_user_data = user_data.get("data",[])
+        if not existing_user_data:
+            return Response({
+                "success": False,
+                "message": "No user was found"
+            },status=status.HTTP_404_NOT_FOUND)
+        print(DATABASE_DB0)
+        print(existing_user_data[0]["_id"])
+        print(db_user_collection_name)
+        response = json.loads(datacube_data_update(
+            api_key,
+            DATABASE_DB0,
+            db_user_collection_name,
+            {
+                "_id": existing_user_data[0]["_id"]
+            },
+            {
+                "total_times" : existing_user_data[0]["total_times"] + 100,
+                "is_paid": True,
+                "paid_on": get_formatted_date()["formatted_date"],
+                "paid_at": get_formatted_date()["formatted_time"]
+            }
+        ))
+
+        if not response["success"]:
+            return Response({
+                "success": False,
+                "message": "Something went wrong while adding the points. Please try again later."
+            })
+        return Response({
+            "success":True,
+            "message":"Thank you for your contributions"
+        },status= status.HTTP_200_OK)
+
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({
