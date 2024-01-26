@@ -74,8 +74,10 @@ class experiences_datacube_services(APIView):
             return self.experienced_service_user_details(request)
         elif type_request== "generate_coupon":
             return self.generate_coupon(request)
-        elif type_request== "use_coupons":
-            return self.use_coupons(request)
+        elif type_request== "redeem_coupon":
+            return self.redeem_coupon(request)
+        elif type_request== "claim_coupon":
+            return self.claim_coupon(request)
         elif type_request== "contribute":
             return self.contribute(request)
         else:
@@ -399,7 +401,9 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
         }
+        print(DATABASE_DB0)
         db_user_collection_name = db0_collection.get(product_number)
+        print(db_user_collection_name)
         response = json.loads(datacube_data_retrival(
             api_key, 
             DATABASE_DB0,
@@ -578,18 +582,27 @@ class experiences_datacube_services(APIView):
             "response": response.get("data", [])
         }, status=status.HTTP_200_OK)
     
-    """User Coupons"""
+    """Get generated Coupons"""
     def get_generated_coupons(self, request):
+        limit = request.GET.get("limit")
+        offset = request.GET.get("offset")
+        is_active = int(request.GET.get("is_active", 0))
+        is_redeem = int(request.GET.get("is_redeem", 0))
+        is_claimed = int(request.GET.get("is_claimed", 0))
+
+        is_active = bool(is_active)
+        is_redeem = bool(is_redeem)
+        is_claimed = bool(is_claimed)
 
         response = json.loads(datacube_data_retrival(
             api_key,
             DATABASE_DB0,
             VOUCHER_SYSTEM,
             {
-                "_id":"65932b9d31188f54bdc96531"
+                "$and": [{"is_active": is_active}, {"is_redeem": is_redeem},{"is_claimed": is_claimed}]
             },
-            1,
-            0,
+            limit,
+            offset,
             False
         ))
 
@@ -597,18 +610,14 @@ class experiences_datacube_services(APIView):
             return Response({
                 "success": False,
                 "message": response["message"]
-            })
-        
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return Response({
             "success": True,
             "message": "List of available coupons data",
-            "database_response": {
-                "success": response["success"],
-                "message": response["message"],
-            },
-            "response": response["data"][0]["coupon_generated"]
-        })
-    
+            "response": response.get("data", []),
+        }, status=status.HTTP_200_OK)
+
     """Generate Coupons"""
     def generate_coupon(self, request):
         number_of_coupons = int(request.data.get("number_of_coupons"))
@@ -621,62 +630,98 @@ class experiences_datacube_services(APIView):
                 "error": serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        coupons = [generate_coupons(6) for _ in range(number_of_coupons)]
+
+        data_to_be_inserted = []
+        for coupon in coupons:
+            data_to_be_inserted.append({
+                "coupon_name": coupon,
+                "created_at": get_formatted_date()["formatted_time"],
+                "created_on": get_formatted_date()["formatted_date"],
+                "is_active": True,
+                "is_redeem": False,
+                "is_claimed": False,
+                "records": [{"record": "1", "type": "overall"}]
+            })
+
+        for data in data_to_be_inserted:
+            response = json.loads(datacube_data_insertion(
+                api_key,
+                DATABASE_DB0,
+                VOUCHER_SYSTEM,
+                data,
+            ))
+
+            if not response["success"]:
+                return Response({
+                    "success": False,
+                    "message": "Failed to create coupon"
+                }) 
+
+        return Response({
+            "success": True,
+            "message": "Coupons added successfully",
+            "coupons": data_to_be_inserted
+        })
+
+    """Claim coupon by BD people"""
+    def claim_coupon(self, request):
+        number_of_coupons_to_claim = request.data.get('number_of_coupons_to_claim')
+
+
         existing_coupon = json.loads(datacube_data_retrival(
             api_key,
             DATABASE_DB0,
             VOUCHER_SYSTEM,
             {
-                "_id":"65932b9d31188f54bdc96531"
+                "$and": [{"is_active": True}, {"is_redeem": False},{"is_claimed": False}]
             },
-            1,
+            number_of_coupons_to_claim,
             0,
             False
         ))
-        coupons_data = existing_coupon["data"][0]
-        existing_coupons = coupons_data.get("coupon_generated", [])
-
-        for i in range(number_of_coupons):
-            existing_coupons.append(generate_coupons(6))  
-
-        coupons_data["coupon_generated"] = existing_coupons 
         
-        time = get_formatted_date()
-
-        response = json.loads(datacube_data_update(
-            api_key,
-            DATABASE_DB0,
-            VOUCHER_SYSTEM,
-            {
-                "_id":"65932b9d31188f54bdc96531"
-            },
-            {
-                "coupon_generated": coupons_data["coupon_generated"],
-                # "created_on":time["formatted_date"],
-                # "created_at":time["formatted_time"]
-            }
-        ))
-        if not response['success']:
+        coupons_data = existing_coupon["data"]
+        if len(coupons_data) == 0:
             return Response({
                 "success": False,
-                "message": "Failed to create coupons",
-                "database_response": {
-                    "success": response['success'],
-                    "message": response['message']
+                "message": "There is no available coupon to claim"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        list_of_coupons = []
+        for coupon in coupons_data:
+            print(coupon["_id"])
+            list_of_coupons.append(coupon["coupon_name"])
+            response = json.loads(datacube_data_update(
+                api_key,
+                DATABASE_DB0,
+                VOUCHER_SYSTEM,
+                {
+                    "_id":coupon["_id"]
+                },
+                {
+                    "is_claimed": True
                 }
-            })
+            ))
 
+            if not response['success']:
+                return Response({
+                    "success": False,
+                    "message": f"Failed to update is_claimed status for {coupon['coupon_name']}",
+                    "database_response": {
+                        "success": response['success'],
+                        "message": response['message']
+                    }
+                })
+        
         return Response({
             "success": True,
-            "message": "Coupons added successfully",
-            "database_rersponse": {
-                "success": response["success"],
-                "message": response["message"]
-            },
-            "coupons": coupons_data["coupon_generated"]
+            "message": "Coupons claimed successfully",
+            "coupon_claimed": list_of_coupons,
         })
 
     """Redeem Coupons"""
-    def use_coupons(self,request):
+    def redeem_coupon(self, request):
         email = request.data.get("email")
         coupon = request.data.get("coupon")
         product_number = request.data.get("product_number")
@@ -688,7 +733,7 @@ class experiences_datacube_services(APIView):
                 "message": "Posting wrong data to API",
                 "error": serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         db0_collection = {
             "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_USER,
             "UXLIVINGLAB002": WORLD_PRICE_INDICATOR_USER,
@@ -697,64 +742,129 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
         }
+
         db_user_collection_name = db0_collection.get(product_number)
-        user_data = json.loads(datacube_data_retrival(
+
+        # Retrieve coupon data
+        coupon_data = self.retrieve_coupon_data(coupon)
+        if not coupon_data["success"]:
+            return Response({
+                "success": False,
+                "message": coupon_data["message"]
+            })
+
+        data = coupon_data.get("data", [])[0]
+
+        if not data["is_active"]:
+            return Response({
+                "success": False,
+                "message": "Coupon is not active. Please ask for a different coupon. Thank you",
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        if data["is_redeem"]:
+            return Response({
+                "success": False,
+                "message": "Coupon has already been redeemed. Sorry, we cannot provide another.",
+            }, status=status.HTTP_226_IM_USED)
+
+        user_data = self.retrieve_user_data(db_user_collection_name, email)
+        if not user_data["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to retrieve user information"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        if not user_data["data"][0]["is_active"]:
+            return Response({
+                "success": False,
+                "message": "Your account has been disabled. Please contact customer support. Thank you"
+            })
+
+        update_user_usage = self.update_user_usage(db_user_collection_name, email, user_data)
+        if not update_user_usage["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to redeem the coupon",
+                "database_response": {
+                    "success": update_user_usage["success"],
+                    "message": update_user_usage["message"]
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        update_coupon_status_ = self.update_coupon_status(coupon)
+
+        experienced_user_metadata = Thread(target=self.save_client_voucher_masterdb, args=(email, db_user_collection_name, coupon))
+        experienced_user_metadata.start()
+
+        return Response({
+            "success": True,
+            "message": "You have free experienced time"
+        }, status=status.HTTP_200_OK)
+
+    def retrieve_coupon_data(self, coupon):
+        return json.loads(datacube_data_retrival(
             api_key,
             DATABASE_DB0,
-            db_user_collection_name,
-            {
-                "email": email
-            },
+            VOUCHER_SYSTEM,
+            {"coupon_name": coupon},
             1,
             0,
             False
         ))
-        existing_user_data = user_data.get("data",[])
-      
-        update_user_usage = json.loads(datacube_data_update(
+
+    def retrieve_user_data(self, db_user_collection_name, email):
+        return json.loads(datacube_data_retrival(
             api_key,
             DATABASE_DB0,
             db_user_collection_name,
+            {"email": email},
+            1,
+            0,
+            False
+        ))
+
+    def update_user_usage(self, db_user_collection_name, email, user_data):
+        return json.loads(datacube_data_update(
+            api_key,
+            DATABASE_DB0,
+            db_user_collection_name,
+            {"email": email},
             {
-                "email": email
+                "total_times": user_data["data"][0]["total_times"] + 1,
+                "is_redeemed": True,
+                "redeemtion_counts": user_data["data"][0]["redeemtion_counts"] + 1
+            }
+        ))
+    
+    def update_coupon_status(self, coupon_name):
+        return json.loads(datacube_data_update(
+            api_key,
+            DATABASE_DB0,
+            VOUCHER_SYSTEM,
+            {
+                "coupon_name": coupon_name
             },
             {
-                "total_times": existing_user_data[0]["total_times"] + 1
+                "is_redeem": True,
+                "is_active": False
             }
         ))
 
-        if not update_user_usage["success"]:
-            return Response({
-                "success":False,
-                "message":"Failed to reddem the coupon",
-                "database_response":{
-                    "success":update_user_usage["success"],
-                    "message":update_user_usage["message"]
-                }
-            },status= status.HTTP_400_BAD_REQUEST)
-        
-        def save_client_voucher_masterdb():
-            datacube_data_insertion(
-                api_key,
-                DATABASE_DB0,
-                CLIENT_VOUCHER_SYSTEM,
-                {
-                    "email": email,
-                    "product_name": db_user_collection_name,
-                    "coupon_used": coupon,
-                    "redeemed_on": get_formatted_date()["formatted_date"],
-                    "redeemed_at": get_formatted_date()["formatted_time"],
-                    "records": [{"record": "1", "type": "overall"}]
-                }
-            )
+    def save_client_voucher_masterdb(self, email, db_user_collection_name, coupon):
+        datacube_data_insertion(
+            api_key,
+            DATABASE_DB0,
+            CLIENT_VOUCHER_SYSTEM,
+            {
+                "email": email,
+                "product_name": db_user_collection_name,
+                "coupon_used": coupon,
+                "redeemed_on": get_formatted_date()["formatted_date"],
+                "redeemed_at": get_formatted_date()["formatted_time"],
+                "records": [{"record": "1", "type": "overall"}]
+            }
+        )
 
-        experienced_user_metadata = Thread(target=save_client_voucher_masterdb)
-        experienced_user_metadata.start()
-        
-        return Response({
-            "success":True,
-            "message":"Experience time increased by 1"
-        },status= status.HTTP_200_OK)
     
     """Contribute by users"""
     def contribute(self, request):
