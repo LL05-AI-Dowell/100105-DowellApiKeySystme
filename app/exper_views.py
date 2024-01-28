@@ -948,48 +948,21 @@ class experiences_report(APIView):
     def post(self, request): 
         type_request = request.GET.get('type')
 
-        if type_request == "user_experiences_date_wise":
-            return self.user_experiences_date_wise(request)
-        elif type_request == "user_experiences_count":
+        if type_request == "user_experiences_count":
             return self.user_experiences_count(request)
         else:
             return self.handle_error(request)   
     
-    def user_experiences_date_wise(self, request):
-        collection_data = json.loads(datacube_collection_retrival(
-            api_key,
-            DATABASE_DB1
-        ))
-        print(collection_data["data"])
-        collection_names = get_dates(collection_data["data"], "seven_days", "04_01_2024")
-
-        # Filter out only the names with '_uxlivinglab_org'
-        collection_name = get_dates(collection_data["data"], "seven_days", "04_01_2024")
-
-        data = []  
-        for data_name in collection_name["present_dates"]:
-            response = json.loads(datacube_data_retrival(
-                api_key,
-                DATABASE_DB1,
-                data_name,
-                {},
-                1000,
-                0,
-                False
-            ))
-            data.append(response)
-
-        return Response(data, status=status.HTTP_200_OK)
-
-        return Response(data, status=status.HTTP_200_OK) 
-
-
+ 
+    """Experiences count for user and total for report"""
     def user_experiences_count(self, request):
-        date_type = request.data.get('date_type')
+        email = request.data.get('email')
         date = request.data.get('date')
+        time_period = request.data.get('time_period')
         product_number = request.data.get('product_number')
+        date_type = request.data.get('date_type')
 
-        serializer = ReportUserExperiencedCountSerializer(data={"date_type": date_type,"date": date,"product_number": product_number})
+        serializer = ReportUserExperiencedCountSerializer(data={"email": email, "time_period": time_period, "date": date, "product_number": product_number, "date_type": date_type})
 
         if not serializer.is_valid():
             return Response({
@@ -998,7 +971,7 @@ class experiences_report(APIView):
                 "error": serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        given_date = datetime.strptime(date, "%d-%m-%Y").date()
+        formatted_dates = generate_dates(date, time_period)
 
         db0_collection_mapping = {
             "UXLIVINGLAB001": SAMANTA_CONTENT_EVALUATOR_EXPERINECED,
@@ -1010,43 +983,52 @@ class experiences_report(APIView):
         }
 
         db0_collection_name = db0_collection_mapping.get(product_number)
+
+        or_conditions = [
+            {"experienced_date": formatted_date} for formatted_date in formatted_dates
+        ]
+
+        query = {"$or": or_conditions}
+
+        if email:
+            query["$and"] = [{"email": email}]
+
         response = json.loads(datacube_data_retrival(
             api_key,
             DATABASE_DB0,
             db0_collection_name,
-            {},
-            100000,
+            query,
+            1000000,
             0,
             False
         ))
-        
-        data = response["data"]
-        dates = [datetime.strptime(record["experienced_date"], "%d-%m-%Y").date() for record in data]
-        times = {str(datetime.strptime(record["experienced_date"], "%d-%m-%Y").date()): [] for record in data}
 
-        for record in data:
-            times[str(datetime.strptime(record["experienced_date"], "%d-%m-%Y").date())].append(record["experienced_time"])
+        if not response["success"]:
+            return Response({
+                "success": False,
+                "message": f"Could not retrieve data for email {email}"
+            }, status=status.HTTP_404_NOT_FOUND)
 
-        if date_type == "seven_days":
-            date_range = [given_date - timedelta(days=i) for i in range(7)]
-        elif date_type == "one_day":
-            date_range = [given_date]
-        elif date_type == "one_month":
-            date_range = [given_date - timedelta(days=i) for i in range(30)]
+        day_count = {}
+
+        for entry in response["data"]:
+            experienced_date = entry["experienced_date"]
+            day_count[experienced_date] = day_count.get(experienced_date, 0) + 1
+
+        result_data = [{"date": date, "count": day_count.get(date, 0)} for date in formatted_dates]
+
+        if email:
+            return Response({
+                "success": True,
+                "message": f"Data retrieved for email {email} successfully",
+                "response": result_data
+            }, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "Invalid date_type"}, status=status.HTTP_400_BAD_REQUEST)
-
-        date_count = {str(day): dates.count(day) for day in date_range}
-
-        present_dates = [{"date": str(day), "count": date_count[str(day)], "experienced_time": times.get(str(day), [])} for day in date_range if date_count.get(str(day), 0) > 0]
-        not_present_dates = [{"date": str(day), "count": 0, "experienced_time": []} for day in date_range if date_count.get(str(day), 0) == 0]
-
-        return Response({
-            "success": True,
-            "message": "Report for experienced count was successfully generated",
-            "present_dates": present_dates, 
-            "not_present_dates": not_present_dates
-        }, status=status.HTTP_201_CREATED)
+            return Response({
+                "success": True,
+                "message": "Report for experienced count was successfully generated",
+                "response": result_data
+            }, status=status.HTTP_201_CREATED)
 
     """HANDLE ERROR"""
     def handle_error(self, request): 

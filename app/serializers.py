@@ -149,6 +149,7 @@ class UseCouponSerializer(serializers.Serializer):
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
     coupon = serializers.CharField(allow_null=False, allow_blank=False)
+
 class ReportUserExperiencedCountSerializer(serializers.Serializer):
     DATE_TYPE_CHOICES = (
         ("one_day", "one_day"),
@@ -164,5 +165,6 @@ class ReportUserExperiencedCountSerializer(serializers.Serializer):
         ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
-    date_type = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=DATE_TYPE_CHOICES)
+    time_period = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=DATE_TYPE_CHOICES)
     date = serializers.CharField(allow_null=False, allow_blank=False)
+    email = serializers.CharField(allow_null=True, allow_blank=True)
