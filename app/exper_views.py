@@ -757,7 +757,7 @@ class experiences_datacube_services(APIView):
         if len(coupon_data["data"]) ==0 :
             return Response({
                 "success": False,
-                "message": "Coupon is not available."
+                "message": "Coupon is not available, nahi chalta ab bata"
             })
         data = coupon_data.get("data", [])[0]
 
