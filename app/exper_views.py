@@ -747,12 +747,18 @@ class experiences_datacube_services(APIView):
 
         # Retrieve coupon data
         coupon_data = self.retrieve_coupon_data(coupon)
+        print(coupon_data)
         if not coupon_data["success"]:
             return Response({
                 "success": False,
                 "message": coupon_data["message"]
             })
 
+        if len(coupon_data["data"]) ==0 :
+            return Response({
+                "success": False,
+                "message": "Coupon is not available."
+            })
         data = coupon_data.get("data", [])[0]
 
         if not data["is_active"]:
