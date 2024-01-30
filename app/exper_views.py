@@ -33,11 +33,12 @@ LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
 LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
 WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
+DOWELL_CONTACT_US_EXPERINECED = str(os.getenv("DOWELL_CONTACT_US_EXPERINECED"))
 
 VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
 CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 
-# # UNCOMMENT WHEN RUNNING WITH LOCAL 
+# UNCOMMENT WHEN RUNNING WITH LOCAL 
 # load_dotenv(f"{os.getcwd()}/.env")
 # api_key = str(os.getenv("API_KEY"))
 # DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
@@ -49,6 +50,7 @@ CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 # LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
 # WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
 # SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
+# DOWELL_CONTACT_US_EXPERINECED = str(os.getenv("DOWELL_CONTACT_US_EXPERINECED"))
 
 # SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
 # WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
@@ -56,6 +58,7 @@ CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 # LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
 # WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 # SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
+# DOWELL_CONTACT_US_USER = str(os.getenv("DOWELL_CONTACT_US_USER"))
 
 # VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
 # CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
@@ -135,7 +138,8 @@ class experiences_datacube_services(APIView):
             "LEGALZARD": LEGALZARD_EXPERINECED,
             "LOCATION SPECIFIC SEARCH": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
             "WEBSITE CRAWL": WEBSITE_CRAWL_EXPERINECED,
-            "SEARCH IN LIVINGLAB": SEARCH_IN_LIVINGLAB_EXPERINECED
+            "SEARCH IN LIVINGLAB": SEARCH_IN_LIVINGLAB_EXPERINECED,
+            "DOWELL CONTACT US" : DOWELL_CONTACT_US_EXPERINECED
         }
 
         db0_collection_name = db0_collection_mapping.get(product_name)
@@ -178,7 +182,7 @@ class experiences_datacube_services(APIView):
                 DATABASE_DB1, 
                 collection_name["formatted_date_ux"]
             ))
-            print("collection", response_create_collection)
+      
 
             if not response_create_collection["success"]:
                 return Response({
@@ -255,7 +259,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_EXPERINECED,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
             "UXLIVINGLAB005": WEBSITE_CRAWL_EXPERINECED,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_EXPERINECED
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_EXPERINECED,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_EXPERINECED
         }
         db0_collection_name = db0_collection.get(product_number)
 
@@ -311,7 +316,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
         }
         db_user_collection_name = db0_collection.get(product_number)
 
@@ -347,6 +353,8 @@ class experiences_datacube_services(APIView):
                     "is_paid": False,
                     "paid_on": "",
                     "paid_at": "",
+                    "is_redeemed": True,
+                    "redeemtion_counts": 0, 
                     "records": [{"record": "1", "type": "overall"}]
                 }
             ))
@@ -399,11 +407,12 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
         }
-        print(DATABASE_DB0)
+       
         db_user_collection_name = db0_collection.get(product_number)
-        print(db_user_collection_name)
+        
         response = json.loads(datacube_data_retrival(
             api_key, 
             DATABASE_DB0,
@@ -499,7 +508,6 @@ class experiences_datacube_services(APIView):
     """Experienced services user details"""
     def experienced_service_user_details(self, request):
         email = request.data.get("email")
-        print(email)
         product_number = request.data.get("product_number")
         occurrences = request.data.get("occurrences")
 
@@ -521,7 +529,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER
         }
 
         db_user_collection_name = db0_collection.get(product_number)
@@ -564,7 +573,7 @@ class experiences_datacube_services(APIView):
 
         if not is_paid:
             if total_time < occurrences:
-                print("----")
+                
                 return Response({
                     "success": False, 
                     "message": "Exceeded experienced limits. Please contact our customer support team. Thank you"
@@ -690,7 +699,6 @@ class experiences_datacube_services(APIView):
         
         list_of_coupons = []
         for coupon in coupons_data:
-            print(coupon["_id"])
             list_of_coupons.append(coupon["coupon_name"])
             response = json.loads(datacube_data_update(
                 api_key,
@@ -740,14 +748,14 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER
         }
 
         db_user_collection_name = db0_collection.get(product_number)
 
         # Retrieve coupon data
         coupon_data = self.retrieve_coupon_data(coupon)
-        print(coupon_data)
         if not coupon_data["success"]:
             return Response({
                 "success": False,
@@ -779,8 +787,8 @@ class experiences_datacube_services(APIView):
                 "success": False,
                 "message": "Failed to retrieve user information"
             }, status=status.HTTP_404_NOT_FOUND)
-        if not user_data["data"][0]["redeemtion_counts"]:
-            user_data["data"][0]["redeemtion_counts"] = 0
+        
+        
         if not user_data["data"][0]["is_active"]:
             return Response({
                 "success": False,
@@ -839,7 +847,7 @@ class experiences_datacube_services(APIView):
             {
                 "total_times": user_data["data"][0]["total_times"] + 1,
                 "is_redeemed": True,
-                "redeemtion_counts": user_data["data"][0]["redeemtion_counts"] + 1
+                "redeemtion_counts": user_data["data"][0].get("redeemtion_counts", 0) + 1
             }
         ))
     
@@ -893,7 +901,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
         }
         db_user_collection_name = db0_collection.get(product_number)
         user_data = json.loads(datacube_data_retrival(
@@ -913,9 +922,7 @@ class experiences_datacube_services(APIView):
                 "success": False,
                 "message": "No user was found"
             },status=status.HTTP_404_NOT_FOUND)
-        print(DATABASE_DB0)
-        print(existing_user_data[0]["_id"])
-        print(db_user_collection_name)
+        
         response = json.loads(datacube_data_update(
             api_key,
             DATABASE_DB0,
@@ -986,7 +993,8 @@ class experiences_report(APIView):
             "UXLIVINGLAB003": LEGALZARD_EXPERINECED,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
             "UXLIVINGLAB005": WEBSITE_CRAWL_EXPERINECED,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_EXPERINECED
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_EXPERINECED,
+            "UXLIVINGLAB007":DOWELL_CONTACT_US_EXPERINECED
         }
 
         db0_collection_name = db0_collection_mapping.get(product_number)

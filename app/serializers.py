@@ -105,6 +105,7 @@ class ExperiencedProductSerializer(serializers.Serializer):
         ('LOCATION SPECIFIC SEARCH', 'LOCATION SPECIFIC SEARCH'),
         ('WEBSITE CRAWL', 'WEBSITE CRAWL'),
         ('SEARCH IN LIVINGLAB', 'SEARCH IN LIVINGLAB'),
+        ('DOWELL CONTACT US', 'DOWELL CONTACT US'),
     )
     product_name = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
@@ -118,6 +119,7 @@ class ExperiencedUserDetailsSerializer(serializers.Serializer):
         ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
         ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
         ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
+        ('UXLIVINGLAB007', 'UXLIVINGLAB007'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
@@ -129,6 +131,7 @@ class ReduceExperiencedSerializer(serializers.Serializer):
         ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
         ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
         ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
+        ('UXLIVINGLAB007', 'UXLIVINGLAB007'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
@@ -145,6 +148,7 @@ class UseCouponSerializer(serializers.Serializer):
         ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
         ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
         ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
+        ('UXLIVINGLAB007', 'UXLIVINGLAB007'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     email = serializers.CharField(allow_null=False, allow_blank=False)
@@ -163,6 +167,7 @@ class ReportUserExperiencedCountSerializer(serializers.Serializer):
         ('UXLIVINGLAB004', 'UXLIVINGLAB004'),
         ('UXLIVINGLAB005', 'UXLIVINGLAB005'),
         ('UXLIVINGLAB006', 'UXLIVINGLAB006'),
+        ('UXLIVINGLAB007', 'UXLIVINGLAB007'),
     )
     product_number = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=METHOD_CHOICES)
     time_period = serializers.ChoiceField(allow_null=False, allow_blank=False, choices=DATE_TYPE_CHOICES)
