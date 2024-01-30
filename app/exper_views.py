@@ -14,31 +14,8 @@ from utils.helper import *
 from datetime import datetime, timedelta
 
 
-# UNCOMMENT ON PRODUCTION
-load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
-api_key = str(os.getenv("API_KEY"))
-DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
-DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
-
-SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
-WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
-LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
-LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
-WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
-SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
-
-SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
-WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
-LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
-LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
-WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
-SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
-
-VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
-CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
-
-# # UNCOMMENT WHEN RUNNING WITH LOCAL 
-# load_dotenv(f"{os.getcwd()}/.env")
+# # UNCOMMENT ON PRODUCTION
+# load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
 # api_key = str(os.getenv("API_KEY"))
 # DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
 # DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
@@ -59,6 +36,29 @@ CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 
 # VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
 # CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
+
+# UNCOMMENT WHEN RUNNING WITH LOCAL 
+load_dotenv(f"{os.getcwd()}/.env")
+api_key = str(os.getenv("API_KEY"))
+DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
+DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
+
+SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
+WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
+LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
+LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
+WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
+SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
+
+SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
+WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
+LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
+LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
+WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
+SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
+
+VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
+CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -779,7 +779,8 @@ class experiences_datacube_services(APIView):
                 "success": False,
                 "message": "Failed to retrieve user information"
             }, status=status.HTTP_404_NOT_FOUND)
-
+        if not user_data["data"][0]["redeemtion_counts"]:
+            user_data["data"][0]["redeemtion_counts"] = 0
         if not user_data["data"][0]["is_active"]:
             return Response({
                 "success": False,
@@ -1042,3 +1043,8 @@ class experiences_report(APIView):
             "success": False,
             "message": "Invalid request type"
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+        
