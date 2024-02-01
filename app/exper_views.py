@@ -101,6 +101,8 @@ class experiences_datacube_services(APIView):
             return self.update_user_usage(request)
         elif type_request == "get_generated_coupons":
             return self.get_generated_coupons(request)
+        elif type_request == "user_id_claim":
+            return self.user_id_claim(request)  
         else:
             return self.handle_error(request)
 
@@ -882,7 +884,22 @@ class experiences_datacube_services(APIView):
             }
         )
 
-    
+    "User ids to claim voucher"
+    def user_id_claim(self, request):
+        user_id = request.GET.get('user_id')
+        list_of_user_ids = ["649064f2e142d4568c876ba6","62e47fb67cb119927d3f0db9","639bfefd2375723f623d2498","645e312d1ce598e073724ff6"]
+
+        if user_id in list_of_user_ids:
+            return Response({
+                "success": True,
+                "message": f"{user_id} is authorized to access this page."
+            }, status= status.HTTP_202_ACCEPTED)
+        else:
+            return Response({
+                "success": False,
+                "message": f"{user_id} is not authorized to access this page."
+            }, status= status.HTTP_401_UNAUTHORIZED)   
+         
     """Contribute by users"""
     def contribute(self, request):
         email = request.data.get("email")
