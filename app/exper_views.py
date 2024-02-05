@@ -65,7 +65,26 @@ CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 # VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
 # CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 
+"""Date Formatter for experience report"""
+def generate_dates(start_date, time_period):
+    date_format = "%d-%m-%Y"
+    start_date = datetime.strptime(start_date, date_format)
+    formatted_dates = [start_date.strftime(date_format)]
 
+    if time_period == "one_day":
+        return formatted_dates
+    elif time_period == "seven_days":
+        for _ in range(6):
+            start_date -= timedelta(days=1)
+            formatted_dates.append(start_date.strftime(date_format))
+        return formatted_dates
+    elif time_period == "one_month":
+        for _ in range(30):
+            start_date -= timedelta(days=1)
+            formatted_dates.append(start_date.strftime(date_format))
+        return formatted_dates
+    else:
+        return None
 @method_decorator(csrf_exempt, name='dispatch')
 class experiences_datacube_services(APIView):
     def post(self, request):
