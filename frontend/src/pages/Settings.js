@@ -7,6 +7,7 @@ import Nav from "../layout/Nav";
 import Sidebar from "../layout/Sidebar";
 import ClaimVoucher from "../components/settings/claimVoucher";
 import ExperienceCoupon from "../components/settings/experienceCoupon";
+import CouponPage from "./CouponPage"
 const Settings = () => {
   const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
@@ -77,19 +78,20 @@ const Settings = () => {
   <>
     {page === 3 ? (
       error ? (
-        <Snackbar  anchorOrigin={{ horizontal: "right", vertical: "top" }} 
-        open={true} autoHideDuration={3000}
-        onClose={()=>{
-          navigate("/")
-        }}
-        sx={{ marginTop: "130px" }}>
-          <Alert severity="error"
-           onClose={()=>{
-            navigate("/")
-          }} >
-            {error}
-          </Alert>
-        </Snackbar>
+        // <Snackbar  anchorOrigin={{ horizontal: "right", vertical: "top" }} 
+        // open={true} autoHideDuration={3000}
+        // onClose={()=>{
+        //   navigate("/")
+        // }}
+        // sx={{ marginTop: "130px" }}>
+        //   <Alert severity="error"
+        //    onClose={()=>{
+        //     navigate("/")
+        //   }} >
+        //     {error}
+        //   </Alert>
+        // </Snackbar>
+        <CouponPage />
       ) : (
         <ExperienceCoupon />
       )
