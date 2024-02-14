@@ -14,34 +14,8 @@ from utils.helper import *
 from datetime import datetime, timedelta
 
 
-# UNCOMMENT ON PRODUCTION
-load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
-api_key = str(os.getenv("API_KEY"))
-DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
-DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
-
-SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
-WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
-LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
-LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
-WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
-SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
-DOWELL_CONTACT_US_EXPERINECED = str(os.getenv("DOWELL_CONTACT_US_EXPERINECED"))
-
-
-SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
-WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
-LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
-LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
-WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
-SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
-DOWELL_CONTACT_US_USER = str(os.getenv("DOWELL_CONTACT_US_USER"))
-
-VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
-CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
-
-# UNCOMMENT WHEN RUNNING WITH LOCAL 
-# load_dotenv(f"{os.getcwd()}/.env")
+# # UNCOMMENT ON PRODUCTION
+# load_dotenv("/home/100105/100105-DowellApiKeySystem/.env")
 # api_key = str(os.getenv("API_KEY"))
 # DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
 # DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
@@ -53,6 +27,9 @@ CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 # WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
 # SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
 # DOWELL_CONTACT_US_EXPERINECED = str(os.getenv("DOWELL_CONTACT_US_EXPERINECED"))
+# RANDOM_GRAPH_EXPERINECED = str(os.getenv("RANDOM_GRAPH_EXPERINECED"))
+# DOWELL_PERMUTATION_CALCULATOR_EXPERINECED = str(os.getenv("DOWELL_PERMUTATION_CALCULATOR_EXPERINECED"))
+
 
 # SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
 # WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
@@ -61,9 +38,42 @@ CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 # WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
 # SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
 # DOWELL_CONTACT_US_USER = str(os.getenv("DOWELL_CONTACT_US_USER"))
+# RANDOM_GRAPH_USER = str(os.getenv("RANDOM_GRAPH_USER"))
+# DOWELL_PERMUTATION_CALCULATOR_USER = str(os.getenv("DOWELL_PERMUTATION_CALCULATOR_USER"))
 
 # VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
 # CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
+
+# UNCOMMENT WHEN RUNNING WITH LOCAL 
+load_dotenv(f"{os.getcwd()}/.env")
+api_key = str(os.getenv("API_KEY"))
+DATABASE_DB0 = str(os.getenv("DATABASE_DB0"))
+DATABASE_DB1 = str(os.getenv("DATABASE_DB1"))
+
+SAMANTA_CONTENT_EVALUATOR_EXPERINECED = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_EXPERINECED"))
+WORLD_PRICE_INDICATOR_EXPERINECED = str(os.getenv("WORLD_PRICE_INDICATOR_EXPERINECED"))
+LEGALZARD_EXPERINECED = str(os.getenv("LEGALZARD_EXPERINECED"))
+LOCATION_SPECIFIC_SEARCH_EXPERINECED = str(os.getenv("LOCATION_SPECIFIC_SEARCH_EXPERINECED"))
+WEBSITE_CRAWL_EXPERINECED = str(os.getenv("WEBSITE_CRAWL_EXPERINECED"))
+SEARCH_IN_LIVINGLAB_EXPERINECED = str(os.getenv("SEARCH_IN_LIVINGLAB_EXPERINECED"))
+DOWELL_CONTACT_US_EXPERINECED = str(os.getenv("DOWELL_CONTACT_US_EXPERINECED"))
+RANDOM_GRAPH_EXPERINECED = str(os.getenv("RANDOM_GRAPH_EXPERINECED"))
+DOWELL_PERMUTATION_CALCULATOR_EXPERINECED = str(os.getenv("DOWELL_PERMUTATION_CALCULATOR_EXPERINECED"))
+
+
+SAMANTA_CONTENT_EVALUATOR_USER = str(os.getenv("SAMANTA_CONTENT_EVALUATOR_USER"))
+WORLD_PRICE_INDICATOR_USER = str(os.getenv("WORLD_PRICE_INDICATOR_USER"))
+LEGALZARD_USER = str(os.getenv("LEGALZARD_USER"))
+LOCATION_SPECIFIC_SEARCH_USER = str(os.getenv("LOCATION_SPECIFIC_SEARCH_USER"))
+WEBSITE_CRAWL_USER = str(os.getenv("WEBSITE_CRAWL_USER"))
+SEARCH_IN_LIVINGLAB_USER = str(os.getenv("SEARCH_IN_LIVINGLAB_USER"))
+DOWELL_CONTACT_US_USER = str(os.getenv("DOWELL_CONTACT_US_USER"))
+RANDOM_GRAPH_USER = str(os.getenv("RANDOM_GRAPH_USER"))
+DOWELL_PERMUTATION_CALCULATOR_USER = str(os.getenv("DOWELL_PERMUTATION_CALCULATOR_USER"))
+
+
+VOUCHER_SYSTEM = str(os.getenv("VOUCHER_SYSTEM"))
+CLIENT_VOUCHER_SYSTEM = str(os.getenv("CLIENT_VOUCHER_SYSTEM"))
 
 """Date Formatter for experience report"""
 def generate_dates(start_date, time_period):
@@ -162,7 +172,9 @@ class experiences_datacube_services(APIView):
             "LOCATION SPECIFIC SEARCH": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
             "WEBSITE CRAWL": WEBSITE_CRAWL_EXPERINECED,
             "SEARCH IN LIVINGLAB": SEARCH_IN_LIVINGLAB_EXPERINECED,
-            "DOWELL CONTACT US" : DOWELL_CONTACT_US_EXPERINECED
+            "DOWELL CONTACT US" : DOWELL_CONTACT_US_EXPERINECED,
+            "RANDOM GRAPH": RANDOM_GRAPH_EXPERINECED,
+            "DOWELL PERMUTATION CALCULATOR": DOWELL_PERMUTATION_CALCULATOR_EXPERINECED,
         }
 
         db0_collection_name = db0_collection_mapping.get(product_name)
@@ -283,7 +295,9 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_EXPERINECED,
             "UXLIVINGLAB005": WEBSITE_CRAWL_EXPERINECED,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_EXPERINECED,
-            "UXLIVINGLAB007": DOWELL_CONTACT_US_EXPERINECED
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_EXPERINECED,
+            "UXLIVINGLAB008": RANDOM_GRAPH_EXPERINECED,
+            "UXLIVINGLAB009": DOWELL_PERMUTATION_CALCULATOR_EXPERINECED,
         }
         db0_collection_name = db0_collection.get(product_number)
 
@@ -341,6 +355,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
             "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
+            "UXLIVINGLAB008": RANDOM_GRAPH_USER,
+            "UXLIVINGLAB009": DOWELL_PERMUTATION_CALCULATOR_USER,
         }
         db_user_collection_name = db0_collection.get(product_number)
 
@@ -432,6 +448,8 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
             "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
+            "UXLIVINGLAB008": RANDOM_GRAPH_USER,
+            "UXLIVINGLAB009": DOWELL_PERMUTATION_CALCULATOR_USER,
         }
        
         db_user_collection_name = db0_collection.get(product_number)
@@ -490,7 +508,10 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB003": LEGALZARD_USER,
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
-            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER
+            "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
+            "UXLIVINGLAB008": RANDOM_GRAPH_USER,
+            "UXLIVINGLAB009": DOWELL_PERMUTATION_CALCULATOR_USER,
         }
         db_user_collection_name = db0_collection.get(product_number)
         response = json.loads(datacube_data_update(
@@ -553,7 +574,9 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
-            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
+            "UXLIVINGLAB008": RANDOM_GRAPH_USER,
+            "UXLIVINGLAB009": DOWELL_PERMUTATION_CALCULATOR_USER,
         }
 
         db_user_collection_name = db0_collection.get(product_number)
@@ -772,7 +795,9 @@ class experiences_datacube_services(APIView):
             "UXLIVINGLAB004": LOCATION_SPECIFIC_SEARCH_USER,
             "UXLIVINGLAB005": WEBSITE_CRAWL_USER,
             "UXLIVINGLAB006": SEARCH_IN_LIVINGLAB_USER,
-            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER
+            "UXLIVINGLAB007": DOWELL_CONTACT_US_USER,
+            "UXLIVINGLAB008": RANDOM_GRAPH_USER,
+            "UXLIVINGLAB009": DOWELL_PERMUTATION_CALCULATOR_USER,
         }
 
         db_user_collection_name = db0_collection.get(product_number)
@@ -1002,6 +1027,8 @@ class experiences_report(APIView):
 
         if type_request == "user_experiences_count":
             return self.user_experiences_count(request)
+        elif type_request == "retrive_data":
+            return self.retrive_data(request)
         else:
             return self.handle_error(request)   
     
@@ -1083,6 +1110,34 @@ class experiences_report(APIView):
                 "response": result_data
             }, status=status.HTTP_201_CREATED)
 
+    """Output for datacube client"""
+    def retrive_data(self, request):
+        database=request.data.get("database_name")
+        collection_name = request.data.get("collection_name")
+        limit = request.data.get("limit")
+        offset= request.data.get("offset")
+        
+        response =json.loads(datacube_data_retrival(
+            api_key,
+            database,
+            collection_name,
+            {},
+            limit,
+            offset,
+            False
+        ))
+        print(response)
+        if not response["success"]:
+            return Response({
+                "success":False,
+                "message":"No data or something went wrong"
+            }, status= status.HTTP_404_NOT_FOUND)
+        return Response({
+            "success": True,
+            "message": "Data retrived successfully",
+            "response": response["data"]
+        },status=status.HTTP_200_OK)
+    
     """HANDLE ERROR"""
     def handle_error(self, request): 
         return Response({
