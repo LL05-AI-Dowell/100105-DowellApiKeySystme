@@ -931,7 +931,7 @@ class experiences_datacube_services(APIView):
     "User ids to claim voucher"
     def user_id_claim(self, request):
         user_id = request.GET.get('user_id')
-        list_of_user_ids = ["649064f2e142d4568c876ba6","62e47fb67cb119927d3f0db9","639bfefd2375723f623d2498","645e312d1ce598e073724ff6"]
+        list_of_user_ids = ["649064f2e142d4568c876ba6","62e47fb67cb119927d3f0db9","639bfefd2375723f623d2498","645e312d1ce598e073724ff6","6363ee91137d4469c7382a33"]
 
         if user_id in list_of_user_ids:
             return Response({
