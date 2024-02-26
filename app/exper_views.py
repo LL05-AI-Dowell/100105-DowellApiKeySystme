@@ -489,6 +489,7 @@ class experiences_datacube_services(APIView):
         product_number = request.GET.get("product_number")
         occurrences = int(request.GET.get("occurrences"))
 
+
         serializer= ReduceExperiencedSerializer(data = {
             "email": email,
             "product_number": product_number,
@@ -843,7 +844,7 @@ class experiences_datacube_services(APIView):
                 "message": "Your account has been disabled. Please contact customer support. Thank you"
             })
 
-        update_user_usage = self.update_user_usage(db_user_collection_name, email, user_data)
+        update_user_usage = self.update_user_usages(db_user_collection_name, email, user_data)
         if not update_user_usage["success"]:
             return Response({
                 "success": False,
@@ -886,7 +887,7 @@ class experiences_datacube_services(APIView):
             False
         ))
 
-    def update_user_usage(self, db_user_collection_name, email, user_data):
+    def update_user_usages(self, db_user_collection_name, email, user_data):
         return json.loads(datacube_data_update(
             api_key,
             DATABASE_DB0,
