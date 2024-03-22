@@ -1127,7 +1127,7 @@ class experiences_report(APIView):
             offset,
             False
         ))
-        print(response)
+        
         if not response["success"]:
             return Response({
                 "success":False,
