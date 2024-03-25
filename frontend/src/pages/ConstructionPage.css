@@ -6,8 +6,13 @@
     flex-direction: column;
   }
   
-  .construction__Page__Container img {
+  /* .construction__Page__Container img {
     width: 8rem;
+    object-fit: cover;
+    max-width: 100%;
+  } */
+  .construction__Page__Container__image{
+    width: 50rem;
     object-fit: cover;
     max-width: 100%;
   }
@@ -18,7 +23,7 @@
   }
   
   .description {
-    font-size: 0.8rem;
+    font-size: 1rem;
     text-align: center;
   }
   .construction__Svg {
