@@ -34,8 +34,8 @@ function App() {
     );
 
   return (
-    <Routes path="/" element={<ConstructionPage />}>
-      <Route index element={<ConstructionPage />} />
+    <Routes path="/" element={<Dashboard />}>
+      <Route index element={<Dashboard />} />
       <Route path="/documentation" element={<Documentation />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/feedback" element={<FeedbackPage />} />
