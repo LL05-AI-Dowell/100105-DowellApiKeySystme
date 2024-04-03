@@ -831,13 +831,20 @@ class experiences_datacube_services(APIView):
             }, status=status.HTTP_226_IM_USED)
 
         user_data = self.retrieve_user_data(db_user_collection_name, email)
+        print(user_data)
+
         if not user_data["success"]:
             return Response({
                 "success": False,
                 "message": "Failed to retrieve user information"
             }, status=status.HTTP_404_NOT_FOUND)
         
-        
+        if not user_data.get('data', []):
+            return Response({
+                "success":False,
+                "message": "User not found , kindly experience our products first."
+            })
+
         if not user_data["data"][0]["is_active"]:
             return Response({
                 "success": False,
