@@ -831,13 +831,20 @@ class experiences_datacube_services(APIView):
             }, status=status.HTTP_226_IM_USED)
 
         user_data = self.retrieve_user_data(db_user_collection_name, email)
+        print(user_data)
+
         if not user_data["success"]:
             return Response({
                 "success": False,
                 "message": "Failed to retrieve user information"
             }, status=status.HTTP_404_NOT_FOUND)
         
-        
+        if not user_data.get('data', []):
+            return Response({
+                "success":False,
+                "message": "User not found , kindly experience our products first."
+            })
+
         if not user_data["data"][0]["is_active"]:
             return Response({
                 "success": False,
@@ -932,7 +939,7 @@ class experiences_datacube_services(APIView):
     "User ids to claim voucher"
     def user_id_claim(self, request):
         user_id = request.GET.get('user_id')
-        list_of_user_ids = ["649064f2e142d4568c876ba6","62e47fb67cb119927d3f0db9","639bfefd2375723f623d2498","645e312d1ce598e073724ff6","6363ee91137d4469c7382a33"]
+        list_of_user_ids = ["649064f2e142d4568c876ba6","62e47fb67cb119927d3f0db9","639bfefd2375723f623d2498","645e312d1ce598e073724ff6","6363ee91137d4469c7382a33","64d32fbb9a88146462806fd2"]
 
         if user_id in list_of_user_ids:
             return Response({
@@ -1127,7 +1134,7 @@ class experiences_report(APIView):
             offset,
             False
         ))
-        print(response)
+        
         if not response["success"]:
             return Response({
                 "success":False,
