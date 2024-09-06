@@ -1,72 +1,81 @@
 import json
 import requests
-from datetime import datetime, timedelta
 
-def datacube_data_insertion(api_key,database_name,collection_name,data):
+base_url = "https://www.dowelldatacube.uxlivinglab.online/db_api"
+# base_url = "https://datacube.uxlivinglab.online/db_api/"
 
-    url = "https://datacube.uxlivinglab.online/db_api/crud/"
-
-    data = {
+def datacube_data_insertion(api_key, database_name, collection_name, data):
+    global base_url
+    url = f"{base_url}/crud/"
+    payload = {
         "api_key": api_key,
         "db_name": database_name,
         "coll_name": collection_name,
         "operation": "insert",
-        "data":data
-        
+        "data": data,
+        "payment": False
     }
 
-    response = requests.post(url, json=data)
+    print(payload)
+
+    response = requests.post(url, json=payload)
     return response.text
 
-def datacube_data_retrival(api_key,database_name,collection_name,data,limit,offset,payment):
 
-    url = "https://datacube.uxlivinglab.online/db_api/get_data/"
-
-    data = {
+def datacube_data_retrival(api_key, database_name, collection_name, data, limit, offset, payment):
+    global base_url
+    url = f"{base_url}/get_data/"
+    payload = {
         "api_key": api_key,
         "db_name": database_name,
         "coll_name": collection_name,
         "operation": "fetch",
-        "filters":data,
+        "filters": data,
         "limit": limit,
         "offset": offset,
-        "payment":payment
+        "payment": payment
     }
 
-    response = requests.post(url, json=data)
+    response = requests.post(url, json=payload)
     return response.text
 
-def datacube_data_update(api_key,db_name,coll_name,query,update_data):
 
-    url = "https://datacube.uxlivinglab.online/db_api/crud/"
+def datacube_data_update(api_key, db_name, coll_name, query, update_data):
+    global base_url
+    url = f"{base_url}/crud/"
 
-    data = {
+    payload = {
         "api_key": api_key,
         "db_name": db_name,
         "coll_name": coll_name,
         "operation": "update",
-        "query" : query,
-        "update_data":update_data
+        "query": query,
+        "update_data": update_data,
+        "payment": False
     }
 
-    response = requests.put(url, json=data)
+    response = requests.put(url, json=payload)
     return response.text
 
-def datacube_create_collection(api_key,db_name,collection_name):
-    url = "https://datacube.uxlivinglab.online/db_api/add_collection/"
 
-    data_to_add = {
+def datacube_create_collection(api_key, db_name, collection_name):
+    global base_url
+    url = f"{base_url}/add_collection/"
+    payload = {
         "api_key": api_key,
         "db_name": db_name,
         "coll_names": collection_name,
         "num_collections": 1
     }
 
-    response = requests.post(url, json=data_to_add)
+    response = requests.post(url, json=payload)
     return response.text
 
-def datacube_collection_retrival(api_key,db_name):
-    url = "https://datacube.uxlivinglab.online/db_api/collections/"
+
+def datacube_collection_retrieval(api_key, db_name):
+    global base_url
+    url = f"{base_url}/collections/"
+    
     payload = {
         "api_key": api_key,
         "db_name": db_name,
@@ -76,37 +85,16 @@ def datacube_collection_retrival(api_key,db_name):
     return response.text
 
 
-def get_dates(collection_data, date_type, date=None):
-    parsed_dates = [date_str for date_str in collection_data]
-    result = {
-        "present_dates": [],
-        "not_present_dates": []
+def datacube_data_delete(api_key, db_name, collection_name, query):
+    global base_url
+    url = f"{base_url}/crud/"
+
+    payload = {
+        "api_key": api_key,
+        "db_name": db_name,
+        "coll_name": collection_name,
+        "operation": "delete",
+        "query": query
     }
-    
-    if date_type == "one_day":
-        if date:
-            date_to_check = date + "_uxlivinglab_org"
-            if date_to_check in parsed_dates:
-                result["present_dates"].append(date_to_check)
-            else:
-                result["not_present_dates"].append(date_to_check)
-    
-    elif date_type == "seven_days":
-        if date:
-            seven_days_ago = [(datetime.strptime(date, "%d_%m_%Y") - timedelta(days=i)).strftime("%d_%m_%Y") + "_uxlivinglab_org" for i in range(7)]
-            for d in seven_days_ago:
-                if d in parsed_dates:
-                    result["present_dates"].append(d)
-                else:
-                    result["not_present_dates"].append(d)
-    
-    elif date_type == "one_month":
-        if date:
-            one_month_ago = [(datetime.strptime(date, "%d_%m_%Y") - timedelta(days=i)).strftime("%d_%m_%Y") + "_uxlivinglab_org" for i in range(30)]
-            for d in one_month_ago:
-                if d in parsed_dates:
-                    result["present_dates"].append(d)
-                else:
-                    result["not_present_dates"].append(d)
-    
-    return result
+    response = requests.delete(url, json=payload)
+    return response.text
