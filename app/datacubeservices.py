@@ -2,6 +2,7 @@ import json
 import requests
 
 base_url = "https://www.dowelldatacube.uxlivinglab.online/db_api"
+
 # base_url = "https://datacube.uxlivinglab.online/db_api/"
 
 def datacube_data_insertion(api_key, database_name, collection_name, data):
